@@ -1,22 +1,5 @@
 #python==3.10.13
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #done
 numpy==1.25.0
 tensorflow==2.11.0
@@ -30,7 +13,7 @@ tensorboard==2.11.0
 cryptography==41.0.2
 openssl==1.1.1v
 keras==2.11.0
-
+matplotlib==3.8.0
 
 #todo?
 tensorflow==estimator
