@@ -26,7 +26,7 @@ class Validator:
         # track number of unfit intervals i.e. append length of ranges each itteration)
         self.history.extend(new_sym)
     
-    def fit_curve(self,x_values,y_values):
+    def fit_curve(x_values,y_values):
         # Assuming you have a function to fit a curve to the data
         # Replace the placeholder code below with your curve fitting logic
 
@@ -50,19 +50,19 @@ class Validator:
         above_threshold = x_values[y_values > threshold]
         return above_threshold
     
-    def get_unfitting_ranges(self,mod_x_list,sim_y_list,threshold=0.9):
+    def get_unfitting_ranges(mod_x_list,sim_y_list,threshold=0.9):
         # apply curve fit to new data
-        fitted_curve = self.fit_curve(mod_x_list,sim_y_list)
+        fitted_curve = Validator.fit_curve(mod_x_list,sim_y_list)
         # get points of unfit
-        unfit_points, fit_points = self.thresholding(fitted_curve,threshold)
+        unfit_points, fit_points = Validator.thresholding(fitted_curve,threshold)
 
         # create ranges from continuous unfit points
-        if self.iterations == 0:
+        if Validator.iterations == 0:
             unfit_ranges = [[0,4],[40,50]]
 
-        self.collect_data(sim_y_list,mod_x_list,unfit_ranges,unfit_points=unfit_points)
+        Validator.collect_data(sim_y_list,mod_x_list,unfit_ranges,unfit_points=unfit_points)
         # return unfit ranges
-        self.collect_data()
+        Validator.collect_data()
         return unfit_ranges
 
 # # Example usage
