@@ -15,6 +15,9 @@ openssl==1.1.1v
 keras==2.11.0
 matplotlib==3.8.0
 
+#for GUI
+ipwidgets==8.1.1
+
 #todo?
 tensorflow==estimator
 tensorflow==base==2.11
