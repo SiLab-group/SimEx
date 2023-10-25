@@ -2,15 +2,70 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import HuberRegressor
 from sklearn.preprocessing import StandardScaler
+from global_settings import fitting_threshold, mdv
+
+
+# import global here: threshold
 
 class Validator:
-    def __init__(self):
-        self.archive_sym = []
-        self.archive_mod = []
-        self.iterations = 0
+    def __init__(self): #i.e. if first iteration
+        self.iterations = 1
         self.total_points = 0
         self.total_bad_points = 0
+        self.range = (mdv["domain_min_range"],mdv["domain_max_range"])  # Initialize the range as a tuple
+        self.num_points_evaluated = 0  # Initialize num_points_evaluated
+
+    def update_history(self, new_iterations, new_total_points, new_range):
+        self.iterations += new_iterations
+        self.total_points += new_total_points
+        self.range = new_range
+
+    def update_num_points_evaluated(self, points, min_x, max_x):
+        self.num_points_evaluated = len([(x, y) for x, y in points if min_x <= x <= max_x])
     
+    def local_exploration_validator_A():
+        # generate fit function 
+        fit_curve()
+        # find misfit points from mod_x_list and sim_y_list (outliers) using threshold from fit function
+        get_unfitting_point()
+        # generate ranges of misfit points (make it fancy threshold)
+        get_unfitting_ranges()
+        ## update your history (for each iteration: 
+
+        # Update history with new values
+        Validator.update_history(5, 100, (10, 20))  # For example, 5 new iterations, 100 new total points, and new range
+
+        # Update num_points_evaluated (self, new_iterations, new_total_points, new_range)
+        Validator.update_num_points_evaluated(points, min_x, max_x)
+
+        # Print updated values
+        print(f"Iterations: {Validator.iterations}")
+        print(f"Total Points: {Validator.total_points}")
+        print(f"Range: {Validator.range}")
+        print(f"Num Points Evaluated: {Validator.num_points_evaluated}")
+
+        # iteration, 
+        # total points evaluated (good and misfit), 
+        # points evaluated this iteration (good and misfit), 
+        # number of misfit ranges)
+
+        # num_points_input = len(mod_x_list)
+        # total_points.append(mod_x_list)
+
+        # # Get range from previous iteration range generation
+        # min_x,max_x = range_iteration 
+        # num_points_evaluated = [(x, y) for x, y in total_points if min_x <= x <= max_x]
+
+
+    def validator_controller(mod_x_list,sim_y_list, global_range=[mdv["domain_min_range"],mdv["domain_max_range"]],threshold=fitting_threshold, local_validator=local_exploration_validator_A, do_plot=False):
+        # gets points mod_x_list, sim_y_list
+        validator_ranges=local_exploration_validator_A()
+
+        # if not first time accessing validator, merge old points with new
+            # i.e. merge all data points together
+        return validator_ranges
+        
+
     def collect_data(self, sym, mod, ranges, unfit_points):
         self.archive_sym.append(sym)
         self.archive_mod.append(mod)
@@ -50,7 +105,7 @@ class Validator:
         above_threshold = x_values[y_values > threshold]
         return above_threshold
     
-    def get_unfitting_ranges(mod_x_list,sim_y_list,threshold=0.9):
+    def get_unfitting_ranges(mod_x_list,sim_y_list,threshold=fitting_threshold):
         # apply curve fit to new data
         fitted_curve = Validator.fit_curve(mod_x_list,sim_y_list)
         # get points of unfit
