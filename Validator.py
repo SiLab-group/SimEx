@@ -34,13 +34,16 @@ class Validator:
         return fitted_curve
 
     def get_unfitting_point(x_values, y_values,fitted_curve,threshold = 0.9):
-        #extract points that are farther than the threshold
-        # label them as unfitting points
+        # extract y_value points at the mod_x_values, given that y_values are futher than threshold (euclidean distance)
+        # TODO: apply curve fit to x values, returns y_values
+        # TODO: if diff between y_values and true_y_values is greater than threshold, save point as unfit point
         temp_soln = [1,4,5,6] 
         unfit_points = [x_values[temp_soln],y_values[temp_soln]]
+
+        #returns all unfit y_value at mod_x points
         return unfit_points
 
-    def get_unfitting_ranges(x_values,sim_y_list,threshold=fitting_threshold):
+    def generate_unfitting_ranges(x_values,sim_y_list,threshold=fitting_threshold):
         # apply curve fit to new data
         fitted_curve = Validator.fit_curve(x_values,sim_y_list)
         # get points of unfit
@@ -60,6 +63,11 @@ class Validator:
         self.total_points += new_total_points
         self.range = new_range
 
+    def generate_report(self):
+        print('\nThe iteration is: ',self.iterations)
+        print('The range is: ', self.range)
+        print('The total point count is: ', self.total_points)
+
     def update_num_points_evaluated(self, points, min_x, max_x):
         self.num_points_evaluated = len([(x, y) for x, y in points if min_x <= x <= max_x])
     
@@ -67,13 +75,15 @@ class Validator:
         # generate fit function 
         fitted_curve = Validator.fit_curve(x_values, y_values,global_range)
         # find misfit points from mod_x_list and sim_y_list (outliers) using threshold from fit function
-        unfitting_points = Validator.get_unfitting_point(x_values, y_values,fitted_curve,threshold = 0.9)
+        unfitting_points = Validator.get_unfitting_point(x_values, y_values,fitted_curve,threshold = threshold)
         # generate ranges of misfit points (make it fancy threshold)
-        unfitting_ranges = Validator.get_unfitting_ranges(unfitting_points)
+        unfitting_ranges = Validator.generate_unfitting_ranges(unfitting_points)
         ## update your history (for each iteration: 
 
         # Update history with new values
         Validator.update_history(5, 100, (10, 20))  # For example, 5 new iterations, 100 new total points, and new range
+        Validator.generate_report()
+        # Generate report
 
         # Update num_points_evaluated (self, new_iterations, new_total_points, new_range)
         Validator.update_num_points_evaluated(len(x_values), min=global_range[0], max=global_range[1])
@@ -100,7 +110,7 @@ class Validator:
 
     def validator_controller(mod_x_list,sim_y_list, global_range=[mdv["domain_min_range"],mdv["domain_max_range"]],threshold=fitting_threshold, local_validator=local_exploration_validator_A, do_plot=False):
         # gets points mod_x_list, sim_y_list
-        validator_ranges=Validator.local_exploration_validator_A(mod_x_list,sim_y_list, global_range=[mdv["domain_min_range"],mdv["domain_max_range"]],threshold=fitting_threshold)
+        validator_ranges=Validator.local_validator(mod_x_list,sim_y_list, global_range=[mdv["domain_min_range"],mdv["domain_max_range"]],threshold=fitting_threshold)
 
         # if not first time accessing validator, merge old points with new
             # i.e. merge all data points together
