@@ -2,7 +2,7 @@ import numpy as np
 
 class Simulator:
     def sim_func_A(x):
-        print('\nthis should be a single point: ',x)
+        # print('\nthis should be a single point: ',x)
         noise = np.random.normal(-10000, 10000, 1)
         return float(x**3 - x**2 + noise)
 
@@ -21,7 +21,7 @@ class Simulator:
         simulated_y = [selected_function(x) for x in flat_mod_x]
         
 
-        print('  * Sim_y:   ', simulated_y)
-        # print('  * Sim_y shape:   ', np.shape(simulated_y))
+        # print('  * Sim_y:   ', simulated_y)
+        print('  * Sim_y shape:   ', np.shape(simulated_y))
         # return mod_x, simulated_y
         return flat_mod_x, simulated_y

@@ -42,7 +42,7 @@ class Modifier:
             return False  # Exit the function if not possible
         
         for i in range(len(range_list)):
-            print('iterations within Modifier: ',i)
+            print('     * Iterations within Modifier: ',i)
             interval_min_range = range_list[i][0] #global_settings.mdv["domain_min_range"]
             interval_max_range = range_list[i][1] #global_settings.mdv["domain_max_range"]
             
@@ -63,5 +63,6 @@ class Modifier:
                 plt.scatter(mod_x, np.ones(np.shape(mod_x)))
                 plt.show()
         
-        print('  * Mod_x:   ',all_interval_mod)
+        # print('  * Mod_x:   ',all_interval_mod)
+        print('  * Mod_x shape:   ',np.shape(all_interval_mod))
         return all_interval_mod
