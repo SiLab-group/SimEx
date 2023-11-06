@@ -68,6 +68,12 @@ class Validator:
         print('The range is: ', self.range)
         print('The total point count is: ', self.total_points)
 
+        # # Print updated values
+        # print(f"Iterations: {Validator.iterations}")
+        # print(f"Total Points: {Validator.total_points}")
+        # print(f"Range: {Validator.range}")
+        # print(f"Num Points Evaluated: {Validator.num_points_evaluated}")
+
     def update_num_points_evaluated(self, points, min_x, max_x):
         self.num_points_evaluated = len([(x, y) for x, y in points if min_x <= x <= max_x])
     
@@ -88,11 +94,7 @@ class Validator:
         # Update num_points_evaluated (self, new_iterations, new_total_points, new_range)
         Validator.update_num_points_evaluated(len(x_values), min=global_range[0], max=global_range[1])
 
-        # Print updated values
-        print(f"Iterations: {Validator.iterations}")
-        print(f"Total Points: {Validator.total_points}")
-        print(f"Range: {Validator.range}")
-        print(f"Num Points Evaluated: {Validator.num_points_evaluated}")
+
 
         # iteration, 
         # total points evaluated (good and misfit), 
