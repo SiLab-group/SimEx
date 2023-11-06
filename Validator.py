@@ -112,7 +112,7 @@ class Validator:
 
     def validator_controller(mod_x_list,sim_y_list, global_range=[mdv["domain_min_range"],mdv["domain_max_range"]],threshold=fitting_threshold, local_validator=local_exploration_validator_A, do_plot=False):
         # gets points mod_x_list, sim_y_list
-        validator_ranges=Validator.local_validator(mod_x_list,sim_y_list, global_range=[mdv["domain_min_range"],mdv["domain_max_range"]],threshold=fitting_threshold)
+        validator_ranges=Validator.local_exploration_validator_A(mod_x_list,sim_y_list, global_range=[mdv["domain_min_range"],mdv["domain_max_range"]],threshold=fitting_threshold)
 
         # if not first time accessing validator, merge old points with new
             # i.e. merge all data points together
