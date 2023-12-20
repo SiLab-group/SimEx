@@ -1,0 +1,18 @@
+Modifier: Unfit Points (y,x):
+3.4358974358974357, 23.0
+4.410256410256411, 32.0
+7.82051282051282, 0.0
+
+Modifier: MDV Information:
+domain_min_range: 1 
+domain_max_range: 100 
+modifier_incremental_unit: 3 
+modifier_data_point: 10 
+
+Validator:Totals:
+Original mod points: 40
+Unfit points: 3
+
+Validator:Unfit Ranges:
+[2.735897435897436,5.110256410256411]
+[7.12051282051282,8.52051282051282]
