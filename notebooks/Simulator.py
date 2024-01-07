@@ -7,9 +7,11 @@ class Simulator:
         return float(x**3 - x**2 + noise)
 
     def sim_func_B(x):
-        return float(x * 2 / 3)
+        noise = np.random.normal(-10, 10, 1)
 
-    def simulator_controller(mod_x, selected_function=sim_func_A):
+        return float(x * 2 / 3 +noise)
+
+    def simulator_controller(mod_x, selected_function=sim_func_B):
         print("\nSimulator...")
         # shape_mod_x = np.shape(mod_x)
         if mod_x is False: 

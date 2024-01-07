@@ -10,11 +10,34 @@ from global_settings import mdv
 # global mdv
 class Modifier:
 
-    def rescaler(old_list,new_min,new_max):
-        new_values=[]
+    # def rescaler(old_list,new_min,new_max):
+    #     new_values=[]
+    #     for old_value in old_list:
+    #         new_values.append((((old_value - min(old_list)) * (new_max - new_min)) / (max(old_list) - min(old_list)))+ new_min)
+    #     return new_values
+
+    def rescaler(old_list, new_min, new_max):
+        if not np.any(old_list):
+            return []  # handle empty list case
+
+        old_min = min(old_list)
+        old_max = max(old_list)
+
+        if old_min == old_max:
+            # Handle the case when all elements in old_list are the same
+            return [new_min] * len(old_list)
+
+        new_values = []
         for old_value in old_list:
-            new_values.append((((old_value - min(old_list)) * (new_max - new_min)) / (max(old_list) - min(old_list)))+ new_min)
+            denominator = old_max - old_min
+            if denominator != 0:
+                scaled_value = (((old_value - old_min) * (new_max - new_min)) / denominator) + new_min
+                new_values.append(scaled_value)
+            else:
+                # Handle the case when the range is zero
+                new_values.append(new_min)
         return new_values
+
     
 
     def local_modifier_A(x,new_min=0,new_max=100):
@@ -64,5 +87,5 @@ class Modifier:
                 plt.show()
         
         # print('  * Mod_x:   ',all_interval_mod)
-        print('  * Mod_x shape:   ',np.shape(all_interval_mod))
+        # print('  * Mod_x shape:   ',np.shape(all_interval_mod))
         return all_interval_mod
