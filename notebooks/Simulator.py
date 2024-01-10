@@ -2,7 +2,7 @@ import numpy as np
 
 class Simulator:
     def sim_func_A(x):
-        # print('\nthis should be a single point: ',x)
+        #  print('\nthis should be a single point: ',x)
         noise = np.random.normal(-10000, 10000, 1)
         return float(x**3 - x**2 + noise)
 
