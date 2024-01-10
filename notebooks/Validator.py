@@ -84,14 +84,14 @@ class Validator:
 
         listofranges = []
         for i,point in enumerate(x_values):
-            print('\nthis is i:',i)
-            print('this is listofranges:',listofranges,'\n')
+            # print('\nthis is i:',i)
+            # print('this is listofranges:',listofranges,'\n')
             if np.round(point,2) not in np.round(unfit_point_x,2):
                 if len(current_range)==0:
-                    print('this is len(current_range)==0')
+                    # print('this is len(current_range)==0')
                     continue
                 else:
-                    print('\nthis is len(current_range)==0 else')
+                    # print('\nthis is len(current_range)==0 else')
                     # close the range with point[-1]+threshold
                     interpoint_interval = point - x_values[i-1]
                     current_range.append(x_values[i-1]+threshold_x_interval*interpoint_interval)
@@ -99,21 +99,21 @@ class Validator:
                     current_range = []
             else:                    
                 if len(current_range)==0 and 0<i<len(x_values)-1:
-                    print('\nthis is len(current_range)==0 and 0<i<len(x_values)')
+                    # print('\nthis is len(current_range)==0 and 0<i<len(x_values)')
                     interpoint_interval = point - x_values[i-1]
                     current_range.append(point-threshold_x_interval*interpoint_interval)
                 elif len(current_range)==0 and i==0:
-                    print('\nthis is len(current_range)==0 and i==0')
+                    # print('\nthis is len(current_range)==0 and i==0')
                     current_range.append(point)
                 elif len(current_range)==0 and i==len(x_values)-1:
-                    print('\nthis is len(current_range)==0 and i==len(x_values)')
+                    # print('\nthis is len(current_range)==0 and i==len(x_values)')
                     interpoint_interval= point - x_values[i-1]
                     current_range.append(point-threshold_x_interval*interpoint_interval)
                     current_range.append(point)
                     listofranges.append(current_range)
                     current_range = []
                 elif len(current_range)>0 and i==len(x_values)-1:
-                    print('\nthis is len(current_range)>0 and i==len(x_values)')
+                    # print('\nthis is len(current_range)>0 and i==len(x_values)')
                     current_range.append(point)
                     listofranges.append(current_range)
                     current_range = []
