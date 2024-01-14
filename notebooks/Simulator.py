@@ -3,11 +3,11 @@ import numpy as np
 class Simulator:
     def sim_func_A(x):
         # print('\nthis should be a single point: ',x)
-        noise = np.random.normal(-10000, 10000, 1)
+        noise = np.random.normal(-1000, 1000, 1)
         return float(x**3 - x**2 + noise)
 
     def sim_func_B(x):
-        noise = np.random.normal(-10, 10, 1)
+        noise = np.random.normal(-5, 5, 1)
 
         return float(x * 2 / 3 +noise)
 

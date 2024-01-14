@@ -16,9 +16,14 @@ class Validator:
         self.total_bad_points = 0
         self.range = (mdv["domain_min_range"], mdv["domain_max_range"])
         self.num_points_evaluated = 0
+        
+        self.least_fit_intercept = None
+        self.least_fit_y_pred = None
+        self.least_fit_x_range = None
+        self.least_fit_points = None
 
-    @staticmethod
-    def fit_curve(x_values, y_values, global_range=0):
+
+    def fit_curve(self,x_values, y_values, global_range=0):
         print('       *** USING fit_curve')
         
         x_values = np.array(x_values)  # Convert to numpy array
@@ -46,14 +51,14 @@ class Validator:
         return intercept,y_pred,x_values
 
 
-    def find_unfit_points(x_values, y_values, fitted_curve):
+    def find_unfit_points(self, x_values, y_values, fitted_curve):
         # Fit a curve using HuberRegressor
         intercept,y_pred,x_range = fitted_curve
         # Calculate the predicted y-values using the curve
         # predicted_y_values = slope * x_values + intercept
-        predicted_y_values = y_pred
+        self.least_fit_intercept = intercept
         # Calculate the residuals (the differences between predicted and actual y-values)
-        residuals = np.round(y_values,2) - np.round(predicted_y_values,2)
+        residuals = np.round(y_values,2) - np.round(y_pred,2)
         print('\n\n\nResiduals: ',residuals)
         # Get all indeces where residual is higher than threshold*y_predict value
         print(vlv["threshold_y_fitting"])
@@ -61,16 +66,14 @@ class Validator:
         print('least_fit_indices' ,least_fit_indices)
 
         # Create a list of points with the residuals higher than threshold
-        # TODO: Add calcucaltion with threshold
-        least_fit_points = [[round(x_values[i],2), round(y_values[i],2)] for i in least_fit_indices]
-        print('least_fit_points' ,least_fit_points,'\n\n\n')
+        self.least_fit_points = [[round(x_values[i],2), round(y_values[i],2)] for i in least_fit_indices]
+        print('least_fit_points', self.least_fit_points, '\n\n\n')
 
-        # print('LEAST FIT POINTS: ',least_fit_points)
+        # print('LEAST FIT POINTS: ',self.least_fit_points)
 
-        return least_fit_points, predicted_y_values
+        return self.least_fit_points, y_pred
 
-    @staticmethod
-    def generate_ranges_from_unfit_points(unfit_points,x_values):
+    def generate_ranges_from_unfit_points(self,unfit_points,x_values):
  
         # Sort least-fit points based on x-values
         # unfit_points.sort(key=lambda point: point[0])
@@ -120,77 +123,93 @@ class Validator:
 
 
         print('\n\n\n list of ranges: ',listofranges,'\n\n\n')
-        
         return listofranges
         
-    @staticmethod
-    def local_exploration_validator_A(x_values, y_values, global_range=[mdv["domain_min_range"], mdv["domain_max_range"]]):
+    def local_exploration_validator_A(self,x_values, y_values, selected_range=0):
         print('       *** USING local_exploration_validator_A')
-        fitted_curve = Validator.fit_curve(x_values, y_values, global_range)
-        least_fit_points,predicted_values = Validator.find_unfit_points(x_values, y_values,fitted_curve=fitted_curve)
-        # least_fit_ranges = Validator.generate_ranges_from_unfit_points(least_fit_points,threshold=0.75 )        # unfit_points = Validator.find_least_fit_points(x_values, y_values, fitted_curve, threshold=threshold)
-        unfitting_ranges = Validator.generate_ranges_from_unfit_points(least_fit_points,x_values)
+      
+        fitted_curve = self.fit_curve(x_values, y_values, selected_range)
+        least_fit_points,predicted_values = self.find_unfit_points(x_values, y_values,fitted_curve=fitted_curve)
+        # least_fit_ranges = self.generate_ranges_from_unfit_points(least_fit_points,threshold=0.75 )        # unfit_points = self.find_least_fit_points(x_values, y_values, fitted_curve, threshold=threshold)
+        unfitting_ranges = self.generate_ranges_from_unfit_points(least_fit_points,x_values)
         # print(unfitting_ranges)
-        # Validator.update_num_points_evaluated([x_values,y_values], min=global_range[0], max=global_range[1])
-        Validator.save_to_text_file('output.txt', least_fit_points, unfitting_ranges,x_values)
-        Validator.plot_curve(x_values, y_values, fitted_curve, unfitting_ranges,predicted_values)
+        # self.update_num_points_evaluated([x_values,y_values], min=global_range[0], max=global_range[1])
+        # self.save_to_text_file('output.txt', least_fit_points, unfitting_ranges,x_values)
+        self.plot_curve(x_values, y_values, fitted_curve, unfitting_ranges,predicted_values)
 
         print('       *** OUTPUT unfitting_ranges',unfitting_ranges,'\n')
         return unfitting_ranges
 
-    @staticmethod
-    def save_to_text_file(filename, least_fit_points, unfitting_ranges,x_values):
-        # Modifier: Domain information: min max 
-        #           increment unit
-        #           number of points generated this cycle by modifier
-        # Validator: Fit and unfit points (each itteration)
-        #            unfit ranges
-        with open(filename, 'w') as file:
-            file.write("Modifier: Unfit Points (y,x):\n")
-            for point in least_fit_points:
-                file.write(f"{point[0]}, {point[1]}\n")
-            file.write("\nModifier: MDV Information:\n")
-            for val in mdv:
-                file.write(f"{val}: {mdv[val]} \n")
-            file.write("\nValidator:Totals:\n")
-            file.write(f"Original mod points: {len(x_values)}\n")
-            file.write(f"Unfit points: {len(least_fit_points)}\n")
+    # def save_to_text_file(self,filename, least_fit_points, unfitting_ranges,x_values):
+    #     # Modifier: Domain information: min max 
+    #     #           increment unit
+    #     #           number of points generated this cycle by modifier
+    #     # Validator: Fit and unfit points (each itteration)
+    #     #            unfit ranges
+    #     with open(filename, 'w') as file:
+    #         file.write("Modifier: Unfit Points (y,x):\n")
+    #         for point in least_fit_points:
+    #             file.write(f"{point[0]}, {point[1]}\n")
+    #         file.write("\nModifier: MDV Information:\n")
+    #         for val in mdv:
+    #             file.write(f"{val}: {mdv[val]} \n")
+    #         file.write("\nValidator:Totals:\n")
+    #         file.write(f"Original mod points: {len(x_values)}\n")
+    #         file.write(f"Unfit points: {len(least_fit_points)}\n")
             
 
-            file.write("\nValidator:Unfit Ranges:\n")
-            for start, end in unfitting_ranges:
-                file.write(f"[{start},{end}]\n")
+    #         file.write("\nValidator:Unfit Ranges:\n")
+    #         for start, end in unfitting_ranges:
+    #             file.write(f"[{start},{end}]\n")
                 
 
-    def validator_controller(mod_x_list, sim_y_list, global_range=[mdv["domain_min_range"], mdv["domain_max_range"]], local_validator=local_exploration_validator_A, do_plot=False):
+    def validator_controller(self, mod_x_list, sim_y_list, global_range=[mdv["domain_min_range"], mdv["domain_max_range"]],
+                             local_validator=None, do_plot=False):
         print('       *** USING validator_controller')
 
-        validator_ranges = local_validator(mod_x_list, sim_y_list, global_range=[mdv["domain_min_range"], mdv["domain_max_range"]])
-        print('       *** OUTPUT validator_ranges',validator_ranges,'\n')
+        if local_validator is None:
+            local_validator = self.local_exploration_validator_A  # Set default if not provided
+        
+        # TODO add to memory the new generated points in bad intervals
+        
+        # TODO check if unfit ranges exist and replace global range with loop of unfit ranges
+        
+        if np.any(self.least_fit_x_range): # if self.least_fit_x_range is not empty
+            points = list(zip(mod_x_list, sim_y_list))
+            points = [list(point) for point in points]
+            points.extend(self.least_fit_points)
+            points = sorted(points, key=lambda point: point[0])
+            print("THIS IS PONITS ",points)
+
+            validator_ranges=[]
+            for each_range in self.least_fit_x_range: 
+                #Calcualte bad points in each range
+                print("THIS IS self.ranges ",self.least_fit_x_range)
+                print("THIS IS RANGE ",each_range[0]," ",each_range[1])
+                unfit_points = [(x, y) for x, y in points if each_range[0] <= x <= each_range[1]]
+                if np.any(unfit_points):
+                    unfit_x_values, unfit_y_values = zip(*unfit_points)
+                    local_ranges = local_validator(unfit_x_values, unfit_y_values, selected_range=each_range)
+                    validator_ranges.append(local_ranges)
+            validator_ranges = [item for sublist in validator_ranges for item in sublist]
+        else: 
+            validator_ranges = local_validator(mod_x_list, sim_y_list, selected_range=global_range)
+            self.least_fit_x_range = validator_ranges
+        print('       *** OUTPUT validator_ranges', validator_ranges, '\n')
         return validator_ranges
 
 
-    def plot_curve(x_values, y_values, fitted_curve, unfitting_ranges,predicted_values):
+    def plot_curve(self, x_values, y_values, fitted_curve, unfitting_ranges, predicted_values):  # Add self
         print('       *** USING plot_curve')
         plt.figure(figsize=(10, 6))
 
-        # Plot the original x_values, y_values data
         plt.scatter(x_values, y_values, label='Original Data')
-        plt.scatter(x_values, predicted_values, label='Predicted y Data',marker='x')
+        plt.scatter(x_values, predicted_values, label='Predicted y Data', marker='x')
 
-        # Plot the fitted curve
-        # plt.plot(x_values, fitted_curve[0] * x_values + fitted_curve[1], color='red', label='Fitted Curve')
-        
         plt.plot(fitted_curve[2], fitted_curve[1], color='red', label='Polynomial Regression')
-        plt.plot(fitted_curve[2], fitted_curve[1]+vlv["threshold_y_fitting"], color='black', label='threshold ')
-        plt.plot(fitted_curve[2], fitted_curve[1]-vlv["threshold_y_fitting"], color='black', label='threshold ')
+        plt.plot(fitted_curve[2], fitted_curve[1] + vlv["threshold_y_fitting"], color='black', label='threshold ')
+        plt.plot(fitted_curve[2], fitted_curve[1] - vlv["threshold_y_fitting"], color='black', label='threshold ')
 
-
-        # # plot threshold line of the fitted curve
-        # plt.plot(x_values, fitted_curve[0] * x_values + fitted_curve[1]+vlv["threshold_y_fitting"], color='gray',label='threshold Curve',alpha=0.3,)
-        # plt.plot(x_values, fitted_curve[0] * x_values + fitted_curve[1]-vlv["threshold_y_fitting"], color='gray',label='threshold Curve',alpha=0.3,)
-
-        # Highlight the unfitting ranges
         for start, end in unfitting_ranges:
             plt.axvspan(start, end, color='orange', alpha=0.3, label='Unfitting Range')
 
@@ -199,7 +218,7 @@ class Validator:
         plt.title('Fitted Curve with Unfitting Ranges')
         plt.legend()
         plt.show()
-
+        
 ### OLD CLASS BELOW: 
 # # import global here: threshold
 
