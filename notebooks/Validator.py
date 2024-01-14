@@ -192,6 +192,7 @@ class Validator:
                     local_ranges = local_validator(unfit_x_values, unfit_y_values, selected_range=each_range)
                     validator_ranges.append(local_ranges)
             validator_ranges = [item for sublist in validator_ranges for item in sublist]
+            self.least_fit_x_range = validator_ranges
         else: 
             validator_ranges = local_validator(mod_x_list, sim_y_list, selected_range=global_range)
             self.least_fit_x_range = validator_ranges
