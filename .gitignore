@@ -1,6 +1,7 @@
 .DS_Store
 output.txt
 my_log.txt
+LOG-*
 __pycache__
 .env
 notebooks/.ipynb_checkpoints

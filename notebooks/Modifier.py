@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from global_settings import mdv
+from global_settings import mdv,mds
 from global_settings import simexSettings
 from Logger import Logger
 
@@ -46,24 +46,28 @@ class Modifier:
 
 
     def modifier_controller(ranges_list, local_modifier=local_modifier_A, do_plot=simexSettings["do_plot"]):
-        
+             
         # Function to control modifiers given the input and the selected modifier function. Option to plot or not. 
         print("[MODC]: *** Entering Modifier controller ***")
         print("[MODC]: intervals list: ",ranges_list)
         all_intervals_mod = []
         
         # Check if it's possible to generate more data points
-        #if mdv["modifier_data_point"] < mdv["modifier_incremental_unit"]:
         if (mdv["modifier_data_point"] < mdv["modifier_incremental_unit"]):
             if simexSettings["extensive_search"] is True and simexSettings["extensive_iteration"] is False:
                 mdv["modifier_data_point"] = 1
                 simexSettings["extensive_iteration"] = True
-            else:
+            else:  
+                temp_log_tot_points = ["Total generated points: ",str(mds["points_generated_total"])]
+                temp_log_tot_ranges = ["Total ranges used for points generation: ", str(mds["points_generation_ranges"])]
+                logger.log_modifier("   ***   MOD overall stats    ***   ")
+                logger.log_modifier(temp_log_tot_ranges)
+                logger.log_modifier(temp_log_tot_points)
                 return False  # Exit the function if not possible
         
     
-        
         for i, (interval_min_range, interval_max_range) in enumerate(ranges_list):
+
             print("[MOD]: iteration: ",i,", interval: ",interval_min_range,"-",interval_max_range)
 
             # Generate data points (incremental ticks and function modified x values) within the specified interval
@@ -71,8 +75,11 @@ class Modifier:
             mod_x = local_modifier(mod_ticks, new_min=interval_min_range, new_max=interval_max_range)
             all_intervals_mod.append(mod_x)
 
+        mds["points_generation_ranges"] += len(all_intervals_mod)
+        mds["points_generated_total"] += sum(len(sublist) for sublist in all_intervals_mod)
         temp_log=["[MOD]: mod_x_list_lenght",str(len(all_intervals_mod))]
         logger.log_modifier(temp_log)
+        
         
         # update the mdv to decrease the interdatapoint distance for the next iteration
         mdv["modifier_data_point"] = mdv["modifier_data_point"] - mdv["modifier_incremental_unit"]
