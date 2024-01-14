@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from global_settings import mdv,mds
+from global_settings import mdv,mds,lgs
 from global_settings import simexSettings
 from Logger import Logger
 
@@ -45,7 +45,7 @@ class Modifier:
         return temp
 
 
-    def modifier_controller(ranges_list, local_modifier=local_modifier_A, do_plot=simexSettings["do_plot"]):
+    def modifier_controller(ranges_list, local_modifier=local_modifier_A, do_plot=simexSettings["do_plot"],verbalinfo = 0):
              
         # Function to control modifiers given the input and the selected modifier function. Option to plot or not. 
         print("[MODC]: *** Entering Modifier controller ***")
@@ -58,27 +58,41 @@ class Modifier:
                 mdv["modifier_data_point"] = 1
                 simexSettings["extensive_iteration"] = True
             else:  
-                temp_log_tot_points = ["Total generated points: ",str(mds["points_generated_total"])]
-                temp_log_tot_ranges = ["Total ranges used for points generation: ", str(mds["points_generation_ranges"])]
+                temp_log_tot_points = "Total generated points: "+str(mds["points_generated_total"])
+                temp_log_tot_ranges = "Total ranges used for points generation: "+ str(mds["points_generation_ranges"])
                 logger.log_modifier("   ***   MOD overall stats    ***   ")
                 logger.log_modifier(temp_log_tot_ranges)
                 logger.log_modifier(temp_log_tot_points)
                 return False  # Exit the function if not possible
-        
-    
+            
+        mds["mod_iterations"] +=1
         for i, (interval_min_range, interval_max_range) in enumerate(ranges_list):
 
-            print("[MOD]: iteration: ",i,", interval: ",interval_min_range,"-",interval_max_range)
+            #print("[MOD]: iteration: ",i,", interval: ",interval_min_range,"-",interval_max_range)
 
             # Generate data points (incremental ticks and function modified x values) within the specified interval
             mod_ticks = np.arange(interval_min_range, interval_max_range, mdv["modifier_data_point"])
             mod_x = local_modifier(mod_ticks, new_min=interval_min_range, new_max=interval_max_range)
             all_intervals_mod.append(mod_x)
-
+        
+        current_iteration_points_number = sum(len(sublist) for sublist in all_intervals_mod)
         mds["points_generation_ranges"] += len(all_intervals_mod)
-        mds["points_generated_total"] += sum(len(sublist) for sublist in all_intervals_mod)
-        temp_log=["[MOD]: mod_x_list_lenght",str(len(all_intervals_mod))]
-        logger.log_modifier(temp_log)
+        mds["points_generated_total"] += current_iteration_points_number
+        if lgs["log_granularity"] > 0:
+            temp_log="[MOD]: Iteration "+str(mds["mod_iterations"])+" has generated "+str(current_iteration_points_number)+" points in "+str(len(all_intervals_mod))+" range(s)"
+            logger.log_modifier(temp_log)
+        
+        if lgs["log_granularity"] > 1:
+            temp_log="[MOD]:   * The range(s) are: "+str(ranges_list)
+            logger.log_modifier(temp_log)
+
+            # add ranges min-max
+        if lgs["log_granularity"] > 2:
+            for i,sublist in enumerate(all_intervals_mod):
+                temp_log="[MOD]:      * The points of the range "+str(i)+" are: "+str(sublist)
+                logger.log_modifier(temp_log)
+
+        
         
         
         # update the mdv to decrease the interdatapoint distance for the next iteration

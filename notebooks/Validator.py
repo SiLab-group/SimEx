@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import HuberRegressor
 from sklearn.preprocessing import StandardScaler
-from global_settings import threshold_x_interval,threshold_y_fitting, mdv
+from global_settings import mdv,vls,vlv
 from itertools import compress
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
@@ -56,8 +56,8 @@ class Validator:
         residuals = np.round(y_values,2) - np.round(predicted_y_values,2)
         print('\n\n\nResiduals: ',residuals)
         # Get all indeces where residual is higher than threshold*y_predict value
-        print(threshold_y_fitting)
-        least_fit_indices =  np.where(np.abs(residuals) > threshold_y_fitting)[0]
+        print(vlv["threshold_y_fitting"])
+        least_fit_indices =  np.where(np.abs(residuals) > vlv["threshold_y_fitting"])[0]
         print('least_fit_indices' ,least_fit_indices)
 
         # Create a list of points with the residuals higher than threshold
@@ -94,21 +94,21 @@ class Validator:
                     # print('\nthis is len(current_range)==0 else')
                     # close the range with point[-1]+threshold
                     interpoint_interval = point - x_values[i-1]
-                    current_range.append(x_values[i-1]+threshold_x_interval*interpoint_interval)
+                    current_range.append(x_values[i-1]+vlv["threshold_x_interval"]*interpoint_interval)
                     listofranges.append(current_range)
                     current_range = []
             else:                    
                 if len(current_range)==0 and 0<i<len(x_values)-1:
                     # print('\nthis is len(current_range)==0 and 0<i<len(x_values)')
                     interpoint_interval = point - x_values[i-1]
-                    current_range.append(point-threshold_x_interval*interpoint_interval)
+                    current_range.append(point-vlv["threshold_x_interval"]*interpoint_interval)
                 elif len(current_range)==0 and i==0:
                     # print('\nthis is len(current_range)==0 and i==0')
                     current_range.append(point)
                 elif len(current_range)==0 and i==len(x_values)-1:
                     # print('\nthis is len(current_range)==0 and i==len(x_values)')
                     interpoint_interval= point - x_values[i-1]
-                    current_range.append(point-threshold_x_interval*interpoint_interval)
+                    current_range.append(point-vlv["threshold_x_interval"]*interpoint_interval)
                     current_range.append(point)
                     listofranges.append(current_range)
                     current_range = []
@@ -182,13 +182,13 @@ class Validator:
         # plt.plot(x_values, fitted_curve[0] * x_values + fitted_curve[1], color='red', label='Fitted Curve')
         
         plt.plot(fitted_curve[2], fitted_curve[1], color='red', label='Polynomial Regression')
-        plt.plot(fitted_curve[2], fitted_curve[1]+threshold_y_fitting, color='black', label='threshold ')
-        plt.plot(fitted_curve[2], fitted_curve[1]-threshold_y_fitting, color='black', label='threshold ')
+        plt.plot(fitted_curve[2], fitted_curve[1]+vlv["threshold_y_fitting"], color='black', label='threshold ')
+        plt.plot(fitted_curve[2], fitted_curve[1]-vlv["threshold_y_fitting"], color='black', label='threshold ')
 
 
         # # plot threshold line of the fitted curve
-        # plt.plot(x_values, fitted_curve[0] * x_values + fitted_curve[1]+threshold_y_fitting, color='gray',label='threshold Curve',alpha=0.3,)
-        # plt.plot(x_values, fitted_curve[0] * x_values + fitted_curve[1]-threshold_y_fitting, color='gray',label='threshold Curve',alpha=0.3,)
+        # plt.plot(x_values, fitted_curve[0] * x_values + fitted_curve[1]+vlv["threshold_y_fitting"], color='gray',label='threshold Curve',alpha=0.3,)
+        # plt.plot(x_values, fitted_curve[0] * x_values + fitted_curve[1]-vlv["threshold_y_fitting"], color='gray',label='threshold Curve',alpha=0.3,)
 
         # Highlight the unfitting ranges
         for start, end in unfitting_ranges:

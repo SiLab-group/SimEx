@@ -5,7 +5,6 @@ class Logger:
     
     def __init__(self, filename="LOG-"):
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        #timestampedName = str("LOG-",timestamp,".txt")
         self.filename = f"{filename}{timestamp}.txt"
         self._open_file()
 

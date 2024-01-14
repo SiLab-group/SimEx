@@ -21,9 +21,5 @@ class Simulator:
         # flat_mod_x = np.reshape(mod_x,shape_mod_x[0]*shape_mod_x[1])
         # print(flat_mod_x)
         simulated_y = [selected_function(x) for x in flat_mod_x]
-        
-
-        # print('  * Sim_y:   ', simulated_y)
-        print('  * Sim_y shape:   ', np.shape(simulated_y))
-        # return mod_x, simulated_y
+        # print('  * Sim_y shape:   ', np.shape(simulated_y))
         return flat_mod_x, simulated_y
