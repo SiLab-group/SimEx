@@ -99,9 +99,8 @@ class Logger:
 
         # add ranges min-max
         if lgs["log_granularity"] > 2:
-            for i, sublist in enumerate(least_fit_points):
-                message = "      * The points of the range " + str(i) + " are: " + str(sublist)
-                self._write_log('[VAL]: ', message)
+            message = "      * Points are: " + str(least_fit_points)
+            self._write_log('[VAL]: ', message)
         
 
     def close(self):
