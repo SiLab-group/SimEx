@@ -1,5 +1,5 @@
 # Overall SimEx settings
-simexSettings={"do_plot":False,"extensive_search":True,"extensive_iteration":False}
+simexSettings={"do_plot":False,"extensive_search":False,"extensive_iteration":False}
 
 # Modifier domain settings
 mdv={"domain_min_range":1, "domain_max_range":100, "modifier_incremental_unit":3, "modifier_data_point":10}

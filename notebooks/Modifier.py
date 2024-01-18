@@ -51,6 +51,7 @@ class Modifier:
         print("[MODC]: *** Entering Modifier controller ***")
         print("[MODC]: intervals list: ",ranges_list)
         all_intervals_mod = []
+        logger_arguments = {}
         
         # Check if it's possible to generate more data points
         if (mdv["modifier_data_point"] < mdv["modifier_incremental_unit"]):
@@ -58,11 +59,8 @@ class Modifier:
                 mdv["modifier_data_point"] = 1
                 simexSettings["extensive_iteration"] = True
             else:  
-                temp_log_tot_points = "Total generated points: "+str(mds["points_generated_total"])
-                temp_log_tot_ranges = "Total ranges used for points generation: "+ str(mds["points_generation_ranges"])
-                logger.log_modifier("   ***   MOD overall stats    ***   ")
-                logger.log_modifier(temp_log_tot_ranges)
-                logger.log_modifier(temp_log_tot_points)
+                logger_arguments["log_contex"] = "overall MOD stats"
+                logger.log_modifier(logger_arguments)
                 return False  # Exit the function if not possible
             
         mds["mod_iterations"] +=1
@@ -78,19 +76,29 @@ class Modifier:
         current_iteration_points_number = sum(len(sublist) for sublist in all_intervals_mod)
         mds["points_generation_ranges"] += len(all_intervals_mod)
         mds["points_generated_total"] += current_iteration_points_number
-        if lgs["log_granularity"] > 0:
-            temp_log="[MOD]: Iteration "+str(mds["mod_iterations"])+" has generated "+str(current_iteration_points_number)+" points in "+str(len(all_intervals_mod))+" range(s)"
-            logger.log_modifier(temp_log)
         
-        if lgs["log_granularity"] > 1:
-            temp_log="[MOD]:   * The range(s) are: "+str(ranges_list)
-            logger.log_modifier(temp_log)
+        #Modifier Logging
+        logger_arguments["log_contex"] = "internal MOD stats"
+        logger_arguments["current_iteration_points_number"] = current_iteration_points_number
+        logger_arguments["all_intervals_mod"] = all_intervals_mod
+        logger_arguments["ranges_list"] = ranges_list
+        logger.log_modifier(logger_arguments)
+        
+        
+        
+        # if lgs["log_granularity"] > 0:
+        #     temp_log="[MOD]: Iteration "+str(mds["mod_iterations"])+" has generated "+str(current_iteration_points_number)+" points in "+str(len(all_intervals_mod))+" range(s)"
+        #     logger.log_modifier(temp_log)
+        
+        # if lgs["log_granularity"] > 1:
+        #     temp_log="[MOD]:   * The range(s) are: "+str(ranges_list)
+        #     logger.log_modifier(temp_log)
 
-            # add ranges min-max
-        if lgs["log_granularity"] > 2:
-            for i,sublist in enumerate(all_intervals_mod):
-                temp_log="[MOD]:      * The points of the range "+str(i)+" are: "+str(sublist)
-                logger.log_modifier(temp_log)
+        #     # add ranges min-max
+        # if lgs["log_granularity"] > 2:
+        #     for i,sublist in enumerate(all_intervals_mod):
+        #         temp_log="[MOD]:      * The points of the range "+str(i)+" are: "+str(sublist)
+        #         logger.log_modifier(temp_log)
 
         
         
