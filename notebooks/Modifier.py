@@ -51,7 +51,7 @@ class Modifier:
         print("[MODC]: *** Entering Modifier controller ***")
         print("[MODC]: intervals list: ",ranges_list)
         all_intervals_mod = []
-        logger_arguments = {}
+        logger_modifier_arguments = {}
         
         # Check if it's possible to generate more data points
         if (mdv["modifier_data_point"] < mdv["modifier_incremental_unit"]):
@@ -59,8 +59,9 @@ class Modifier:
                 mdv["modifier_data_point"] = 1
                 simexSettings["extensive_iteration"] = True
             else:  
-                logger_arguments["log_contex"] = "overall MOD stats"
-                logger.log_modifier(logger_arguments)
+                # TODO: this log below might not be needed here - moving it into the main
+                #logger_modifier_arguments["log_contex"] = "overall MOD stats"
+                #logger.log_modifier(logger_modifier_arguments)
                 return False  # Exit the function if not possible
             
         mds["mod_iterations"] +=1
@@ -78,11 +79,11 @@ class Modifier:
         mds["points_generated_total"] += current_iteration_points_number
         
         #Modifier Logging
-        logger_arguments["log_contex"] = "internal MOD stats"
-        logger_arguments["current_iteration_points_number"] = current_iteration_points_number
-        logger_arguments["all_intervals_mod"] = all_intervals_mod
-        logger_arguments["ranges_list"] = ranges_list
-        logger.log_modifier(logger_arguments)
+        logger_modifier_arguments["log_contex"] = "internal MOD stats"
+        logger_modifier_arguments["current_iteration_points_number"] = current_iteration_points_number
+        logger_modifier_arguments["all_intervals_mod"] = all_intervals_mod
+        logger_modifier_arguments["ranges_list"] = ranges_list
+        logger.log_modifier(logger_modifier_arguments)
         
         
         

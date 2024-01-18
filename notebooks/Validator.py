@@ -8,6 +8,9 @@ from itertools import compress
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import make_pipeline
+from Logger import Logger
+
+logger = Logger() 
 
 class Validator:
     def __init__(self):
@@ -126,8 +129,10 @@ class Validator:
         return listofranges
         
     def local_exploration_validator_A(self,x_values, y_values, selected_range=0):
+        
+        logger_validator_arguments = {}
         print('       *** USING local_exploration_validator_A')
-      
+        
         fitted_curve = self.fit_curve(x_values, y_values, selected_range)
         least_fit_points,predicted_values = self.find_unfit_points(x_values, y_values,fitted_curve=fitted_curve)
         # least_fit_ranges = self.generate_ranges_from_unfit_points(least_fit_points,threshold=0.75 )        # unfit_points = self.find_least_fit_points(x_values, y_values, fitted_curve, threshold=threshold)
@@ -138,6 +143,11 @@ class Validator:
         self.plot_curve(x_values, y_values, fitted_curve, unfitting_ranges,predicted_values)
 
         print('       *** OUTPUT unfitting_ranges',unfitting_ranges,'\n')
+        logger_validator_arguments["log_contex"] = "internal VAL stats"
+        logger_validator_arguments["unfitting_ranges"] = unfitting_ranges
+        logger_validator_arguments["least_fit_points"] = least_fit_points
+        logger.log_validator(logger_validator_arguments)
+        
         return unfitting_ranges
 
     # def save_to_text_file(self,filename, least_fit_points, unfitting_ranges,x_values):
