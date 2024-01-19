@@ -61,7 +61,7 @@ class Validator:
         # predicted_y_values = slope * x_values + intercept
         self.least_fit_intercept = intercept
         # Calculate the residuals (the differences between predicted and actual y-values)
-        residuals = np.round(y_values,2) - np.round(y_pred,2)
+        residuals = np.round(y_values,4) - np.round(y_pred,4)
         print('\n\n\nResiduals: ',residuals)
         # Get all indeces where residual is higher than threshold*y_predict value
         print(vlv["threshold_y_fitting"])
@@ -69,7 +69,7 @@ class Validator:
         print('least_fit_indices' ,least_fit_indices)
 
         # Create a list of points with the residuals higher than threshold
-        self.least_fit_points = [[round(x_values[i],2), round(y_values[i],2)] for i in least_fit_indices]
+        self.least_fit_points = [[round(x_values[i],4), round(y_values[i],4)] for i in least_fit_indices]
         print('least_fit_points', self.least_fit_points, '\n\n\n')
 
         # print('LEAST FIT POINTS: ',self.least_fit_points)
@@ -92,7 +92,7 @@ class Validator:
         for i,point in enumerate(x_values):
             # print('\nthis is i:',i)
             # print('this is listofranges:',listofranges,'\n')
-            if np.round(point,2) not in np.round(unfit_point_x,2):
+            if np.round(point,4) not in np.round(unfit_point_x,4):
                 if len(current_range)==0:
                     # print('this is len(current_range)==0')
                     continue
@@ -130,7 +130,6 @@ class Validator:
         
     def local_exploration_validator_A(self,x_values, y_values, selected_range=0):
         
-        logger_validator_arguments = {}
         print('       *** USING local_exploration_validator_A')
         
         fitted_curve = self.fit_curve(x_values, y_values, selected_range)
@@ -143,40 +142,14 @@ class Validator:
         self.plot_curve(x_values, y_values, fitted_curve, unfitting_ranges,predicted_values)
 
         print('       *** OUTPUT unfitting_ranges',unfitting_ranges,'\n')
-        logger_validator_arguments["log_contex"] = "internal VAL stats"
-        logger_validator_arguments["unfitting_ranges"] = unfitting_ranges
-        logger_validator_arguments["least_fit_points"] = least_fit_points
-        logger.log_validator(logger_validator_arguments)
+       
         
         return unfitting_ranges
-
-    # def save_to_text_file(self,filename, least_fit_points, unfitting_ranges,x_values):
-    #     # Modifier: Domain information: min max 
-    #     #           increment unit
-    #     #           number of points generated this cycle by modifier
-    #     # Validator: Fit and unfit points (each itteration)
-    #     #            unfit ranges
-    #     with open(filename, 'w') as file:
-    #         file.write("Modifier: Unfit Points (y,x):\n")
-    #         for point in least_fit_points:
-    #             file.write(f"{point[0]}, {point[1]}\n")
-    #         file.write("\nModifier: MDV Information:\n")
-    #         for val in mdv:
-    #             file.write(f"{val}: {mdv[val]} \n")
-    #         file.write("\nValidator:Totals:\n")
-    #         file.write(f"Original mod points: {len(x_values)}\n")
-    #         file.write(f"Unfit points: {len(least_fit_points)}\n")
-            
-
-    #         file.write("\nValidator:Unfit Ranges:\n")
-    #         for start, end in unfitting_ranges:
-    #             file.write(f"[{start},{end}]\n")
                 
 
     def validator_controller(self, mod_x_list, sim_y_list, global_range=[mdv["domain_min_range"], mdv["domain_max_range"]],
                              local_validator=None, do_plot=False):
         print('       *** USING validator_controller')
-
         if local_validator is None:
             local_validator = self.local_exploration_validator_A  # Set default if not provided
         
@@ -192,21 +165,34 @@ class Validator:
             print("THIS IS PONITS ",points)
 
             validator_ranges=[]
-            for each_range in self.least_fit_x_range: 
+            for each_range in self.least_fit_x_range:
                 #Calcualte bad points in each range
                 print("THIS IS self.ranges ",self.least_fit_x_range)
                 print("THIS IS RANGE ",each_range[0]," ",each_range[1])
                 unfit_points = [(x, y) for x, y in points if each_range[0] <= x <= each_range[1]]
                 if np.any(unfit_points):
                     unfit_x_values, unfit_y_values = zip(*unfit_points)
-                    local_ranges = local_validator(unfit_x_values, unfit_y_values, selected_range=each_range)
-                    validator_ranges.append(local_ranges)
+                    local_unfit_range = local_validator(unfit_x_values, unfit_y_values, selected_range=each_range)
+                    validator_ranges.append(local_unfit_range)
+                    print("local_unfit_range ",local_unfit_range)
+                    logger_validator_arguments = {}
+                    logger_validator_arguments["log_contex"] = "internal VAL stats"
+                    logger_validator_arguments["local_unfit_range"] = each_range
+                    logger_validator_arguments["unfit_points"] = unfit_points
+                    logger.log_validator(logger_validator_arguments)
+            
             validator_ranges = [item for sublist in validator_ranges for item in sublist]
             self.least_fit_x_range = validator_ranges
         else: 
             validator_ranges = local_validator(mod_x_list, sim_y_list, selected_range=global_range)
             self.least_fit_x_range = validator_ranges
         print('       *** OUTPUT validator_ranges', validator_ranges, '\n')
+        
+        logger_validator_arguments = {}
+        logger_validator_arguments["log_contex"] = "internal VAL stats"
+        logger_validator_arguments["validator_ranges"] = validator_ranges
+        logger.log_validator(logger_validator_arguments)
+        
         return validator_ranges
 
 

@@ -87,20 +87,36 @@ class Logger:
     
     def log_validator(self, logger_arguments):
         
-        least_fit_points = logger_arguments.get("least_fit_points")
-        unfitting_ranges = logger_arguments.get("unfitting_ranges")
-        if lgs["log_granularity"] > 0:
-            message = "   * The unfit range(s) are: " + str(unfitting_ranges)
-            self._write_log('[VAL]: ', message)
+        if logger_arguments["log_contex"] == "internal VAL stats" and "validator_ranges" in logger_arguments:
+            validator_ranges = logger_arguments.get("validator_ranges")
+            if lgs["log_granularity"] > 0:
+                message = "   * Found "+ str(len(validator_ranges)) +" unfit range(s)"
+                self._write_log('[VAL]: ', message)
 
-        if lgs["log_granularity"] > 1:
-            message = "   * The function fit function is:  FUNCTION HERE"
-            self._write_log('[VAL]: ', message)
+            if lgs["log_granularity"] > 1:
+                message = "   * The fit function is:  FUNCTION HERE"
+                self._write_log('[VAL]: ', message)
 
-        # add ranges min-max
-        if lgs["log_granularity"] > 2:
-            message = "      * Points are: " + str(least_fit_points)
-            self._write_log('[VAL]: ', message)
+            # add ranges min-max
+            if lgs["log_granularity"] > 2:
+                message = "   * The unfit range(s) are: " + str(validator_ranges)
+                self._write_log('[VAL]: ', message)
+                
+                
+        if logger_arguments["log_contex"] == "internal VAL stats" and "local_unfit_range" in logger_arguments:
+            local_unfit_range = logger_arguments.get("local_unfit_range")
+            unfit_points = logger_arguments.get("unfit_points")
+            if lgs["log_granularity"] > 0:
+                message = "   * The local unfit range is: " + str(local_unfit_range)
+                self._write_log('[VAL]: ', message)
+
+            if lgs["log_granularity"] > 1:
+                pass
+
+            # add ranges min-max
+            if lgs["log_granularity"] > 2:
+                message = "      * Points are: " + str(unfit_points)
+                self._write_log('[VAL]: ', message)
         
 
     def close(self):

@@ -85,22 +85,7 @@ class Modifier:
         logger_modifier_arguments["ranges_list"] = ranges_list
         logger.log_modifier(logger_modifier_arguments)
         
-        
-        
-        # if lgs["log_granularity"] > 0:
-        #     temp_log="[MOD]: Iteration "+str(mds["mod_iterations"])+" has generated "+str(current_iteration_points_number)+" points in "+str(len(all_intervals_mod))+" range(s)"
-        #     logger.log_modifier(temp_log)
-        
-        # if lgs["log_granularity"] > 1:
-        #     temp_log="[MOD]:   * The range(s) are: "+str(ranges_list)
-        #     logger.log_modifier(temp_log)
-
-        #     # add ranges min-max
-        # if lgs["log_granularity"] > 2:
-        #     for i,sublist in enumerate(all_intervals_mod):
-        #         temp_log="[MOD]:      * The points of the range "+str(i)+" are: "+str(sublist)
-        #         logger.log_modifier(temp_log)
-
+    
         
         
         
