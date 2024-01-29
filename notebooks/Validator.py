@@ -24,6 +24,9 @@ class Validator:
         self.least_fit_y_pred = None
         self.least_fit_x_range = None
         self.least_fit_points = None
+        self.fit_x_range = None
+        self.fit_points = None
+        self.equation = None
 
 
 
@@ -102,30 +105,29 @@ class Validator:
         else:
             raise ValueError("Invalid fit_type. Use 'polynomial', 'exponential', or 'linear'.")
 
-        return intercept, y_pred, x_values
+        return intercept, y_pred, x_values, equation
 
 
 
     def find_unfit_points(self, x_values, y_values, fitted_curve):
         # Fit a curve using HuberRegressor
-        intercept,y_pred,x_range = fitted_curve
+        intercept,y_pred,x_range,equation = fitted_curve
         # Calculate the predicted y-values using the curve
         # predicted_y_values = slope * x_values + intercept
         self.least_fit_intercept = intercept
         # Calculate the residuals (the differences between predicted and actual y-values)
         residuals = np.round(y_values,4) - np.round(y_pred,4)
-        print('\n\n\nResiduals: ',residuals)
         # Get all indeces where residual is higher than threshold*y_predict value
-        print(vlv["threshold_y_fitting"])
+        # print(vlv["threshold_y_fitting"])
         least_fit_indices =  np.where(np.abs(residuals) > vlv["threshold_y_fitting"])[0]
-        print('least_fit_indices' ,least_fit_indices)
+        # print('least_fit_indices' ,least_fit_indices)
 
         # Create a list of points with the residuals higher than threshold
-        self.least_fit_points = [[round(x_values[i],4), round(y_values[i],4)] for i in least_fit_indices]
-        print('least_fit_points', self.least_fit_points, '\n\n\n')
+        self.least_fit_points = [[x_values[i], y_values[i]] for i in least_fit_indices]
+        # print('least_fit_points', self.least_fit_points, '\n\n\n')
 
-        # print('LEAST FIT POINTS: ',self.least_fit_points)
-
+        print('LEAST FIT POINTS: ',self.least_fit_points)
+        
         return self.least_fit_points, y_pred
 
     def generate_ranges_from_unfit_points(self,unfit_points,x_values):
@@ -171,63 +173,146 @@ class Validator:
                     current_range = []
 
 
-        print('\n\n\n list of ranges: ',listofranges,'\n\n\n')
+        # print('\n\n\n list of ranges: ',listofranges,'\n\n\n')
         return listofranges
+    
+    def find_fit_points(self, x_values_all, y_values_all, least_fit_points, tolerance=1e-5):
+        # Find the rest of the points
+        rest_of_points = [(x, y) for x, y in zip(x_values_all, y_values_all) if all(abs(x - xp) > tolerance or abs(y - yp) > tolerance for xp, yp in least_fit_points)]
+
+        # Convert the result to a list of lists
+        rest_of_points_list = [list(point) for point in rest_of_points]
+
+        return rest_of_points_list
+
+        
+
+    # def get_fit_ranges(self,least_fit_x_range, domain_min_range, domain_max_range):
+    #     # Initialize fit_x_ranges with the gap between the minimum domain value and the start of the first range
+    #     fit_x_ranges = [[domain_min_range, least_fit_x_range[0][0]]]
+    #     print('       *** USING get_fit_ranges:  ',fit_x_ranges)
+    #     # Iterate through the given ranges and fill the gaps
+    #     for current_range, next_range in zip(least_fit_x_range, least_fit_x_range[1:]):
+    #         gap_range = [current_range[1], next_range[0]]
+    #         fit_x_ranges.append(gap_range)
+
+    #     # Add the last range if there is any gap to fill
+    #     if least_fit_x_range[-1][1] < domain_max_range:
+    #         fit_x_ranges.append([least_fit_x_range[-1][1], domain_max_range])
+
+    #     # Ensure fit_x_ranges are within the specified domain boundaries
+    #     fit_x_ranges = [
+    #         [max(range_start, domain_min_range), min(range_end, domain_max_range)]
+    #         for range_start, range_end in fit_x_ranges
+    #     ]
+
+    #     return fit_x_ranges
+
+    def get_fit_ranges(self, least_fit_x_range, domain_min_range, domain_max_range):
+        # Convert a single range to a list of ranges
+        if least_fit_x_range==[]:
+            return []
+
+        if not isinstance(least_fit_x_range[0], list):
+            least_fit_x_range = [least_fit_x_range]
+
+        # Initialize fit_x_ranges with the gap between the minimum domain value and the start of the first range
+        fit_x_ranges = [[domain_min_range, least_fit_x_range[0][0]]]
+        print('       *** USING get_fit_ranges:  ', fit_x_ranges)
+
+        # Iterate through the given ranges and fill the gaps
+        for current_range, next_range in zip(least_fit_x_range, least_fit_x_range[1:]):
+            gap_range = [current_range[1], next_range[0]]
+            fit_x_ranges.append(gap_range)
+
+        # Add the last range if there is any gap to fill
+        if least_fit_x_range[-1][1] < domain_max_range:
+            fit_x_ranges.append([least_fit_x_range[-1][1], domain_max_range])
+
+        # Ensure fit_x_ranges are within the specified domain boundaries
+        fit_x_ranges = [
+            [max(range_start, domain_min_range), min(range_end, domain_max_range)]
+            for range_start, range_end in fit_x_ranges
+        ]
+
+        return fit_x_ranges
+
+
+
         
     def local_exploration_validator_A(self,x_values, y_values, selected_range=0):
         
         print('       *** USING local_exploration_validator_A')
         # Fitted curve fit_type options include fit_type='polynomial', 'exponential', 'linear'
         fitted_curve = self.fit_curve(x_values, y_values, fit_type='polynomial',global_range=selected_range)
+        equation = fitted_curve[3]
         least_fit_points,predicted_values = self.find_unfit_points(x_values, y_values,fitted_curve=fitted_curve)
         # least_fit_ranges = self.generate_ranges_from_unfit_points(least_fit_points,threshold=0.75 )        # unfit_points = self.find_least_fit_points(x_values, y_values, fitted_curve, threshold=threshold)
         unfitting_ranges = self.generate_ranges_from_unfit_points(least_fit_points,x_values)
+        print('unfitting_ranges',unfitting_ranges)
+        print('least_fit_points',least_fit_points)
+        
+        fit_points = self.find_fit_points(x_values,y_values, least_fit_points)
+        fit_ranges = self.get_fit_ranges(unfitting_ranges, domain_min_range =selected_range[0], domain_max_range=selected_range[1])
         # print(unfitting_ranges)
         # self.update_num_points_evaluated([x_values,y_values], min=global_range[0], max=global_range[1])
         # self.save_to_text_file('output.txt', least_fit_points, unfitting_ranges,x_values)
         self.plot_curve(x_values, y_values, fitted_curve, unfitting_ranges,predicted_values)
 
         print('       *** OUTPUT unfitting_ranges',unfitting_ranges,'\n')
-       
-        
-        return unfitting_ranges
+
+        return equation,least_fit_points,unfitting_ranges,fit_points,fit_ranges
                 
 
     def validator_controller(self, mod_x_list, sim_y_list, global_range=[mdv["domain_min_range"], mdv["domain_max_range"]],
                              local_validator=None, do_plot=False):
-        print('       *** USING validator_controller')
+        print('Validator...')
         if local_validator is None:
             local_validator = self.local_exploration_validator_A  # Set default if not provided
                         
         if np.any(self.least_fit_x_range): # if self.least_fit_x_range is not empty
+            # Add all new points to oldl unfit points
             points = list(zip(mod_x_list, sim_y_list))
             points = [list(point) for point in points]
             points.extend(self.least_fit_points)
             points = sorted(points, key=lambda point: point[0])
-            print("THIS IS PONITS ",points)
+            print("THIS IS POINTS ",points)
 
             validator_ranges=[]
+
+            # enter each range couple
             for each_range in self.least_fit_x_range:
                 #Calcualte bad points in each range
-                print("THIS IS self.ranges ",self.least_fit_x_range)
-                print("THIS IS RANGE ",each_range[0]," ",each_range[1])
+                print("\n\nTHIS IS self.least_fit_x_range ",self.least_fit_x_range)
+                print("THIS IS EACH RANGE ",each_range[0]," ",each_range[1])
+
+                #Select unfit points ONLY withing each_range
                 unfit_points = [(x, y) for x, y in points if each_range[0] <= x <= each_range[1]]
                 if np.any(unfit_points):
                     unfit_x_values, unfit_y_values = zip(*unfit_points)
-                    local_unfit_range = local_validator(unfit_x_values, unfit_y_values, selected_range=each_range)
+                    
+                    #Return NEW unfit range(s) withing each_range
+                    equation,least_fit_points,local_unfit_range,fit_points,fit_ranges = local_validator(unfit_x_values, unfit_y_values, selected_range=each_range)
                     validator_ranges.append(local_unfit_range)
-                    print("local_unfit_range ",local_unfit_range)
+                    print('equation,least_fit_points,local_unfit_range,fit_points,fit_ranges\n',equation,'\n',fit_points,'\n',fit_ranges)
+                    # print("local_unfit_range ",local_unfit_range)
                     logger_validator_arguments = {}
                     logger_validator_arguments["log_contex"] = "internal VAL stats"
                     logger_validator_arguments["local_unfit_range"] = each_range
                     logger_validator_arguments["unfit_points"] = unfit_points
                     logger.log_validator(logger_validator_arguments)
-            
+
             validator_ranges = [item for sublist in validator_ranges for item in sublist]
             self.least_fit_x_range = validator_ranges
+
         else: 
-            validator_ranges = local_validator(mod_x_list, sim_y_list, selected_range=global_range)
+
+            equation,least_fit_points,validator_ranges,fit_points,fit_ranges  = local_validator(mod_x_list, sim_y_list, selected_range=global_range)
+            print('equation,fit_points,fit_ranges\n',equation,'\n',fit_points,'\n\n',fit_ranges)
+
             self.least_fit_x_range = validator_ranges
+            # self.fit_x_ranges = self.get_fit_ranges(validator_ranges, domain_min_range =mdv['domain_min_range'], domain_max_range=mdv['domain_max_range']) #global minus self.least_fit_x_range     
+            # Log the equation
         print('       *** OUTPUT validator_ranges', validator_ranges, '\n')
         
         logger_validator_arguments = {}
