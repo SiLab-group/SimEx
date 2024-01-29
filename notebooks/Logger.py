@@ -1,6 +1,12 @@
 from datetime import datetime
 from global_settings import lgs,mds
 
+results_data = [
+    {"good_range": (0, 1), "fitting_function": "f(x) = x^2", "good_points": [(0, 0), (0.5, 0.25), (1, 1)]},
+    {"good_range": (1, 2), "fitting_function": "f(x) = x^3", "good_points": [(1, 1), (1.5, 3.375), (2, 8)]},
+]
+
+unfit_residuals = []
 
 class Logger:
     
@@ -22,6 +28,24 @@ class Logger:
         self.file.write(log_entry)
         self.file.flush()  # Ensure the message is written immediately
 
+    def _write_results(self):
+        #timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        for element in results_data:
+            result_entry = f"GI: {element['good_range']} | FF: {element['fitting_function']} | PTs: {element['good_points']}\n"
+            self.file.write(result_entry)
+            self.file.flush()  # Ensure the message is written immediately
+        
+        if not unfit_residuals:
+            result_entry = "No unfit range(s) left.\n"
+            self.file.write(result_entry)
+            self.file.flush()  # Ensure the message is written immediately
+        else:
+            for element in unfit_residuals:
+                result_entry = f"UR: {element['unfit_range']} | UPTs: {element['unfit_points']}\n"
+                self.file.write(result_entry)
+                self.file.flush()  # Ensure the message is written immediately
+
     def log_main(self, logger_arguments):
         #TODO: log simEx settings
         #TODO: log MAIN stats (i.e., iterations, stop condition, etc.)
@@ -30,7 +54,7 @@ class Logger:
             self._write_log('[MAIN]: ', message)
             
         if logger_arguments["log_contex"] == "Overall Stats" and logger_arguments["main_status"] == "end cycle":
-            message = ("   ***   OVERALL STATS   ***   ")
+            message = ("\n\n   ***   OVERALL STATS   ***   ")
             self._write_log('[MAIN]: ', message)
             message = "MOD - Total generated points: " + str(mds["points_generated_total"])
             self._write_log('[MAIN]: ', message)
@@ -38,6 +62,9 @@ class Logger:
             self._write_log('[MAIN]: ', message)
             message = ("   ***   main cycle ENDED   ***   ")
             self._write_log('[MAIN]: ', message)
+            message = ("\n\n   ***   RESULTS   ***   ")
+            self._write_log('[MAIN]: ', message)
+            self._write_results()
         
         if logger_arguments["log_contex"] == "overall MAIN stats" and logger_arguments["main_status"] == "no generated points":
             message = ("   ***   main cycle INTERRUPTED: No more points from Modifier   ***   ")
