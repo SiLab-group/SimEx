@@ -61,6 +61,7 @@ class Validator:
             equation = f'y = {coefficients[0]:.2f}x^2 + {coefficients[1]:.2f}x + {intercept:.2f}'
             print('       *** OUTPUT fit_curve equation:', equation, '\n')
 
+
             y_pred = model.predict(x_values.reshape(-1, 1))
 
         elif fit_type == 'exponential':
@@ -179,7 +180,7 @@ class Validator:
     def find_fit_points(self, x_values_all, y_values_all, least_fit_points, tolerance=1e-5):
         # Find the rest of the points
         rest_of_points = [(x, y) for x, y in zip(x_values_all, y_values_all) if all(abs(x - xp) > tolerance or abs(y - yp) > tolerance for xp, yp in least_fit_points)]
-
+        print('Lora said ... rest_of_points:      ',rest_of_points)
         # Convert the result to a list of lists
         rest_of_points_list = [list(point) for point in rest_of_points]
 
@@ -211,7 +212,7 @@ class Validator:
     def get_fit_ranges(self, least_fit_x_range, domain_min_range, domain_max_range):
         # Convert a single range to a list of ranges
         if least_fit_x_range==[]:
-            return []
+            return [[domain_min_range,domain_max_range]]
 
         if not isinstance(least_fit_x_range[0], list):
             least_fit_x_range = [least_fit_x_range]
@@ -254,6 +255,30 @@ class Validator:
         
         fit_points = self.find_fit_points(x_values,y_values, least_fit_points)
         fit_ranges = self.get_fit_ranges(unfitting_ranges, domain_min_range =selected_range[0], domain_max_range=selected_range[1])
+        
+        # #TODO:  regroup_fit_points_per_fit_range =
+        # for i,range in enumerate(fit_ranges):
+        #     logger_validator_arguments = {}
+        #     logger_validator_arguments["log_contex"] = "fit_VAL_stats"
+        #     logger_validator_arguments["fit_interval"] = range
+        #     logger_validator_arguments["fitting_function"] = equation
+        #     logger_validator_arguments["fit_points"] = fit_points
+        #     logger.log_validator(logger_validator_arguments)
+
+        for i, range in enumerate(fit_ranges):
+            # Round the range values to 2 decimal places
+            range = [round(val, 2) for val in range]
+
+            # Filter fit_points for the current range and round the points to 2 decimal places
+            filtered_fit_points = [(round(point[0], 2), round(point[1], 2)) for point in fit_points if range[0] <= point[0] <= range[1]]
+
+            logger_validator_arguments = {}
+            logger_validator_arguments["log_contex"] = "fit_VAL_stats"
+            logger_validator_arguments["fit_interval"] = range
+            logger_validator_arguments["fitting_function"] = equation
+            logger_validator_arguments["fit_points"] = filtered_fit_points
+            logger.log_validator(logger_validator_arguments)
+        
         # print(unfitting_ranges)
         # self.update_num_points_evaluated([x_values,y_values], min=global_range[0], max=global_range[1])
         # self.save_to_text_file('output.txt', least_fit_points, unfitting_ranges,x_values)

@@ -1,11 +1,7 @@
 from datetime import datetime
 from global_settings import lgs,mds
 
-results_data = [
-    {"good_range": (0, 1), "fitting_function": "f(x) = x^2", "good_points": [(0, 0), (0.5, 0.25), (1, 1)]},
-    {"good_range": (1, 2), "fitting_function": "f(x) = x^3", "good_points": [(1, 1), (1.5, 3.375), (2, 8)]},
-]
-
+fit_data = []
 unfit_residuals = []
 
 class Logger:
@@ -23,16 +19,38 @@ class Logger:
             self.file.close()
 
     def _write_log(self, level, message):
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        log_entry = f"{timestamp} - {level} - {message}\n"
-        self.file.write(log_entry)
-        self.file.flush()  # Ensure the message is written immediately
+        if not level:
+            self.file.write(message)
+            self.file.flush()
+        else:
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            log_entry = f"{timestamp} - {level} - {message}\n"
+            self.file.write(log_entry)
+            self.file.flush()  # Ensure the message is written immediately
 
-    def _write_results(self):
-        #timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # def _write_results(self):
+    #     #timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-        for element in results_data:
-            result_entry = f"GI: {element['good_range']} | FF: {element['fitting_function']} | PTs: {element['good_points']}\n"
+    #     for element in fit_data:
+    #         result_entry = f"GI: {element['fit_interval']} | FF: {element['fitting_function']} | PTs: {element['fit_points']}\n"
+    #         self.file.write(result_entry)
+    #         self.file.flush()  # Ensure the message is written immediately
+        
+    #     if not unfit_residuals:
+    #         result_entry = "No unfit range(s) left.\n"
+    #         self.file.write(result_entry)
+    #         self.file.flush()  # Ensure the message is written immediately
+    #     else:
+    #         for element in unfit_residuals:
+    #             result_entry = f"UR: {element['unfit_range']} | UPTs: {element['unfit_points']}\n"
+    #             self.file.write(result_entry)
+    #             self.file.flush()  # Ensure the message is written immediately
+        
+    def _write_results(self):
+    #timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+        for element in fit_data:
+            result_entry = f"GI: {str(element['fit_interval']):<20} | FF: {str(element['fitting_function']):<30} | PTs: {str(element['fit_points']):<50}\n"
             self.file.write(result_entry)
             self.file.flush()  # Ensure the message is written immediately
         
@@ -42,28 +60,29 @@ class Logger:
             self.file.flush()  # Ensure the message is written immediately
         else:
             for element in unfit_residuals:
-                result_entry = f"UR: {element['unfit_range']} | UPTs: {element['unfit_points']}\n"
+                result_entry = f"UR: {str(element['unfit_range']):<20} | UPTs: {str(element['unfit_points']):<50}\n"
                 self.file.write(result_entry)
                 self.file.flush()  # Ensure the message is written immediately
+
 
     def log_main(self, logger_arguments):
         #TODO: log simEx settings
         #TODO: log MAIN stats (i.e., iterations, stop condition, etc.)
         if logger_arguments["log_contex"] == "overall MAIN stats" and logger_arguments["main_status"] == "begin cycle":
-            message = ("   ***   main cycle STARTED   ***   ")
-            self._write_log('[MAIN]: ', message)
+            message = ("   ***   main cycle STARTED   ***   \n")
+            self._write_log(False, message)
             
         if logger_arguments["log_contex"] == "Overall Stats" and logger_arguments["main_status"] == "end cycle":
-            message = ("\n\n   ***   OVERALL STATS   ***   ")
-            self._write_log('[MAIN]: ', message)
+            message = ("\n\n   ***   OVERALL STATS   ***   \n")
+            self._write_log(False, message)
             message = "MOD - Total generated points: " + str(mds["points_generated_total"])
             self._write_log('[MAIN]: ', message)
             message = "MOD - Total ranges used for points generation: " + str(mds["points_generation_ranges"])
             self._write_log('[MAIN]: ', message)
             message = ("   ***   main cycle ENDED   ***   ")
             self._write_log('[MAIN]: ', message)
-            message = ("\n\n   ***   RESULTS   ***   ")
-            self._write_log('[MAIN]: ', message)
+            message = ("\n\n   ***   RESULTS   ***   \n")
+            self._write_log(False, message)
             self._write_results()
         
         if logger_arguments["log_contex"] == "overall MAIN stats" and logger_arguments["main_status"] == "no generated points":
@@ -144,6 +163,14 @@ class Logger:
             if lgs["log_granularity"] > 2:
                 message = "      * Points are: " + str(unfit_points)
                 self._write_log('[VAL]: ', message)
+        # logs the fit intervals, fitting functions, and related points
+        if logger_arguments["log_contex"] == "fit_VAL_stats" and "fit_interval" in logger_arguments:
+            new_fit_entry = {
+            "fit_interval": logger_arguments.get("fit_interval"),
+            "fitting_function": logger_arguments.get("fitting_function"),
+            "fit_points": logger_arguments.get("fit_points")}
+            fit_data.append(new_fit_entry)
+            
         
 
     def close(self):
