@@ -7,7 +7,7 @@ mdv={"domain_min_range":1, "domain_max_range":100, "modifier_incremental_unit":3
 # Modifier functions settings (just for the GUI)
 mdf={"Func A: x^2  |1": "x^2", "Func B: X^2/3  |1": "x^2/3"}
 # Modifier global statistics 
-mds={"points_generated_total":0, "points_generation_ranges":0, "mod_iterations":0}
+mds={"points_generated_total":0, "points_generation_intervals":0, "mod_iterations":0}
 
 
 

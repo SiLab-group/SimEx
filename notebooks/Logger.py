@@ -77,7 +77,7 @@ class Logger:
             self._write_log(False, message)
             message = "MOD - Total generated points: " + str(mds["points_generated_total"])
             self._write_log('[MAIN]: ', message)
-            message = "MOD - Total ranges used for points generation: " + str(mds["points_generation_ranges"])
+            message = "MOD - Total ranges used for points generation: " + str(mds["points_generation_intervals"])
             self._write_log('[MAIN]: ', message)
             message = ("   ***   main cycle ENDED   ***   ")
             self._write_log('[MAIN]: ', message)
@@ -98,7 +98,7 @@ class Logger:
         if logger_arguments["log_contex"] == "internal MOD stats":
             current_iteration_points_number = logger_arguments.get("current_iteration_points_number")
             all_intervals_mod = logger_arguments.get("all_intervals_mod")
-            ranges_list = logger_arguments.get("ranges_list")
+            intervals_list = logger_arguments.get("intervals_list")
 
             if lgs["log_granularity"] > 0:
                 message = "Iteration " + str(mds["mod_iterations"]) + " has generated " + str(
@@ -106,7 +106,7 @@ class Logger:
                 self._write_log('[MOD]: ', message)
 
             if lgs["log_granularity"] > 1:
-                message = "   * The range(s) are: " + str(ranges_list)
+                message = "   * The range(s) are: " + str(intervals_list)
                 self._write_log('[MOD]: ', message)
 
             # add ranges min-max

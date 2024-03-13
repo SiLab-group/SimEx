@@ -10,8 +10,10 @@ class Modifier:
 
 
     def rescaler(old_list, new_min, new_max):
+        
+        # handle empty list case
         if not np.any(old_list):
-            return []  # handle empty list case
+            return []  
 
         old_min = min(old_list)
         old_max = max(old_list)
@@ -27,10 +29,9 @@ class Modifier:
                 scaled_value = (((old_value - old_min) * (new_max - new_min)) / denominator) + new_min
                 new_values.append(scaled_value)
             else:
-                # Handle the case when the range is zero
+                # Handle the case when the interval is zero
                 new_values.append(new_min)
         return new_values
-
     
 
     def local_modifier_A(x,new_min,new_max):
@@ -45,11 +46,11 @@ class Modifier:
         return temp
 
 
-    def modifier_controller(ranges_list, local_modifier=local_modifier_A, do_plot=simexSettings["do_plot"],verbalinfo = 0):
+    def modifier_controller(intervals_list, local_modifier=local_modifier_A, do_plot=simexSettings["do_plot"],verbalinfo = 0):
              
         # Function to control modifiers given the input and the selected modifier function. Option to plot or not. 
         print("[MODC]: *** Entering Modifier controller ***")
-        print("[MODC]: intervals list: ",ranges_list)
+        print("[MODC]: intervals list: ",intervals_list)
         all_intervals_mod = []
         logger_modifier_arguments = {}
         
@@ -59,30 +60,26 @@ class Modifier:
                 mdv["modifier_data_point"] = 1
                 simexSettings["extensive_iteration"] = True
             else:  
-                # TODO: this log below might not be needed here - moving it into the main
-                #logger_modifier_arguments["log_contex"] = "overall MOD stats"
-                #logger.log_modifier(logger_modifier_arguments)
-                return False  # Exit the function if not possible
-            
+                # Exit the function if not possible
+                return False
+                       
         mds["mod_iterations"] +=1
-        for i, (interval_min_range, interval_max_range) in enumerate(ranges_list):
-
-            #print("[MOD]: iteration: ",i,", interval: ",interval_min_range,"-",interval_max_range)
+        for i, (interval_min_tick, interval_max_tick) in enumerate(intervals_list):
 
             # Generate data points (incremental ticks and function modified x values) within the specified interval
-            mod_ticks = np.arange(interval_min_range, interval_max_range, mdv["modifier_data_point"])
-            mod_x = local_modifier(mod_ticks, new_min=interval_min_range, new_max=interval_max_range)
+            mod_ticks = np.arange(interval_min_tick, interval_max_tick, mdv["modifier_data_point"])
+            mod_x = local_modifier(mod_ticks, new_min=interval_min_tick, new_max=interval_max_tick)
             all_intervals_mod.append(mod_x)
         
         current_iteration_points_number = sum(len(sublist) for sublist in all_intervals_mod)
-        mds["points_generation_ranges"] += len(all_intervals_mod)
+        mds["points_generation_intervals"] += len(all_intervals_mod)
         mds["points_generated_total"] += current_iteration_points_number
         
         #Modifier Logging
         logger_modifier_arguments["log_contex"] = "internal MOD stats"
         logger_modifier_arguments["current_iteration_points_number"] = current_iteration_points_number
         logger_modifier_arguments["all_intervals_mod"] = all_intervals_mod
-        logger_modifier_arguments["ranges_list"] = ranges_list
+        logger_modifier_arguments["intervals_list"] = intervals_list
         logger.log_modifier(logger_modifier_arguments)
         
     
