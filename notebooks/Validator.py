@@ -8,6 +8,7 @@ from itertools import compress
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import make_pipeline
+from sklearn.metrics import r2_score
 from Logger import Logger
 
 logger = Logger() 
@@ -17,20 +18,78 @@ class Validator:
         self.iterations = 1
         self.total_points = 0
         self.total_bad_points = 0
-        self.range = (mdv["domain_min_range"], mdv["domain_max_range"])
+        self.interval = (mdv["domain_min_interval"], mdv["domain_max_interval"])
         self.num_points_evaluated = 0
         
         self.least_fit_intercept = None
         self.least_fit_y_pred = None
-        self.least_fit_x_range = None
+        self.least_fit_x_interval = None
         self.least_fit_points = None
-        self.fit_x_range = None
+        self.fit_x_interval = None
         self.fit_points = None
         self.equation = None
 
+    def fit_curve2(self, x_values, y_values):
+        x_values = np.array(x_values)  # Convert to numpy array
+        y_values = np.array(y_values)  # Convert to numpy array
+        coefficients = np.polyfit(x_values, y_values, deg=3)
+        p = np.poly1d(coefficients)
+        intercept = p(0)
+        equation = f'y = {coefficients[0]:.5f}x^3 +{coefficients[1]:.5f}x^2 + {coefficients[2]:.5f}x + {intercept:.5f}'
+        y_pred = p(x_values.reshape(-1,1))
+        print("\n\nCALLED FIT_CURVE2")
+        print("INTERCEPT"+str(intercept))
+        print("Y_PRED"+str(y_pred.flatten()))
+        print("X_VALUES"+str(x_values))
+        print("EQUATION"+str(equation))
+        return intercept, y_pred.flatten(), x_values, equation
+        
+    
+
+    # def fit_curve2(self, x_values, y_values, max_deg=10, r2_threshold=0.1):
+    #     x_values = np.array(x_values)  # Convert to numpy array
+    #     y_values = np.array(y_values)  # Convert to numpy array
+
+    #     best_r2 = 0
+    #     best_deg = 0
+    #     best_p = np.poly1d([0])
+    #     best_intercept = 0
+    #     best_y_pred = np.zeros_like(y_values)
+    #     best_equation = ''
+
+    #     for deg in range(1, max_deg+1):
+    #         coefficients = np.polyfit(x_values, y_values, deg)
+    #         p = np.poly1d(coefficients)
+    #         intercept = p(0)
+    #         y_pred = p(x_values)
+
+    #         # Compute R-squared value for each point and sum them
+    #         r2 = r2_score(y_values, y_pred)
+
+    #         # Check if the improvement in R-squared is significant
+    #         if r2 - best_r2 > r2_threshold:
+    #             best_r2 = r2
+    #             best_deg = deg
+    #             best_p = p
+    #             best_intercept = intercept
+    #             best_y_pred = y_pred
+
+    #             # Create the equation string based on the degree
+    #             equation = 'y = ' + ' + '.join([f'{coeff:.5f}x^{i}' for i, coeff in enumerate(coefficients[::-1])])
+    #             best_equation = equation
+    #         else:
+    #             break
+
+    #     print("\n\nCALLED FIT_CURVE2")
+    #     print("BEST DEGREE: "+str(best_deg))
+    #     print("INTERCEPT: "+str(best_intercept))
+    #     print("Y_PRED: "+str(best_y_pred))
+    #     print("X_VALUES: "+str(x_values))
+    #     print("EQUATION: "+str(best_equation))
+    #     return best_intercept, best_y_pred, x_values, best_equation
 
 
-    def fit_curve(self, x_values, y_values, fit_type='polynomial', global_range=0):
+    def fit_curve(self, x_values, y_values, fit_type='polynomial', global_interval=0):
        
         x_values = np.array(x_values)  # Convert to numpy array
         y_values = np.array(y_values)  # Convert to numpy array
@@ -50,12 +109,14 @@ class Validator:
             # Fit the model
             model.fit(x_values.reshape(-1, 1), y_values)
 
-            # Generate a range of x values for plotting
-            # x_range = np.linspace(min(x_values), max(x_values), 10).reshape(-1, 1)
+            # Generate an interval of x values for plotting
+            # x_interval = np.linspace(min(x_values), max(x_values), 10).reshape(-1, 1)
 
             # Get the coefficients of the fitted line
             intercept = model.named_steps['linearregression'].intercept_
             coefficients = model.named_steps['linearregression'].coef_
+
+            
             print('       *** OUTPUT fit_curve slope, intercept',coefficients, intercept,'\n')
 
             equation = f'y = {coefficients[0]:.2f}x^2 + {coefficients[1]:.2f}x + {intercept:.2f}'
@@ -106,13 +167,18 @@ class Validator:
         else:
             raise ValueError("Invalid fit_type. Use 'polynomial', 'exponential', or 'linear'.")
 
+        print("\n\nCALLED FIT_CURVE1")
+        print("INTERCEPT"+str(intercept))
+        print("Y_PRED"+str(y_pred))
+        print("X_VALUES"+str(x_values))
+        print("EQUATION"+str(equation))
         return intercept, y_pred, x_values, equation
 
 
 
     def find_unfit_points(self, x_values, y_values, fitted_curve):
         # Fit a curve using HuberRegressor
-        intercept,y_pred,x_range,equation = fitted_curve
+        intercept,y_pred,x_interval,equation = fitted_curve
         # Calculate the predicted y-values using the curve
         # predicted_y_values = slope * x_values + intercept
         self.least_fit_intercept = intercept
@@ -131,56 +197,56 @@ class Validator:
         
         return self.least_fit_points, y_pred
 
-    def generate_ranges_from_unfit_points(self,unfit_points,x_values):
+    def generate_intervals_from_unfit_points(self,unfit_points,x_values):
  
-        # Calculate the continuous ranges around least-fit points
-        current_range = []
+        # Calculate the continuous intervals around least-fit points
+        current_interval = []
         unfit_point_x = [couple[0] for couple in unfit_points]
 
-        listofranges = []
+        list_of_intervals = []
         for i,point in enumerate(x_values):
             # print('\nthis is i:',i)
-            # print('this is listofranges:',listofranges,'\n')
+            # print('this is list_of_intervals:',list_of_intervals,'\n')
             if np.round(point,4) not in np.round(unfit_point_x,4):
-                if len(current_range)==0:
-                    # print('this is len(current_range)==0')
+                if len(current_interval)==0:
+                    # print('this is len(current_interval)==0')
                     continue
                 else:
-                    # print('\nthis is len(current_range)==0 else')
-                    # close the range with point[-1]+threshold
+                    # print('\nthis is len(current_interval)==0 else')
+                    # close the interval with point[-1]+threshold
                     interpoint_interval = point - x_values[i-1]
-                    current_range.append(x_values[i-1]+vlv["threshold_x_interval"]*interpoint_interval)
-                    listofranges.append(current_range)
-                    current_range = []
+                    current_interval.append(x_values[i-1]+vlv["threshold_x_interval"]*interpoint_interval)
+                    list_of_intervals.append(current_interval)
+                    current_interval = []
             else:                    
-                if len(current_range)==0 and 0<i<len(x_values)-1:
-                    # print('\nthis is len(current_range)==0 and 0<i<len(x_values)')
+                if len(current_interval)==0 and 0<i<len(x_values)-1:
+                    # print('\nthis is len(current_interval)==0 and 0<i<len(x_values)')
                     interpoint_interval = point - x_values[i-1]
-                    current_range.append(point-vlv["threshold_x_interval"]*interpoint_interval)
-                elif len(current_range)==0 and i==0:
-                    # print('\nthis is len(current_range)==0 and i==0')
-                    current_range.append(point)
-                elif len(current_range)==0 and i==len(x_values)-1:
-                    # print('\nthis is len(current_range)==0 and i==len(x_values)')
+                    current_interval.append(point-vlv["threshold_x_interval"]*interpoint_interval)
+                elif len(current_interval)==0 and i==0:
+                    # print('\nthis is len(current_interval)==0 and i==0')
+                    current_interval.append(point)
+                elif len(current_interval)==0 and i==len(x_values)-1:
+                    # print('\nthis is len(current_interval)==0 and i==len(x_values)')
                     interpoint_interval= point - x_values[i-1]
-                    current_range.append(point-vlv["threshold_x_interval"]*interpoint_interval)
-                    current_range.append(point)
-                    listofranges.append(current_range)
-                    current_range = []
-                elif len(current_range)>0 and i==len(x_values)-1:
-                    # print('\nthis is len(current_range)>0 and i==len(x_values)')
-                    current_range.append(point)
-                    listofranges.append(current_range)
-                    current_range = []
+                    current_interval.append(point-vlv["threshold_x_interval"]*interpoint_interval)
+                    current_interval.append(point)
+                    list_of_intervals.append(current_interval)
+                    current_interval = []
+                elif len(current_interval)>0 and i==len(x_values)-1:
+                    # print('\nthis is len(current_interval)>0 and i==len(x_values)')
+                    current_interval.append(point)
+                    list_of_intervals.append(current_interval)
+                    current_interval = []
 
 
-        # print('\n\n\n list of ranges: ',listofranges,'\n\n\n')
-        return listofranges
+        # print('\n\n\n list of intervals: ',list_of_intervals,'\n\n\n')
+        return list_of_intervals
     
     def find_fit_points(self, x_values_all, y_values_all, least_fit_points, tolerance=1e-5):
         # Find the rest of the points
         rest_of_points = [(x, y) for x, y in zip(x_values_all, y_values_all) if all(abs(x - xp) > tolerance or abs(y - yp) > tolerance for xp, yp in least_fit_points)]
-        print('Lora said ... rest_of_points:      ',rest_of_points)
+        print('LF... rest_of_points:      ',rest_of_points)
         # Convert the result to a list of lists
         rest_of_points_list = [list(point) for point in rest_of_points]
 
@@ -188,114 +254,115 @@ class Validator:
 
         
 
-    # def get_fit_ranges(self,least_fit_x_range, domain_min_range, domain_max_range):
-    #     # Initialize fit_x_ranges with the gap between the minimum domain value and the start of the first range
-    #     fit_x_ranges = [[domain_min_range, least_fit_x_range[0][0]]]
-    #     print('       *** USING get_fit_ranges:  ',fit_x_ranges)
-    #     # Iterate through the given ranges and fill the gaps
-    #     for current_range, next_range in zip(least_fit_x_range, least_fit_x_range[1:]):
-    #         gap_range = [current_range[1], next_range[0]]
-    #         fit_x_ranges.append(gap_range)
+    # def get_fit_intervals(self,least_fit_x_interval, domain_min_interval, domain_max_interval):
+    #     # Initialize fit_x_intervals with the gap between the minimum domain value and the start of the first interval
+    #     fit_x_intervals = [[domain_min_interval, least_fit_x_interval[0][0]]]
+    #     print('       *** USING get_fit_intervals:  ',fit_x_intervals)
+    #     # Iterate through the given intervals and fill the gaps
+    #     for current_interval, next_interval in zip(least_fit_x_interval, least_fit_x_interval[1:]):
+    #         gap_interval = [current_interval[1], next_interval[0]]
+    #         fit_x_intervals.append(gap_interval)
 
-    #     # Add the last range if there is any gap to fill
-    #     if least_fit_x_range[-1][1] < domain_max_range:
-    #         fit_x_ranges.append([least_fit_x_range[-1][1], domain_max_range])
+    #     # Add the last interval if there is any gap to fill
+    #     if least_fit_x_interval[-1][1] < domain_max_interval:
+    #         fit_x_intervals.append([least_fit_x_interval[-1][1], domain_max_interval])
 
-    #     # Ensure fit_x_ranges are within the specified domain boundaries
-    #     fit_x_ranges = [
-    #         [max(range_start, domain_min_range), min(range_end, domain_max_range)]
-    #         for range_start, range_end in fit_x_ranges
+    #     # Ensure fit_x_intervals are within the specified domain boundaries
+    #     fit_x_intervals = [
+    #         [max(interval_start, domain_min_interval), min(rinterval_end, domain_max_interval)]
+    #         for interval_start, interval_end in fit_x_intervals
     #     ]
 
-    #     return fit_x_ranges
+    #     return fit_x_intervals
 
-    def get_fit_ranges(self, least_fit_x_range, domain_min_range, domain_max_range):
-        # Convert a single range to a list of ranges
-        if least_fit_x_range==[]:
-            return [[domain_min_range,domain_max_range]]
+    def get_fit_intervals(self, least_fit_x_interval, domain_min_interval, domain_max_interval):
+        # Convert a single interval to a list of intervals
+        if least_fit_x_interval==[]:
+            return [[domain_min_interval,domain_max_interval]]
 
-        if not isinstance(least_fit_x_range[0], list):
-            least_fit_x_range = [least_fit_x_range]
+        if not isinstance(least_fit_x_interval[0], list):
+            least_fit_x_interval = [least_fit_x_interval]
 
-        # Initialize fit_x_ranges with the gap between the minimum domain value and the start of the first range
-        fit_x_ranges = [[domain_min_range, least_fit_x_range[0][0]]]
-        print('       *** USING get_fit_ranges:  ', fit_x_ranges)
+        # Initialize fit_x_intervals with the gap between the minimum domain value and the start of the first interval
+        fit_x_intervals = [[domain_min_interval, least_fit_x_interval[0][0]]]
+        print('       *** USING get_fit_intervals:  ', fit_x_intervals)
 
-        # Iterate through the given ranges and fill the gaps
-        for current_range, next_range in zip(least_fit_x_range, least_fit_x_range[1:]):
-            gap_range = [current_range[1], next_range[0]]
-            fit_x_ranges.append(gap_range)
+        # Iterate through the given intervals and fill the gaps
+        for current_interval, next_interval in zip(least_fit_x_interval, least_fit_x_interval[1:]):
+            gap_interval = [current_interval[1], next_interval[0]]
+            fit_x_intervals.append(gap_interval)
 
-        # Add the last range if there is any gap to fill
-        if least_fit_x_range[-1][1] < domain_max_range:
-            fit_x_ranges.append([least_fit_x_range[-1][1], domain_max_range])
+        # Add the last interval if there is any gap to fill
+        if least_fit_x_interval[-1][1] < domain_max_interval:
+            fit_x_intervals.append([least_fit_x_interval[-1][1], domain_max_interval])
 
-        # Ensure fit_x_ranges are within the specified domain boundaries
-        fit_x_ranges = [
-            [max(range_start, domain_min_range), min(range_end, domain_max_range)]
-            for range_start, range_end in fit_x_ranges
+        # Ensure fit_x_intervals are within the specified domain boundaries
+        fit_x_intervals = [
+            [max(interval_start, domain_min_interval), min(interval_end, domain_max_interval)]
+            for interval_start, interval_end in fit_x_intervals
         ]
 
-        return fit_x_ranges
+        return fit_x_intervals
 
 
 
         
-    def local_exploration_validator_A(self,x_values, y_values, selected_range=0):
+    def local_exploration_validator_A(self,x_values, y_values, selected_interval=0):
         
         print('       *** USING local_exploration_validator_A')
         # Fitted curve fit_type options include fit_type='polynomial', 'exponential', 'linear'
-        fitted_curve = self.fit_curve(x_values, y_values, fit_type='polynomial',global_range=selected_range)
+        #fitted_curve = self.fit_curve(x_values, y_values, fit_type='polynomial',global_interval=selected_interval)
+        fitted_curve = self.fit_curve2(x_values, y_values)
         equation = fitted_curve[3]
         least_fit_points,predicted_values = self.find_unfit_points(x_values, y_values,fitted_curve=fitted_curve)
-        # least_fit_ranges = self.generate_ranges_from_unfit_points(least_fit_points,threshold=0.75 )        # unfit_points = self.find_least_fit_points(x_values, y_values, fitted_curve, threshold=threshold)
-        unfitting_ranges = self.generate_ranges_from_unfit_points(least_fit_points,x_values)
-        print('unfitting_ranges',unfitting_ranges)
+        # least_fit_interval = self.generate_intervals_from_unfit_points(least_fit_points,threshold=0.75 )        # unfit_points = self.find_least_fit_points(x_values, y_values, fitted_curve, threshold=threshold)
+        unfit_interval = self.generate_intervals_from_unfit_points(least_fit_points,x_values)
+        print('unfit_interval',unfit_interval)
         print('least_fit_points',least_fit_points)
         
         fit_points = self.find_fit_points(x_values,y_values, least_fit_points)
-        fit_ranges = self.get_fit_ranges(unfitting_ranges, domain_min_range =selected_range[0], domain_max_range=selected_range[1])
+        fit_interval = self.get_fit_intervals(unfit_interval, domain_min_interval =selected_interval[0], domain_max_interval=selected_interval[1])
         
-        # #TODO:  regroup_fit_points_per_fit_range =
-        # for i,range in enumerate(fit_ranges):
+        # #TODO:  regroup_fit_points_per_fit_interval =
+        # for i,interval in enumerate(fit_interval):
         #     logger_validator_arguments = {}
         #     logger_validator_arguments["log_contex"] = "fit_VAL_stats"
-        #     logger_validator_arguments["fit_interval"] = range
+        #     logger_validator_arguments["fit_interval"] = interval
         #     logger_validator_arguments["fitting_function"] = equation
         #     logger_validator_arguments["fit_points"] = fit_points
         #     logger.log_validator(logger_validator_arguments)
 
-        for i, range in enumerate(fit_ranges):
-            # Round the range values to 2 decimal places
-            range = [round(val, 2) for val in range]
+        for i, interval in enumerate(fit_interval):
+            # Round the interval values to 2 decimal places
+            interval = [round(val, 2) for val in interval]
 
-            # Filter fit_points for the current range and round the points to 2 decimal places
-            filtered_fit_points = [(round(point[0], 2), round(point[1], 2)) for point in fit_points if range[0] <= point[0] <= range[1]]
+            # Filter fit_points for the current interval and round the points to 2 decimal places
+            filtered_fit_points = [(round(point[0], 2), round(point[1], 2)) for point in fit_points if interval[0] <= point[0] <= interval[1]]
 
             logger_validator_arguments = {}
             logger_validator_arguments["log_contex"] = "fit_VAL_stats"
-            logger_validator_arguments["fit_interval"] = range
+            logger_validator_arguments["fit_interval"] = interval
             logger_validator_arguments["fitting_function"] = equation
             logger_validator_arguments["fit_points"] = filtered_fit_points
             logger.log_validator(logger_validator_arguments)
         
-        # print(unfitting_ranges)
-        # self.update_num_points_evaluated([x_values,y_values], min=global_range[0], max=global_range[1])
-        # self.save_to_text_file('output.txt', least_fit_points, unfitting_ranges,x_values)
-        self.plot_curve(x_values, y_values, fitted_curve, unfitting_ranges,predicted_values)
+        # print(unfit_interval)
+        # self.update_num_points_evaluated([x_values,y_values], min=global_interval[0], max=global_interval[1])
+        # self.save_to_text_file('output.txt', least_fit_points, unfit_interval,x_values)
+        self.plot_curve(x_values, y_values, fitted_curve, unfit_interval,predicted_values)
 
-        print('       *** OUTPUT unfitting_ranges',unfitting_ranges,'\n')
+        print('       *** OUTPUT unfit_interval',unfit_interval,'\n')
 
-        return equation,least_fit_points,unfitting_ranges,fit_points,fit_ranges
+        return equation,least_fit_points,unfit_interval,fit_points,fit_interval
                 
 
-    def validator_controller(self, mod_x_list, sim_y_list, global_range=[mdv["domain_min_range"], mdv["domain_max_range"]],
+    def validator_controller(self, mod_x_list, sim_y_list, global_interval=[mdv["domain_min_interval"], mdv["domain_max_interval"]],
                              local_validator=None, do_plot=False):
         print('Validator...')
         if local_validator is None:
             local_validator = self.local_exploration_validator_A  # Set default if not provided
                         
-        if np.any(self.least_fit_x_range): # if self.least_fit_x_range is not empty
+        if np.any(self.least_fit_x_interval): # if self.least_fit_x_interval is not empty
             # Add all new points to oldl unfit points
             points = list(zip(mod_x_list, sim_y_list))
             points = [list(point) for point in points]
@@ -303,52 +370,52 @@ class Validator:
             points = sorted(points, key=lambda point: point[0])
             print("THIS IS POINTS ",points)
 
-            validator_ranges=[]
+            validator_intervals=[]
 
-            # enter each range couple
-            for each_range in self.least_fit_x_range:
-                #Calcualte bad points in each range
-                print("\n\nTHIS IS self.least_fit_x_range ",self.least_fit_x_range)
-                print("THIS IS EACH RANGE ",each_range[0]," ",each_range[1])
+            # enter each interval couple
+            for each_interval in self.least_fit_x_interval:
+                #Calcualte bad points in each interval
+                print("\n\nTHIS IS self.least_fit_x_interval ",self.least_fit_x_interval)
+                print("THIS IS EACH INTERVAL ",each_interval[0]," ",each_interval[1])
 
-                #Select unfit points ONLY withing each_range
-                unfit_points = [(x, y) for x, y in points if each_range[0] <= x <= each_range[1]]
+                #Select unfit points ONLY withing each_interval
+                unfit_points = [(x, y) for x, y in points if each_interval[0] <= x <= each_interval[1]]
                 if np.any(unfit_points):
                     unfit_x_values, unfit_y_values = zip(*unfit_points)
                     
-                    #Return NEW unfit range(s) withing each_range
-                    equation,least_fit_points,local_unfit_range,fit_points,fit_ranges = local_validator(unfit_x_values, unfit_y_values, selected_range=each_range)
-                    validator_ranges.append(local_unfit_range)
-                    print('equation,least_fit_points,local_unfit_range,fit_points,fit_ranges\n',equation,'\n',fit_points,'\n',fit_ranges)
-                    # print("local_unfit_range ",local_unfit_range)
+                    #Return NEW unfit interval(s) withing each_interval
+                    equation,least_fit_points,local_unfit_interval,fit_points,fit_interval = local_validator(unfit_x_values, unfit_y_values, selected_interval=each_interval)
+                    validator_intervals.append(local_unfit_interval)
+                    print('equation,least_fit_points,local_unfit_interval,fit_points,fit_interval\n',equation,'\n',fit_points,'\n',fit_interval)
+                    # print("local_unfit_interval ",local_unfit_interval)
                     logger_validator_arguments = {}
                     logger_validator_arguments["log_contex"] = "internal VAL stats"
-                    logger_validator_arguments["local_unfit_range"] = each_range
+                    logger_validator_arguments["local_unfit_interval"] = each_interval
                     logger_validator_arguments["unfit_points"] = unfit_points
                     logger.log_validator(logger_validator_arguments)
 
-            validator_ranges = [item for sublist in validator_ranges for item in sublist]
-            self.least_fit_x_range = validator_ranges
+            validator_intervals = [item for sublist in validator_intervals for item in sublist]
+            self.least_fit_x_interval = validator_intervals
 
         else: 
+            #TODO: whi is least_fit_points not used?
+            equation,least_fit_points,validator_intervals,fit_points,fit_interval  = local_validator(mod_x_list, sim_y_list, selected_interval=global_interval)
+            print('equation,fit_points,fit_interval\n',equation,'\n',fit_points,'\n\n',fit_interval)
 
-            equation,least_fit_points,validator_ranges,fit_points,fit_ranges  = local_validator(mod_x_list, sim_y_list, selected_range=global_range)
-            print('equation,fit_points,fit_ranges\n',equation,'\n',fit_points,'\n\n',fit_ranges)
-
-            self.least_fit_x_range = validator_ranges
-            # self.fit_x_ranges = self.get_fit_ranges(validator_ranges, domain_min_range =mdv['domain_min_range'], domain_max_range=mdv['domain_max_range']) #global minus self.least_fit_x_range     
+            self.least_fit_x_interval = validator_intervals
+            # self.fit_x_intervals = self.get_fit_intervals(validator_intervals, domain_min_interval =mdv['domain_min_interval'], domain_max_interval=mdv['domain_max_interval']) #global minus self.least_fit_x_interval     
             # Log the equation
-        print('       *** OUTPUT validator_ranges', validator_ranges, '\n')
+        print('       *** OUTPUT validator_intervals', validator_intervals, '\n')
         
         logger_validator_arguments = {}
         logger_validator_arguments["log_contex"] = "internal VAL stats"
-        logger_validator_arguments["validator_ranges"] = validator_ranges
+        logger_validator_arguments["validator_intervals"] = validator_intervals
         logger.log_validator(logger_validator_arguments)
         
-        return validator_ranges
+        return validator_intervals
 
 
-    def plot_curve(self, x_values, y_values, fitted_curve, unfitting_ranges, predicted_values):  # Add self
+    def plot_curve(self, x_values, y_values, fitted_curve, unfit_interval, predicted_values):  # Add self
         print('       *** USING plot_curve')
         plt.figure(figsize=(10, 6))
 
@@ -359,11 +426,11 @@ class Validator:
         plt.plot(fitted_curve[2], fitted_curve[1] + vlv["threshold_y_fitting"], color='black', label='threshold ')
         plt.plot(fitted_curve[2], fitted_curve[1] - vlv["threshold_y_fitting"], color='black', label='threshold ')
 
-        for start, end in unfitting_ranges:
-            plt.axvspan(start, end, color='orange', alpha=0.3, label='Unfitting Range')
+        for start, end in unfit_interval:
+            plt.axvspan(start, end, color='orange', alpha=0.3, label='unfit Interval')
 
         plt.xlabel('X Values')
         plt.ylabel('Y Values')
-        plt.title('Fitted Curve with Unfitting Ranges')
+        plt.title('Fitted Curve with unfit Intervals')
         plt.legend()
         plt.show()

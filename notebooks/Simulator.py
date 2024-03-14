@@ -1,17 +1,23 @@
 import numpy as np
+import math
 
 class Simulator:
     def sim_func_A(x):
         # print('\nthis should be a single point: ',x)
-        noise = np.random.normal(-1000, 1000, 1)
+        noise = np.random.normal(-10, 10, 1)
         return float(x**3 - x**2 + noise)
 
     def sim_func_B(x):
-        noise = np.random.normal(-8, 8, 1)
+        noise = np.random.normal(-10, 10, 1)
 
-        return float(x * 2 / 3 +noise)
+        return float(math.sin(x * 2 / 3) + noise)
+    
+    def sim_func_C(x):
+        noise = np.random.normal(-3, 3, 1)
 
-    def simulator_controller(mod_x, selected_function=sim_func_B):
+        return float(math.sin(x**2) + x * 2 / 3 + noise)
+
+    def simulator_controller(mod_x, selected_function=sim_func_C):
         print("\nSimulator...")
         # shape_mod_x = np.shape(mod_x)
         if mod_x is False: 

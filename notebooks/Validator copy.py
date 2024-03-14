@@ -14,7 +14,7 @@ class Validator:
         self.iterations = 1
         self.total_points = 0
         self.total_bad_points = 0
-        self.range = (mdv["domain_min_range"], mdv["domain_max_range"])
+        self.range = (mdv["domain_min_interval"], mdv["domain_max_range"])
         self.num_points_evaluated = 0
         
         self.least_fit_intercept = None
@@ -128,7 +128,7 @@ class Validator:
         
         return listofranges
         
-    def local_exploration_validator_A(self,x_values, y_values, global_range=[mdv["domain_min_range"], mdv["domain_max_range"]]):
+    def local_exploration_validator_A(self,x_values, y_values, global_range=[mdv["domain_min_interval"], mdv["domain_max_range"]]):
         print('       *** USING local_exploration_validator_A')
         fitted_curve = Validator.fit_curve(x_values, y_values, global_range)
         least_fit_points,predicted_values = self.find_unfit_points(x_values, y_values,fitted_curve=fitted_curve)
@@ -142,10 +142,10 @@ class Validator:
         print('       *** OUTPUT unfitting_ranges',unfitting_ranges,'\n')
         return unfitting_ranges
 
-    def validator_controller(self,mod_x_list, sim_y_list, global_range=[mdv["domain_min_range"], mdv["domain_max_range"]], local_validator=self.local_exploration_validator_A, do_plot=False):
+    def validator_controller(self,mod_x_list, sim_y_list, global_range=[mdv["domain_min_interval"], mdv["domain_max_range"]], local_validator=self.local_exploration_validator_A, do_plot=False):
         print('       *** USING validator_controller')
 
-        validator_ranges = local_validator(mod_x_list, sim_y_list, global_range=[mdv["domain_min_range"], mdv["domain_max_range"]])
+        validator_ranges = local_validator(mod_x_list, sim_y_list, global_range=[mdv["domain_min_interval"], mdv["domain_max_range"]])
         print('       *** OUTPUT validator_ranges',validator_ranges,'\n')
         return validator_ranges
 
