@@ -1,14 +1,10 @@
 ## VALIDATOR FILE: :
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.linear_model import HuberRegressor
-from sklearn.preprocessing import StandardScaler
-from global_settings import mdv,vls,vlv
-from itertools import compress
+from global_settings import mdv,vlv
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import make_pipeline
-from sklearn.metrics import r2_score
 from Logger import Logger
 
 logger = Logger() 
@@ -34,7 +30,7 @@ class Validator:
         y_values = np.array(y_values)  # Convert to numpy array
         coefficients = np.polyfit(x_values, y_values, deg=3)
         p = np.poly1d(coefficients)
-        intercept = p(0)
+        intercept = coefficients[-1]
         equation = f'y = {coefficients[0]:.5f}x^3 +{coefficients[1]:.5f}x^2 + {coefficients[2]:.5f}x + {intercept:.5f}'
         y_pred = p(x_values.reshape(-1,1))
         print("\n\nCALLED FIT_CURVE2")
@@ -45,6 +41,17 @@ class Validator:
         return intercept, y_pred.flatten(), x_values, equation
         
     
+    def build_equation_string(self, coefficients:list):
+        equation = 'y = '
+        highest_degree = len(coefficients) -1
+        for idx, coeff in enumerate(coefficients):
+            degree = highest_degree - idx
+            sign = '+' if coeff >= 0 else '-'
+            if degree == 0: 
+                equation += str(coeff)
+                break
+            equation += f'{coeff}x^{degree} {sign} '
+        return equation
 
     # def fit_curve2(self, x_values, y_values, max_deg=10, r2_threshold=0.1):
     #     x_values = np.array(x_values)  # Convert to numpy array
