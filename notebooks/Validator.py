@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from global_settings import mdv,vlv
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 from sklearn.pipeline import make_pipeline
 from Logger import Logger
 
@@ -31,7 +32,7 @@ class Validator:
         coefficients = np.polyfit(x_values, y_values, deg=3)
         p = np.poly1d(coefficients)
         intercept = coefficients[-1]
-        equation = f'y = {coefficients[0]:.5f}x^3 +{coefficients[1]:.5f}x^2 + {coefficients[2]:.5f}x + {intercept:.5f}'
+        equation = self.build_equation_string(coefficients)
         y_pred = p(x_values.reshape(-1,1))
         print("\n\nCALLED FIT_CURVE2")
         print("INTERCEPT"+str(intercept))
@@ -46,12 +47,51 @@ class Validator:
         highest_degree = len(coefficients) -1
         for idx, coeff in enumerate(coefficients):
             degree = highest_degree - idx
-            sign = '+' if coeff >= 0 else '-'
+            sign = '+' if coeff >= 0 else ''
             if degree == 0: 
                 equation += str(coeff)
                 break
             equation += f'{coeff}x^{degree} {sign} '
-        return equation
+        return equation    
+        
+    def fit_curve3(self, x_values, y_values, max_deg=5, threshold=0.05):
+        x_values = np.array(x_values)  # Convert to numpy array
+        y_values = np.array(y_values)  # Convert to numpy array
+        mse = np.Infinity
+        coeff = None
+        intersect = None
+        y_pred = None
+
+        degree = 1
+
+        while degree <= max_deg:
+            current_coeff = np.polyfit(x_values, y_values, deg=degree)
+            p = np.poly1d(current_coeff)
+            current_intersect = current_coeff[-1]
+            current_y_pred = p(x_values.reshape(-1,1))
+            current_mse = mean_squared_error(y_values, current_y_pred)
+            
+            has_mse_improved: bool  = current_mse <= mse
+            is_acceptable_improvement: bool = (mse - current_mse) >= threshold
+            print('current MSE'+ str(current_mse))
+            print('mse ' + str(mse))
+            print('degree ' + str(degree))
+            if not has_mse_improved or not is_acceptable_improvement:
+                break
+
+            mse = current_mse 
+            coeff = current_coeff
+            intersect = current_intersect
+            y_pred = current_y_pred
+            degree += 1
+        equation = self.build_equation_string(coeff)
+        print("\n\nCALLED FIT_CURVE3")
+        print("INTERCEPT"+str(intersect))
+        print("Y_PRED"+str(y_pred.flatten()))
+        print("X_VALUES"+str(x_values))
+        print("EQUATION"+str(equation))
+
+        return intersect, y_pred.flatten(), x_values, equation
 
     # def fit_curve2(self, x_values, y_values, max_deg=10, r2_threshold=0.1):
     #     x_values = np.array(x_values)  # Convert to numpy array
@@ -319,7 +359,7 @@ class Validator:
         print('       *** USING local_exploration_validator_A')
         # Fitted curve fit_type options include fit_type='polynomial', 'exponential', 'linear'
         #fitted_curve = self.fit_curve(x_values, y_values, fit_type='polynomial',global_interval=selected_interval)
-        fitted_curve = self.fit_curve2(x_values, y_values)
+        fitted_curve = self.fit_curve3(x_values, y_values)
         equation = fitted_curve[3]
         least_fit_points,predicted_values = self.find_unfit_points(x_values, y_values,fitted_curve=fitted_curve)
         # least_fit_interval = self.generate_intervals_from_unfit_points(least_fit_points,threshold=0.75 )        # unfit_points = self.find_least_fit_points(x_values, y_values, fitted_curve, threshold=threshold)
