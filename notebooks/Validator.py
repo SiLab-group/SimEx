@@ -47,11 +47,11 @@ class Validator:
         highest_degree = len(coefficients) -1
         for idx, coeff in enumerate(coefficients):
             degree = highest_degree - idx
-            sign = '+' if coeff >= 0 else ''
+            sign = '+' if coeff >= 0 and idx !=0 else ''
             if degree == 0: 
                 equation += str(coeff)
                 break
-            equation += f'{coeff}x^{degree} {sign} '
+            equation += f'{sign} {coeff}x^{degree} '
         return equation    
         
     def fit_curve3(self, x_values, y_values, max_deg=9, threshold=0.1, penality_weight=1):
