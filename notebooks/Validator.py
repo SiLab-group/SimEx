@@ -54,7 +54,7 @@ class Validator:
             equation += f'{coeff}x^{degree} {sign} '
         return equation    
         
-    def fit_curve3(self, x_values, y_values, max_deg=5, threshold=0.05):
+    def fit_curve3(self, x_values, y_values, max_deg=9, threshold=0.1, penality_weight=1):
         x_values = np.array(x_values)  # Convert to numpy array
         y_values = np.array(y_values)  # Convert to numpy array
         mse = np.Infinity
@@ -69,13 +69,11 @@ class Validator:
             p = np.poly1d(current_coeff)
             current_intersect = current_coeff[-1]
             current_y_pred = p(x_values.reshape(-1,1))
-            current_mse = mean_squared_error(y_values, current_y_pred)
-            
+            # Add penality to MSE to avoid overfitting with high dimension polynomial
+            current_mse = mean_squared_error(y_values, current_y_pred) + penality_weight * np.sum(current_coeff[:-1] ** 2)
             has_mse_improved: bool  = current_mse <= mse
             is_acceptable_improvement: bool = (mse - current_mse) >= threshold
-            print('current MSE'+ str(current_mse))
-            print('mse ' + str(mse))
-            print('degree ' + str(degree))
+           
             if not has_mse_improved or not is_acceptable_improvement:
                 break
 
@@ -86,7 +84,6 @@ class Validator:
             degree += 1
         equation = self.build_equation_string(coeff)
         print("\n\nCALLED FIT_CURVE3")
-        print("INTERCEPT"+str(intersect))
         print("Y_PRED"+str(y_pred.flatten()))
         print("X_VALUES"+str(x_values))
         print("EQUATION"+str(equation))
