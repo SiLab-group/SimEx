@@ -24,6 +24,6 @@ lgs={"log_granularity":3}
 
 
 # DDL: (for everything) END OF MARCH
-# TODO: 02/24 refactor unifying var naming - DONE
-# TODO: 02/24 log summary (timestamp | good interval | fitting function | fitting points -- and (at the end) unfitting intervals and points if any)
+# TODO: DONE - 02/24 refactor unifying var naming
+# TODO: DONE - 02/24 log summary (timestamp | good interval | fitting function | fitting points -- and (at the end) unfitting intervals and points if any)
 # TODO: 03/24 a some point, introduce exploitation mode (just from modifier to sim and no validator)

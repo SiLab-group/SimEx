@@ -61,7 +61,7 @@ class Modifier:
                 simexSettings["extensive_iteration"] = True
             else:  
                 # Exit the function if not possible
-                return False
+                return False, intervals_list
                        
         mds["mod_iterations"] +=1
         for i, (interval_min_tick, interval_max_tick) in enumerate(intervals_list):
@@ -97,4 +97,4 @@ class Modifier:
         
         # print('  * Mod_x:   ',all_interval_mod)
         # print('  * Mod_x shape:   ',np.shape(all_interval_mod))
-        return all_intervals_mod
+        return all_intervals_mod,intervals_list

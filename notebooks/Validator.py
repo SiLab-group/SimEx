@@ -54,7 +54,7 @@ class Validator:
             equation += f'{sign} {coeff}x^{degree} '
         return equation    
         
-    def fit_curve3(self, x_values, y_values, max_deg=9, threshold=0.1, penality_weight=1):
+    def fit_curve(self, x_values, y_values, max_deg=9, threshold=0.1, penality_weight=1):
         x_values = np.array(x_values)  # Convert to numpy array
         y_values = np.array(y_values)  # Convert to numpy array
         mse = np.Infinity
@@ -83,140 +83,98 @@ class Validator:
             y_pred = current_y_pred
             degree += 1
         equation = self.build_equation_string(coeff)
-        print("\n\nCALLED FIT_CURVE3")
+        print("\n\nCALLED FIT_CURVE")
         print("Y_PRED"+str(y_pred.flatten()))
         print("X_VALUES"+str(x_values))
         print("EQUATION"+str(equation))
 
         return intersect, y_pred.flatten(), x_values, equation
 
-    # def fit_curve2(self, x_values, y_values, max_deg=10, r2_threshold=0.1):
+
+    # def fit_curve(self, x_values, y_values, fit_type='polynomial', global_interval=0):
+       
     #     x_values = np.array(x_values)  # Convert to numpy array
     #     y_values = np.array(y_values)  # Convert to numpy array
 
-    #     best_r2 = 0
-    #     best_deg = 0
-    #     best_p = np.poly1d([0])
-    #     best_intercept = 0
-    #     best_y_pred = np.zeros_like(y_values)
-    #     best_equation = ''
+    #     if fit_type == 'polynomial':
 
-    #     for deg in range(1, max_deg+1):
-    #         coefficients = np.polyfit(x_values, y_values, deg)
-    #         p = np.poly1d(coefficients)
-    #         intercept = p(0)
-    #         y_pred = p(x_values)
+    #         '''using both Polynomial Features and LinearRegression to create a polynomial regression model. 
+    #         The PolynomialFeatures is used to generate polynomial features, and then 
+    #         LinearRegression is applied to these features.'''
 
-    #         # Compute R-squared value for each point and sum them
-    #         r2 = r2_score(y_values, y_pred)
+    #         # Set the degree of the polynomial (you can adjust this)
+    #         degree = 2
 
-    #         # Check if the improvement in R-squared is significant
-    #         if r2 - best_r2 > r2_threshold:
-    #             best_r2 = r2
-    #             best_deg = deg
-    #             best_p = p
-    #             best_intercept = intercept
-    #             best_y_pred = y_pred
+    #         # Create a polynomial regression model
+    #         model = make_pipeline(PolynomialFeatures(degree), LinearRegression())
 
-    #             # Create the equation string based on the degree
-    #             equation = 'y = ' + ' + '.join([f'{coeff:.5f}x^{i}' for i, coeff in enumerate(coefficients[::-1])])
-    #             best_equation = equation
-    #         else:
-    #             break
+    #         # Fit the model
+    #         model.fit(x_values.reshape(-1, 1), y_values)
 
-    #     print("\n\nCALLED FIT_CURVE2")
-    #     print("BEST DEGREE: "+str(best_deg))
-    #     print("INTERCEPT: "+str(best_intercept))
-    #     print("Y_PRED: "+str(best_y_pred))
-    #     print("X_VALUES: "+str(x_values))
-    #     print("EQUATION: "+str(best_equation))
-    #     return best_intercept, best_y_pred, x_values, best_equation
+    #         # Generate an interval of x values for plotting
+    #         # x_interval = np.linspace(min(x_values), max(x_values), 10).reshape(-1, 1)
 
-
-    def fit_curve(self, x_values, y_values, fit_type='polynomial', global_interval=0):
-       
-        x_values = np.array(x_values)  # Convert to numpy array
-        y_values = np.array(y_values)  # Convert to numpy array
-
-        if fit_type == 'polynomial':
-
-            '''using both Polynomial Features and LinearRegression to create a polynomial regression model. 
-            The PolynomialFeatures is used to generate polynomial features, and then 
-            LinearRegression is applied to these features.'''
-
-            # Set the degree of the polynomial (you can adjust this)
-            degree = 2
-
-            # Create a polynomial regression model
-            model = make_pipeline(PolynomialFeatures(degree), LinearRegression())
-
-            # Fit the model
-            model.fit(x_values.reshape(-1, 1), y_values)
-
-            # Generate an interval of x values for plotting
-            # x_interval = np.linspace(min(x_values), max(x_values), 10).reshape(-1, 1)
-
-            # Get the coefficients of the fitted line
-            intercept = model.named_steps['linearregression'].intercept_
-            coefficients = model.named_steps['linearregression'].coef_
+    #         # Get the coefficients of the fitted line
+    #         intercept = model.named_steps['linearregression'].intercept_
+    #         coefficients = model.named_steps['linearregression'].coef_
 
             
-            print('       *** OUTPUT fit_curve slope, intercept',coefficients, intercept,'\n')
+    #         print('       *** OUTPUT fit_curve slope, intercept',coefficients, intercept,'\n')
 
-            equation = f'y = {coefficients[0]:.2f}x^2 + {coefficients[1]:.2f}x + {intercept:.2f}'
-            print('       *** OUTPUT fit_curve equation:', equation, '\n')
+    #         equation = f'y = {coefficients[0]:.2f}x^2 + {coefficients[1]:.2f}x + {intercept:.2f}'
+    #         print('       *** OUTPUT fit_curve equation:', equation, '\n')
 
 
-            y_pred = model.predict(x_values.reshape(-1, 1))
+    #         y_pred = model.predict(x_values.reshape(-1, 1))
 
-        elif fit_type == 'exponential':
-            # Exponential fit
-            model = LinearRegression()
+    #     elif fit_type == 'exponential':
+    #         # Exponential fit
+    #         model = LinearRegression()
 
-            # Transform x_values to the logarithmic scale for exponential fit
-            x_values_log = np.log(x_values)
+    #         # Transform x_values to the logarithmic scale for exponential fit
+    #         x_values_log = np.log(x_values)
 
-            # Fit the model
-            model.fit(x_values_log.reshape(-1, 1), y_values)
+    #         # Fit the model
+    #         model.fit(x_values_log.reshape(-1, 1), y_values)
 
-            # Get the coefficients of the fitted line
-            intercept = model.intercept_
-            slope = model.coef_[0]
+    #         # Get the coefficients of the fitted line
+    #         intercept = model.intercept_
+    #         slope = model.coef_[0]
 
-            # Print the equation of the fitted curve
-            equation = f'y = e^({intercept:.2f} + {slope:.2f} * log(x))'
-            print('       *** OUTPUT fit_curve exponential equation:', equation, '\n')
+    #         # Print the equation of the fitted curve
+    #         equation = f'y = e^({intercept:.2f} + {slope:.2f} * log(x))'
+    #         print('       *** OUTPUT fit_curve exponential equation:', equation, '\n')
 
-            # Predict y values using the fitted model
-            y_pred = np.exp(intercept + slope * np.log(x_values))
+    #         # Predict y values using the fitted model
+    #         y_pred = np.exp(intercept + slope * np.log(x_values))
 
-        elif fit_type == 'linear':
-            # Linear fit
-            model = LinearRegression()
+    #     elif fit_type == 'linear':
+    #         # Linear fit
+    #         model = LinearRegression()
 
-            # Fit the model
-            model.fit(x_values.reshape(-1, 1), y_values)
+    #         # Fit the model
+    #         model.fit(x_values.reshape(-1, 1), y_values)
 
-            # Get the coefficients of the fitted line
-            intercept = model.intercept_
-            slope = model.coef_[0]
+    #         # Get the coefficients of the fitted line
+    #         intercept = model.intercept_
+    #         slope = model.coef_[0]
 
-            # Print the equation of the fitted line
-            equation = f'y = {slope:.2f}x + {intercept:.2f}'
-            print('       *** OUTPUT fit_curve linear equation:', equation, '\n')
+    #         # Print the equation of the fitted line
+    #         equation = f'y = {slope:.2f}x + {intercept:.2f}'
+    #         print('       *** OUTPUT fit_curve linear equation:', equation, '\n')
 
-            # Predict y values using the fitted model
-            y_pred = model.predict(x_values.reshape(-1, 1))
+    #         # Predict y values using the fitted model
+    #         y_pred = model.predict(x_values.reshape(-1, 1))
 
-        else:
-            raise ValueError("Invalid fit_type. Use 'polynomial', 'exponential', or 'linear'.")
+    #     else:
+    #         raise ValueError("Invalid fit_type. Use 'polynomial', 'exponential', or 'linear'.")
 
-        print("\n\nCALLED FIT_CURVE1")
-        print("INTERCEPT"+str(intercept))
-        print("Y_PRED"+str(y_pred))
-        print("X_VALUES"+str(x_values))
-        print("EQUATION"+str(equation))
-        return intercept, y_pred, x_values, equation
+    #     print("\n\nCALLED FIT_CURVE1")
+    #     print("INTERCEPT"+str(intercept))
+    #     print("Y_PRED"+str(y_pred))
+    #     print("X_VALUES"+str(x_values))
+    #     print("EQUATION"+str(equation))
+    #     return intercept, y_pred, x_values, equation
 
 
 
@@ -356,7 +314,7 @@ class Validator:
         print('       *** USING local_exploration_validator_A')
         # Fitted curve fit_type options include fit_type='polynomial', 'exponential', 'linear'
         #fitted_curve = self.fit_curve(x_values, y_values, fit_type='polynomial',global_interval=selected_interval)
-        fitted_curve = self.fit_curve3(x_values, y_values)
+        fitted_curve = self.fit_curve(x_values, y_values)
         equation = fitted_curve[3]
         least_fit_points,predicted_values = self.find_unfit_points(x_values, y_values,fitted_curve=fitted_curve)
         # least_fit_interval = self.generate_intervals_from_unfit_points(least_fit_points,threshold=0.75 )        # unfit_points = self.find_least_fit_points(x_values, y_values, fitted_curve, threshold=threshold)
@@ -366,15 +324,6 @@ class Validator:
         
         fit_points = self.find_fit_points(x_values,y_values, least_fit_points)
         fit_interval = self.get_fit_intervals(unfit_interval, domain_min_interval =selected_interval[0], domain_max_interval=selected_interval[1])
-        
-        # #TODO:  regroup_fit_points_per_fit_interval =
-        # for i,interval in enumerate(fit_interval):
-        #     logger_validator_arguments = {}
-        #     logger_validator_arguments["log_contex"] = "fit_VAL_stats"
-        #     logger_validator_arguments["fit_interval"] = interval
-        #     logger_validator_arguments["fitting_function"] = equation
-        #     logger_validator_arguments["fit_points"] = fit_points
-        #     logger.log_validator(logger_validator_arguments)
 
         for i, interval in enumerate(fit_interval):
             # Round the interval values to 2 decimal places
