@@ -3,7 +3,7 @@
 simexSettings={"do_plot":False,"extensive_search":False,"extensive_iteration":False, "SimEx_mode":"exploration"}
 
 # Modifier domain settings
-mdv={"domain_min_interval":1, "domain_max_interval":100, "modifier_incremental_unit":3, "modifier_data_point":10}
+mdv={"domain_min_interval":1, "domain_max_interval":500, "modifier_incremental_unit":3, "modifier_data_point":50}
 # Modifier functions settings (just for the GUI)
 mdf={"Func A: x^2  |1": "x^2", "Func B: X^2/3  |1": "x^2/3"}
 # Modifier global statistics 
@@ -24,6 +24,7 @@ lgs={"log_granularity":3}
 
 
 # DDL: (for everything) END OF MARCH
+# TODO: DONE - 02/24 fixed fitting function
 # TODO: DONE - 02/24 refactor unifying var naming
-# TODO: DONE - 02/24 log summary (timestamp | good interval | fitting function | fitting points -- and (at the end) unfitting intervals and points if any)
+# TODO: DONE - 03/24 log summary (timestamp | good interval | fitting function | fitting points -- and (at the end) unfitting intervals and points if any)
 # TODO: 03/24 a some point, introduce exploitation mode (just from modifier to sim and no validator)

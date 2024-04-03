@@ -13,7 +13,7 @@ class Simulator:
         return float(math.sin(x * 2 / 3) + noise)
     
     def sim_func_C(x):
-        noise = np.random.normal(-3, 3, 1)
+        noise = np.random.normal(-1, 1, 1)
 
         return float(math.sin(x**2) + x * 2 / 3 + noise)
 

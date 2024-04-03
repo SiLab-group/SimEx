@@ -1,7 +1,11 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import re
+
 from datetime import datetime
 from global_settings import lgs,mds
 
-fit_data = []
+all_fit_intervals_data = []
 remaining_unfit_intervals = []
 
 class Logger:
@@ -31,7 +35,7 @@ class Logger:
     # def _write_results(self):
     #     #timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-    #     for element in fit_data:
+    #     for element in all_fit_intervals_data:
     #         result_entry = f"GI: {element['fit_interval']} | FF: {element['fitting_function']} | PTs: {element['fit_points']}\n"
     #         self.file.write(result_entry)
     #         self.file.flush()  # Ensure the message is written immediately
@@ -46,31 +50,73 @@ class Logger:
     #             self.file.write(result_entry)
     #             self.file.flush()  # Ensure the message is written immediately
         
+    def _plot_results(self,all_fit_intervals_data,remaining_unfit_intervals):
+        
+        #FI_intervals = [element for element in all_intervals if len(element.keys()) > 1]
+        #UI_intervals = [element for element in all_intervals if len(element.keys()) < 1]
+
+        fig, ax = plt.subplots(figsize=(10, 5))
+   
+
+        # Plot FI intervals with their fitting functions
+        for element in all_fit_intervals_data:
+            interval = element['interval']
+            fitting_function_str = element['fitting_function']
+            
+            # Convert the string into a function
+            terms = re.findall(r'([+-]?\s*\d+\.?\d*(?:e[+-]?\d+)?)(x\^\d+)?', fitting_function_str.replace(' ', ''))
+            coefficients = [0]*10  # Initialize a list of 10 zeros
+            for term in terms:
+                coef = float(term[0])
+                if term[1]:  # If there is an 'x' term
+                    exponent = int(term[1][2:])  # Get the exponent
+                    while len(coefficients) <= exponent:  # Expand the list if needed
+                        coefficients.append(0)
+                    coefficients[exponent] = coef  # Assign the coefficient to the corresponding position in the list
+                else:  # If there is no 'x' term, it's the constant term
+                    coefficients[0] = coef
+            fitting_function = np.poly1d(coefficients[::-1])  # Reverse the list to match the order expected by np.poly1d
+            
+            x = np.linspace(interval[0], interval[1], 400)  # Adjust the number of points as needed
+            y = fitting_function(x)
+            ax.plot(x, y, label=f'Interval: {interval}')
+            plt.ylim([-100,100])
+            ax.set_xticks(np.arange(*ax.get_xlim(), (ax.get_xlim()[1]-ax.get_xlim()[0])/20))
+            #ax.set_xticks(list(ax.get_xticks()) + [interval[0], interval[1]])
+            
+        for element in remaining_unfit_intervals:
+            #bad_interval = element['interval']
+            #ax.axvspan(bad_interval[0], bad_interval[1], color='gray', alpha=0.3, label='unfit Interval')
+            ax.axvspan(*element['interval'], color='gray', alpha=0.3, label='unfit Interval')
+
+
+    
+    
     def _write_results(self):
         
         if not remaining_unfit_intervals:
-            fit_data.sort(key=lambda x: x['interval'][0])
+            all_fit_intervals_data.sort(key=lambda x: x['interval'][0])
             result_entry = "No unfit interval(s) left.\n"
             self.file.write(result_entry)
             self.file.flush()  # Ensure the message is written immediately
             
-            for element in fit_data:
+            for element in all_fit_intervals_data:
                 result_entry = f"FI: {str(element['interval']):<20} | FF: {str(element['fitting_function']):<30} | PTs: {str(element['fit_points']):<50}\n"
                 self.file.write(result_entry)
                 self.file.flush()  # Ensure the message is written immediately
-            return 
-            
-        #OVERALL SORTED
-        all_intervals = fit_data + remaining_unfit_intervals
-        all_intervals.sort(key=lambda x: x['interval'][0])
+        else:    
+            #OVERALL SORTED
+            all_intervals = all_fit_intervals_data + remaining_unfit_intervals
+            all_intervals.sort(key=lambda x: x['interval'][0])
 
-        for element in all_intervals:
-            if (len(element.keys()) > 1):
-                result_entry = f"FI: {str(element['interval']):<40} | FF: {str(element['fitting_function']):<30} | PTs: {str(element['fit_points']):<50}\n"
-            else:
-                result_entry = f"UI: {str(element['interval']):<40} | \n"
-            self.file.write(result_entry)
-            self.file.flush()  # Ensure the message is written immediately
+            for element in all_intervals:
+                if (len(element.keys()) > 1):
+                    result_entry = f"FI: {str(element['interval']):<40} | FF: {str(element['fitting_function']):<30} | PTs: {str(element['fit_points']):<50}\n"
+                else:
+                    result_entry = f"UI: {str(element['interval']):<40} | \n"
+                self.file.write(result_entry)
+                self.file.flush()  # Ensure the message is written immediately
+        self._plot_results(all_fit_intervals_data,remaining_unfit_intervals)
         
         
         
@@ -131,13 +177,6 @@ class Logger:
                     message = "      * The points of the interval " + str(i) + " are: " + str(sublist)
                     self._write_log('[MOD]: ', message)
 
-        # if logger_arguments["log_contex"] == "overall MOD stats":
-        #     message = ("   ***   Overall Stats   ***   ")
-        #     self._write_log('[MOD]: ', message)
-        #     message = "Total generated points: " + str(mds["points_generated_total"])
-        #     self._write_log('[MOD]: ', message)
-        #     message = "Total intervals used for points generation: " + str(mds["points_generation_intervals"])
-        #     self._write_log('[MOD]: ', message)
 
 
     def log_simulator(self, message):
@@ -182,7 +221,7 @@ class Logger:
             "interval": logger_arguments.get("fit_interval"),
             "fitting_function": logger_arguments.get("fitting_function"),
             "fit_points": logger_arguments.get("fit_points")}
-            fit_data.append(new_fit_entry)
+            all_fit_intervals_data.append(new_fit_entry)
             
         
 
