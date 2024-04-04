@@ -1,7 +1,7 @@
 ## VALIDATOR FILE: :
 import numpy as np
 import matplotlib.pyplot as plt
-from global_settings import mdv,vlv
+from global_settings import mds,vfs
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
@@ -15,7 +15,7 @@ class Validator:
         self.iterations = 1
         self.total_points = 0
         self.total_bad_points = 0
-        self.interval = (mdv["domain_min_interval"], mdv["domain_max_interval"])
+        self.interval = (mds["domain_min_interval"], mds["domain_max_interval"])
         self.num_points_evaluated = 0
         
         self.least_fit_intercept = None
@@ -188,7 +188,7 @@ class Validator:
         residuals = np.round(y_values,4) - np.round(y_pred,4)
         # Get all indeces where residual is higher than threshold*y_predict value
         # print(vlv["threshold_y_fitting"])
-        least_fit_indices =  np.where(np.abs(residuals) > vlv["threshold_y_fitting"])[0]
+        least_fit_indices =  np.where(np.abs(residuals) > vfs["threshold_y_fitting"])[0]
         # print('least_fit_indices' ,least_fit_indices)
 
         # Create a list of points with the residuals higher than threshold
@@ -217,21 +217,21 @@ class Validator:
                     # print('\nthis is len(current_interval)==0 else')
                     # close the interval with point[-1]+threshold
                     interpoint_interval = point - x_values[i-1]
-                    current_interval.append(x_values[i-1]+vlv["threshold_x_interval"]*interpoint_interval)
+                    current_interval.append(x_values[i-1]+vfs["threshold_x_interval"]*interpoint_interval)
                     list_of_intervals.append(current_interval)
                     current_interval = []
             else:                    
                 if len(current_interval)==0 and 0<i<len(x_values)-1:
                     # print('\nthis is len(current_interval)==0 and 0<i<len(x_values)')
                     interpoint_interval = point - x_values[i-1]
-                    current_interval.append(point-vlv["threshold_x_interval"]*interpoint_interval)
+                    current_interval.append(point-vfs["threshold_x_interval"]*interpoint_interval)
                 elif len(current_interval)==0 and i==0:
                     # print('\nthis is len(current_interval)==0 and i==0')
                     current_interval.append(point)
                 elif len(current_interval)==0 and i==len(x_values)-1:
                     # print('\nthis is len(current_interval)==0 and i==len(x_values)')
                     interpoint_interval= point - x_values[i-1]
-                    current_interval.append(point-vlv["threshold_x_interval"]*interpoint_interval)
+                    current_interval.append(point-vfs["threshold_x_interval"]*interpoint_interval)
                     current_interval.append(point)
                     list_of_intervals.append(current_interval)
                     current_interval = []
@@ -349,7 +349,7 @@ class Validator:
         return equation,least_fit_points,unfit_interval,fit_points,fit_interval
                 
 
-    def validator_controller(self, mod_x_list, sim_y_list, global_interval=[mdv["domain_min_interval"], mdv["domain_max_interval"]],
+    def validator_controller(self, mod_x_list, sim_y_list, global_interval=[mds["domain_min_interval"], mds["domain_max_interval"]],
                              local_validator=None, do_plot=False):
         print('Validator...')
         if local_validator is None:
@@ -416,8 +416,8 @@ class Validator:
         plt.scatter(x_values, predicted_values, label='Predicted y Data', marker='x')
 
         plt.plot(fitted_curve[2], fitted_curve[1], color='red', label='Polynomial Regression')
-        plt.plot(fitted_curve[2], fitted_curve[1] + vlv["threshold_y_fitting"], color='black', label='threshold ')
-        plt.plot(fitted_curve[2], fitted_curve[1] - vlv["threshold_y_fitting"], color='black', label='threshold ')
+        plt.plot(fitted_curve[2], fitted_curve[1] + vfs["threshold_y_fitting"], color='black', label='threshold ')
+        plt.plot(fitted_curve[2], fitted_curve[1] - vfs["threshold_y_fitting"], color='black', label='threshold ')
 
         for start, end in unfit_interval:
             plt.axvspan(start, end, color='orange', alpha=0.3, label='unfit Interval')

@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import HuberRegressor
 from sklearn.preprocessing import StandardScaler
-from global_settings import mdv,vls,vlv
+from global_settings import mds,vgs,vfs
 from itertools import compress
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
@@ -14,7 +14,7 @@ class Validator:
         self.iterations = 1
         self.total_points = 0
         self.total_bad_points = 0
-        self.range = (mdv["domain_min_interval"], mdv["domain_max_range"])
+        self.range = (mds["domain_min_interval"], mds["domain_max_range"])
         self.num_points_evaluated = 0
         
         self.least_fit_intercept = None
@@ -63,8 +63,8 @@ class Validator:
         residuals = np.round(y_values,2) - np.round(self.least_fit_y_pred,2)
         print('\n\n\nResiduals: ',residuals)
         # Get all indeces where residual is higher than threshold*y_predict value
-        print(vlv["threshold_y_fitting"])
-        least_fit_indices =  np.where(np.abs(residuals) > vlv["threshold_y_fitting"])[0]
+        print(vfs["threshold_y_fitting"])
+        least_fit_indices =  np.where(np.abs(residuals) > vfs["threshold_y_fitting"])[0]
         print('least_fit_indices' ,least_fit_indices)
 
         # Create a list of points with the residuals higher than threshold
@@ -99,21 +99,21 @@ class Validator:
                     # print('\nthis is len(current_range)==0 else')
                     # close the range with point[-1]+threshold
                     interpoint_interval = point - x_values[i-1]
-                    current_range.append(x_values[i-1]+vlv["threshold_x_interval"]*interpoint_interval)
+                    current_range.append(x_values[i-1]+vfs["threshold_x_interval"]*interpoint_interval)
                     listofranges.append(current_range)
                     current_range = []
             else:                    
                 if len(current_range)==0 and 0<i<len(x_values)-1:
                     # print('\nthis is len(current_range)==0 and 0<i<len(x_values)')
                     interpoint_interval = point - x_values[i-1]
-                    current_range.append(point-vlv["threshold_x_interval"]*interpoint_interval)
+                    current_range.append(point-vfs["threshold_x_interval"]*interpoint_interval)
                 elif len(current_range)==0 and i==0:
                     # print('\nthis is len(current_range)==0 and i==0')
                     current_range.append(point)
                 elif len(current_range)==0 and i==len(x_values)-1:
                     # print('\nthis is len(current_range)==0 and i==len(x_values)')
                     interpoint_interval= point - x_values[i-1]
-                    current_range.append(point-vlv["threshold_x_interval"]*interpoint_interval)
+                    current_range.append(point-vfs["threshold_x_interval"]*interpoint_interval)
                     current_range.append(point)
                     listofranges.append(current_range)
                     current_range = []
@@ -128,7 +128,7 @@ class Validator:
         
         return listofranges
         
-    def local_exploration_validator_A(self,x_values, y_values, global_range=[mdv["domain_min_interval"], mdv["domain_max_range"]]):
+    def local_exploration_validator_A(self,x_values, y_values, global_range=[mds["domain_min_interval"], mds["domain_max_range"]]):
         print('       *** USING local_exploration_validator_A')
         fitted_curve = Validator.fit_curve(x_values, y_values, global_range)
         least_fit_points,predicted_values = self.find_unfit_points(x_values, y_values,fitted_curve=fitted_curve)
@@ -142,10 +142,10 @@ class Validator:
         print('       *** OUTPUT unfitting_ranges',unfitting_ranges,'\n')
         return unfitting_ranges
 
-    def validator_controller(self,mod_x_list, sim_y_list, global_range=[mdv["domain_min_interval"], mdv["domain_max_range"]], local_validator=self.local_exploration_validator_A, do_plot=False):
+    def validator_controller(self,mod_x_list, sim_y_list, global_range=[mds["domain_min_interval"], mds["domain_max_range"]], local_validator=self.local_exploration_validator_A, do_plot=False):
         print('       *** USING validator_controller')
 
-        validator_ranges = local_validator(mod_x_list, sim_y_list, global_range=[mdv["domain_min_interval"], mdv["domain_max_range"]])
+        validator_ranges = local_validator(mod_x_list, sim_y_list, global_range=[mds["domain_min_interval"], mds["domain_max_range"]])
         print('       *** OUTPUT validator_ranges',validator_ranges,'\n')
         return validator_ranges
 
@@ -162,8 +162,8 @@ class Validator:
         # plt.plot(x_values, fitted_curve[0] * x_values + fitted_curve[1], color='red', label='Fitted Curve')
         
         plt.plot(fitted_curve[2], fitted_curve[1], color='red', label='Polynomial Regression')
-        plt.plot(fitted_curve[2], fitted_curve[1]+vlv["threshold_y_fitting"], color='black', label='threshold ')
-        plt.plot(fitted_curve[2], fitted_curve[1]-vlv["threshold_y_fitting"], color='black', label='threshold ')
+        plt.plot(fitted_curve[2], fitted_curve[1]+vfs["threshold_y_fitting"], color='black', label='threshold ')
+        plt.plot(fitted_curve[2], fitted_curve[1]-vfs["threshold_y_fitting"], color='black', label='threshold ')
 
         # Highlight the unfitting ranges
         for start, end in unfitting_ranges:

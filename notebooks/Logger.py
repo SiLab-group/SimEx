@@ -3,7 +3,7 @@ import numpy as np
 import re
 
 from datetime import datetime
-from global_settings import lgs,mds
+from global_settings import lgs,mgs
 
 all_fit_intervals_data = []
 remaining_unfit_intervals = []
@@ -132,9 +132,9 @@ class Logger:
         if logger_arguments["log_contex"] == "Overall Stats" and logger_arguments["main_status"] == "end cycle":
             message = ("\n\n   ***   OVERALL STATS   ***   \n")
             self._write_log(False, message)
-            message = "MOD - Total generated points: " + str(mds["points_generated_total"])
+            message = "MOD - Total generated points: " + str(mgs["points_generated_total"])
             self._write_log('[MAIN]: ', message)
-            message = "MOD - Total intervals used for points generation: " + str(mds["points_generation_intervals"])
+            message = "MOD - Total intervals used for points generation: " + str(mgs["points_generation_intervals"])
             self._write_log('[MAIN]: ', message)
             message = ("   ***   main cycle ENDED   ***   ")
             self._write_log('[MAIN]: ', message)
@@ -163,7 +163,7 @@ class Logger:
             intervals_list = logger_arguments.get("intervals_list")
 
             if lgs["log_granularity"] > 0:
-                message = "Iteration " + str(mds["mod_iterations"]) + " has generated " + str(
+                message = "Iteration " + str(mgs["mod_iterations"]) + " has generated " + str(
                     current_iteration_points_number) + " points in " + str(len(all_intervals_mod)) + " interval(s)"
                 self._write_log('[MOD]: ', message)
 
