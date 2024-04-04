@@ -1,52 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from Modifiers import Modifiers
 from global_settings import mdv,mds,lgs
 from global_settings import simexSettings
 from Logger import Logger
 
 logger = Logger() 
 
-class Modifier:
+class ModifierController:
 
-
-    def rescaler(old_list, new_min, new_max):
-        
-        # handle empty list case
-        if not np.any(old_list):
-            return []  
-
-        old_min = min(old_list)
-        old_max = max(old_list)
-
-        if old_min == old_max:
-            # Handle the case when all elements in old_list are the same
-            return [new_min] * len(old_list)
-
-        new_values = []
-        for old_value in old_list:
-            denominator = old_max - old_min
-            if denominator != 0:
-                scaled_value = (((old_value - old_min) * (new_max - new_min)) / denominator) + new_min
-                new_values.append(scaled_value)
-            else:
-                # Handle the case when the interval is zero
-                new_values.append(new_min)
-        return new_values
-    
-
-    def local_modifier_A(x,new_min,new_max):
-        temp = x**2
-        temp = Modifier.rescaler(temp,new_min,new_max)
-        return temp
-
-
-    def local_modifier_B(x,new_min,new_max):
-        temp = x*2/3
-        temp = Modifier.rescaler(temp,new_min,new_max)
-        return temp
-
-
-    def modifier_controller(intervals_list, local_modifier=local_modifier_A, do_plot=simexSettings["do_plot"],verbalinfo = 0):
+    def modifierController(intervals_list, local_modifier=Modifiers.modifierA, do_plot=simexSettings["do_plot"],verbalinfo = 0):
              
         # Function to control modifiers given the input and the selected modifier function. Option to plot or not. 
         print("[MODC]: *** Entering Modifier controller ***")

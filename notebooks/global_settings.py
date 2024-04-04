@@ -1,11 +1,20 @@
+from Modifiers import Modifiers
+
 # Overall SimEx settings
 # possible modes exploration (this one) and exploitation (mod with prob threes)
-simexSettings={"do_plot":False,"extensive_search":False,"extensive_iteration":False, "SimEx_mode":"exploration"}
+simexSettings={"do_plot":False,
+               "extensive_search":False,
+               "extensive_iteration":False, 
+               "SimEx_mode":"exploration"}
 
-# Modifier domain settings
-mdv={"domain_min_interval":1, "domain_max_interval":500, "modifier_incremental_unit":3, "modifier_data_point":50}
-# Modifier functions settings (just for the GUI)
-mdf={"Func A: x^2  |1": "x^2", "Func B: X^2/3  |1": "x^2/3"}
+# Modifier Domain settings
+mdv={"domain_min_interval":1,
+     "domain_max_interval":500,
+     "modifier_incremental_unit":3,
+     "modifier_data_point":50}
+
+# Modifier Function 
+mdf={'selectedModifier':Modifiers.modifierA}
 # Modifier global statistics 
 mds={"points_generated_total":0, "points_generation_intervals":0, "mod_iterations":0}
 
