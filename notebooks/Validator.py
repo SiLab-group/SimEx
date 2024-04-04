@@ -24,23 +24,7 @@ class Validator:
         self.least_fit_points = None
         self.fit_x_interval = None
         self.fit_points = None
-        self.equation = None
-
-    def fit_curve2(self, x_values, y_values):
-        x_values = np.array(x_values)  # Convert to numpy array
-        y_values = np.array(y_values)  # Convert to numpy array
-        coefficients = np.polyfit(x_values, y_values, deg=3)
-        p = np.poly1d(coefficients)
-        intercept = coefficients[-1]
-        equation = self.build_equation_string(coefficients)
-        y_pred = p(x_values.reshape(-1,1))
-        print("\n\nCALLED FIT_CURVE2")
-        print("INTERCEPT"+str(intercept))
-        print("Y_PRED"+str(y_pred.flatten()))
-        print("X_VALUES"+str(x_values))
-        print("EQUATION"+str(equation))
-        return intercept, y_pred.flatten(), x_values, equation
-        
+        self.equation = None    
     
     def build_equation_string(self, coefficients:list):
         equation = 'y = '
@@ -48,13 +32,13 @@ class Validator:
         for idx, coeff in enumerate(coefficients):
             degree = highest_degree - idx
             sign = '+' if coeff >= 0 and idx !=0 else ''
-            if degree == 0: 
+            if degree == 0:
                 equation += str(coeff)
                 break
             equation += f'{sign} {coeff}x^{degree} '
-        return equation    
+        return equation
         
-    def fit_curve(self, x_values, y_values, max_deg=9, threshold=0.1, penality_weight=1):
+    def fit_curve(self, x_values, y_values, max_deg=vfs['max_deg'], improvement_threshold=vfs['improvement_threshold'], penality_weight=vfs['penality_weight']):
         x_values = np.array(x_values)  # Convert to numpy array
         y_values = np.array(y_values)  # Convert to numpy array
         mse = np.Infinity
@@ -62,7 +46,7 @@ class Validator:
         intersect = None
         y_pred = None
 
-        degree = 1
+        degree = vfs['degree']
 
         while degree <= max_deg:
             current_coeff = np.polyfit(x_values, y_values, deg=degree)
@@ -72,7 +56,7 @@ class Validator:
             # Add penality to MSE to avoid overfitting with high dimension polynomial
             current_mse = mean_squared_error(y_values, current_y_pred) + penality_weight * np.sum(current_coeff[:-1] ** 2)
             has_mse_improved: bool  = current_mse <= mse
-            is_acceptable_improvement: bool = (mse - current_mse) >= threshold
+            is_acceptable_improvement: bool = (mse - current_mse) >= improvement_threshold
            
             if not has_mse_improved or not is_acceptable_improvement:
                 break
@@ -89,92 +73,6 @@ class Validator:
         print("EQUATION"+str(equation))
 
         return intersect, y_pred.flatten(), x_values, equation
-
-
-    # def fit_curve(self, x_values, y_values, fit_type='polynomial', global_interval=0):
-       
-    #     x_values = np.array(x_values)  # Convert to numpy array
-    #     y_values = np.array(y_values)  # Convert to numpy array
-
-    #     if fit_type == 'polynomial':
-
-    #         '''using both Polynomial Features and LinearRegression to create a polynomial regression model. 
-    #         The PolynomialFeatures is used to generate polynomial features, and then 
-    #         LinearRegression is applied to these features.'''
-
-    #         # Set the degree of the polynomial (you can adjust this)
-    #         degree = 2
-
-    #         # Create a polynomial regression model
-    #         model = make_pipeline(PolynomialFeatures(degree), LinearRegression())
-
-    #         # Fit the model
-    #         model.fit(x_values.reshape(-1, 1), y_values)
-
-    #         # Generate an interval of x values for plotting
-    #         # x_interval = np.linspace(min(x_values), max(x_values), 10).reshape(-1, 1)
-
-    #         # Get the coefficients of the fitted line
-    #         intercept = model.named_steps['linearregression'].intercept_
-    #         coefficients = model.named_steps['linearregression'].coef_
-
-            
-    #         print('       *** OUTPUT fit_curve slope, intercept',coefficients, intercept,'\n')
-
-    #         equation = f'y = {coefficients[0]:.2f}x^2 + {coefficients[1]:.2f}x + {intercept:.2f}'
-    #         print('       *** OUTPUT fit_curve equation:', equation, '\n')
-
-
-    #         y_pred = model.predict(x_values.reshape(-1, 1))
-
-    #     elif fit_type == 'exponential':
-    #         # Exponential fit
-    #         model = LinearRegression()
-
-    #         # Transform x_values to the logarithmic scale for exponential fit
-    #         x_values_log = np.log(x_values)
-
-    #         # Fit the model
-    #         model.fit(x_values_log.reshape(-1, 1), y_values)
-
-    #         # Get the coefficients of the fitted line
-    #         intercept = model.intercept_
-    #         slope = model.coef_[0]
-
-    #         # Print the equation of the fitted curve
-    #         equation = f'y = e^({intercept:.2f} + {slope:.2f} * log(x))'
-    #         print('       *** OUTPUT fit_curve exponential equation:', equation, '\n')
-
-    #         # Predict y values using the fitted model
-    #         y_pred = np.exp(intercept + slope * np.log(x_values))
-
-    #     elif fit_type == 'linear':
-    #         # Linear fit
-    #         model = LinearRegression()
-
-    #         # Fit the model
-    #         model.fit(x_values.reshape(-1, 1), y_values)
-
-    #         # Get the coefficients of the fitted line
-    #         intercept = model.intercept_
-    #         slope = model.coef_[0]
-
-    #         # Print the equation of the fitted line
-    #         equation = f'y = {slope:.2f}x + {intercept:.2f}'
-    #         print('       *** OUTPUT fit_curve linear equation:', equation, '\n')
-
-    #         # Predict y values using the fitted model
-    #         y_pred = model.predict(x_values.reshape(-1, 1))
-
-    #     else:
-    #         raise ValueError("Invalid fit_type. Use 'polynomial', 'exponential', or 'linear'.")
-
-    #     print("\n\nCALLED FIT_CURVE1")
-    #     print("INTERCEPT"+str(intercept))
-    #     print("Y_PRED"+str(y_pred))
-    #     print("X_VALUES"+str(x_values))
-    #     print("EQUATION"+str(equation))
-    #     return intercept, y_pred, x_values, equation
 
 
 

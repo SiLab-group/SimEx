@@ -1,5 +1,5 @@
 from Modifiers import Modifiers
-
+from Simulators import Simulators
 # Overall SimEx settings
 # possible modes exploration (this one) and exploitation (mod with prob threes)
 simexSettings={"do_plot":False,
@@ -16,9 +16,17 @@ mds={"domain_min_interval":1,
 # Modifier Function Settings
 mfs={'selectedModifier':Modifiers.modifierA}
 
+# Simulator Function Settings
+sfs={'selectedSimulator':Simulators.sim_func_B}
+
+
 # Validator Function Settings
-vfs={"threshold_y_fitting":5,
-     "threshold_x_interval":0.75}
+vfs={'threshold_y_fitting':5,
+     'threshold_x_interval':0.75,
+     'degree':1,
+     'max_deg':9,
+     'improvement_threshold':0.1,
+     'penality_weight':1}
 
 
 ## Data and settings for log purposes ##
