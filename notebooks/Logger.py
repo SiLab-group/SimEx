@@ -174,7 +174,7 @@ class Logger:
             # add intervals min-max
             if lgs["log_granularity"] > 2:
                 for i, sublist in enumerate(all_intervals_mod):
-                    message = "      * The points of the interval " + str(i) + " are: " + str(sublist)
+                    message = "      * The x value(s) of the interval " + str(i) + " is/are: " + str(sublist)
                     self._write_log('[MOD]: ', message)
 
 
@@ -192,20 +192,20 @@ class Logger:
                 self._write_log('[VAL]: ', message)
 
             if lgs["log_granularity"] > 1:
-                message = "   * The fit function is:  FUNCTION HERE"
+                message = "     * The fit function is:  FUNCTION HERE"
                 self._write_log('[VAL]: ', message)
 
             # add interval min-max
             if lgs["log_granularity"] > 2:
-                message = "   * The unfit interval(s) are: " + str(validator_intervals)
+                message = "     * The unfit interval(s) are: " + str(validator_intervals)
                 self._write_log('[VAL]: ', message)
                 
                 
-        if logger_arguments["log_contex"] == "internal VAL stats" and "local_unfit_interval" in logger_arguments:
-            local_unfit_interval = logger_arguments.get("local_unfit_interval")
+        if logger_arguments["log_contex"] == "internal VAL stats" and "new_unfit_interval" in logger_arguments:
+            new_unfit_interval = logger_arguments.get("new_unfit_interval")
             unfit_points = logger_arguments.get("unfit_points")
             if lgs["log_granularity"] > 0:
-                message = "   * The local unfit interval is: " + str(local_unfit_interval)
+                message = "   * The new unfit interval is: " + str(new_unfit_interval)
                 self._write_log('[VAL]: ', message)
 
             if lgs["log_granularity"] > 1:

@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from Modifiers import Modifiers
+#from Modifiers import Modifiers
 from global_settings import mds,mgs,lgs
 from global_settings import simexSettings
 from Logger import Logger
@@ -9,11 +9,11 @@ logger = Logger()
 
 class ModifierController:
 
-    def modifierController(intervals_list, local_modifier, do_plot):
-             
+    def modifierController(intervals_list, selectedModifier, do_plot):
+        print("Modifier...")     
         # Function to control modifiers given the input and the selected modifier function. Option to plot or not. 
         #print("[MODC]: *** Entering Modifier controller ***")
-        #print("[MODC]: intervals list: ",intervals_list)
+        print("[MODC]: intervals list: ",intervals_list)
         all_intervals_mod = []
         logger_modifier_arguments = {}
         
@@ -30,8 +30,15 @@ class ModifierController:
         for i, (interval_min_tick, interval_max_tick) in enumerate(intervals_list):
 
             # Generate data points (incremental ticks and function modified x values) within the specified interval
+            print("[MODC]: (interval_min_tick, interval_max_tick): ",(interval_min_tick, interval_max_tick))
             mod_ticks = np.arange(interval_min_tick, interval_max_tick, mds["modifier_data_point"])
-            mod_x = local_modifier(mod_ticks, new_min=interval_min_tick, new_max=interval_max_tick)
+        
+            # mod_ticks = np.arange(mds["domain_min_interval"], mds["domain_max_interval"], mds["modifier_data_point"])
+            print("[MODC]: mod_ticks: ",mod_ticks)
+
+            mod_x = selectedModifier(mod_ticks, new_min=interval_min_tick, new_max=interval_max_tick)
+            print("[MODC]: mod_x: ",mod_x)
+
             all_intervals_mod.append(mod_x)
         
         current_iteration_points_number = sum(len(sublist) for sublist in all_intervals_mod)

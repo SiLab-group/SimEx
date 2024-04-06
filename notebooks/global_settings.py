@@ -1,5 +1,4 @@
-from Modifiers import Modifiers
-from Simulators import Simulators
+
 # Overall SimEx settings
 # possible modes exploration (this one) and exploitation (mod with prob threes)
 simexSettings={"do_plot":False,
@@ -8,17 +7,10 @@ simexSettings={"do_plot":False,
                "SimEx_mode":"exploration"}
 
 # Modifier Domain Settings
-mds={"domain_min_interval":1,
-     "domain_max_interval":500,
+mds={"domain_min_interval":0,
+     "domain_max_interval":100,
      "modifier_incremental_unit":3,
-     "modifier_data_point":50}
-
-# Modifier Function Settings
-mfs={'selectedModifier':Modifiers.modifierA}
-
-# Simulator Function Settings
-sfs={'selectedSimulator':Simulators.sim_func_B}
-
+     "modifier_data_point":10}
 
 # Validator Function Settings
 vfs={'threshold_y_fitting':5,
