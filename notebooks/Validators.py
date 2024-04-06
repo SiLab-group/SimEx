@@ -85,6 +85,8 @@ class Validators:
         return unfit_points, y_pred
 
     def generate_intervals_from_unfit_points(self,unfit_points,x_values):
+        # TODO: IF all points are not fit, then keep the same interval as the bad interval because otherwise it will shrink.
+        # i.e., interval 1-5 has all points 2, 3 and 4, unfit then the new interval is 2-4, which is incorrect. 
  
         # Calculate the continuous intervals around least-fit points
         current_interval = []

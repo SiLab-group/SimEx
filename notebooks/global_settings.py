@@ -9,7 +9,7 @@ simexSettings={"do_plot":False,
 # Modifier Domain Settings
 mds={"domain_min_interval":0,
      "domain_max_interval":100,
-     "modifier_incremental_unit":3,
+     "modifier_incremental_unit":2,
      "modifier_data_point":10}
 
 # Validator Function Settings

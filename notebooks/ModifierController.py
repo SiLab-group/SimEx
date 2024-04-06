@@ -25,26 +25,32 @@ class ModifierController:
             else:  
                 # Exit the function if not possible
                 return False, intervals_list
-                       
         mgs["mod_iterations"] +=1
+            
+        mod_ticks = np.arange(mds["domain_min_interval"], mds["domain_max_interval"], mds["modifier_data_point"])
         for i, (interval_min_tick, interval_max_tick) in enumerate(intervals_list):
 
             # Generate data points (incremental ticks and function modified x values) within the specified interval
             print("[MODC]: (interval_min_tick, interval_max_tick): ",(interval_min_tick, interval_max_tick))
-            mod_ticks = np.arange(interval_min_tick, interval_max_tick, mds["modifier_data_point"])
-        
-            # mod_ticks = np.arange(mds["domain_min_interval"], mds["domain_max_interval"], mds["modifier_data_point"])
-            print("[MODC]: mod_ticks: ",mod_ticks)
+            
+            # Extract mod_ticks that are within intervals_list
+            mod_filtered_ticks = [tick for tick in mod_ticks if interval_min_tick < tick < interval_max_tick]
+            if np.any(mod_filtered_ticks):
+                print("[MODC]: mod_ticks: ",mod_filtered_ticks)
+                mod_x = selectedModifier(mod_filtered_ticks, new_min=np.min(np.array(mod_filtered_ticks)), new_max=np.max(np.array(mod_filtered_ticks)))
 
-            mod_x = selectedModifier(mod_ticks, new_min=interval_min_tick, new_max=interval_max_tick)
-            print("[MODC]: mod_x: ",mod_x)
+                print("[MODC]: mod_x: ",mod_x)
 
-            all_intervals_mod.append(mod_x)
+                all_intervals_mod.append(mod_x)
+            else:
+                all_intervals_mod.append([])
         
         current_iteration_points_number = sum(len(sublist) for sublist in all_intervals_mod)
         mgs["points_generation_intervals"] += len(all_intervals_mod)
         mgs["points_generated_total"] += current_iteration_points_number
         
+        # all_intervals_mod = [item for sublist in all_intervals_mod for item in sublist]
+
         #Modifier Logging
         logger_modifier_arguments["log_contex"] = "internal MOD stats"
         logger_modifier_arguments["current_iteration_points_number"] = current_iteration_points_number

@@ -66,7 +66,7 @@ class Modifiers:
             >>> modifierA(5, 0, 10)
             25.0
         """
-        temp = x**2
+        temp = np.array(x)**2
         temp = Modifiers.rescaler(temp,new_min,new_max)
         return temp
 
