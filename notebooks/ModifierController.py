@@ -28,7 +28,7 @@ class ModifierController:
         mgs["mod_iterations"] +=1
             
         mod_ticks = np.arange(mds["domain_min_interval"], mds["domain_max_interval"], mds["modifier_data_point"])
-        for i, (interval_min_tick, interval_max_tick) in enumerate(intervals_list):
+        for _, (interval_min_tick, interval_max_tick) in enumerate(intervals_list):
 
             # Generate data points (incremental ticks and function modified x values) within the specified interval
             print("[MODC]: (interval_min_tick, interval_max_tick): ",(interval_min_tick, interval_max_tick))

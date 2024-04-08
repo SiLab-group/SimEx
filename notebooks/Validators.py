@@ -65,7 +65,7 @@ class Validators:
 
     def find_unfit_points(self, x_values, y_values, fitted_curve):
         # Fit a curve using HuberRegressor
-        intercept,y_pred,x_interval,equation = fitted_curve
+        intercept, y_pred, _, _ = fitted_curve
         # Calculate the predicted y-values using the curve
         # predicted_y_values = slope * x_values + intercept
         self.unfit_intercept = intercept
@@ -191,7 +191,7 @@ class Validators:
         fit_points = self.find_fit_points(x_values,y_values, unfit_points)
         fit_interval = self.get_fit_intervals(unfit_interval, domain_min_interval =selected_interval[0], domain_max_interval=selected_interval[1])
 
-        for i, interval in enumerate(fit_interval):
+        for _ , interval in enumerate(fit_interval):
             # Round the interval values to 2 decimal places
             interval = [round(val, 5) for val in interval]
 

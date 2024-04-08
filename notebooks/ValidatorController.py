@@ -67,7 +67,7 @@ class ValidatorController:
                     
                     unfit_x_values, unfit_y_values = zip(*unfit_points)
                     #Return NEW unfit interval(s) withing each_interval
-                    equation,new_unfit_points,new_unfit_interval,fit_points,fit_interval = getattr(validator, selectedValidator.__name__)(unfit_x_values, unfit_y_values, selected_interval=each_interval)
+                    equation,new_unfit_points,new_unfit_interval,_,fit_interval = getattr(validator, selectedValidator.__name__)(unfit_x_values, unfit_y_values, selected_interval=each_interval)
                     validator_unfit_intervals.append(new_unfit_interval)
                     validator_unfit_points.append(new_unfit_points)
                     print('equation,\n',equation,'\nunfit_points\n',unfit_points,'\nlocal_unfit_interval\n,',fit_interval)
