@@ -65,7 +65,7 @@ class ModifierController:
         # update the mdv to decrease the interdatapoint distance for the next iteration
         mds["modifier_data_point"] = mds["modifier_data_point"] - mds["modifier_incremental_unit"]
         
-        if do_plot == True:
+        if do_plot:
             # Plot the generated data points
             for mod_x in all_intervals_mod:
                 plt.scatter(mod_x, np.ones(np.shape(mod_x)))

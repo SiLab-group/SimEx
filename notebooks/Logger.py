@@ -55,7 +55,7 @@ class Logger:
         #FI_intervals = [element for element in all_intervals if len(element.keys()) > 1]
         #UI_intervals = [element for element in all_intervals if len(element.keys()) < 1]
 
-        fig, ax = plt.subplots(figsize=(10, 5))
+        _, ax = plt.subplots(figsize=(10, 5))
    
 
         # Plot FI intervals with their fitting functions
