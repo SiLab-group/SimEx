@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-#from Modifiers import Modifiers
 from global_settings import mds,mgs
 from global_settings import simexSettings
 from Logger import Logger

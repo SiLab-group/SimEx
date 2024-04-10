@@ -1,10 +1,4 @@
 import numpy as np
-#import matplotlib.pyplot as plt
-#from global_settings import mdv,mds,lgs
-#from global_settings import simexSettings
-#from Logger import Logger
-#logger = Logger() 
-
 class Modifiers:
 
 

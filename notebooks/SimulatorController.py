@@ -7,7 +7,6 @@ class SimulatorController:
             return False  # Possible iterations have ended
         
         flat_mod_x = [item for sublist in mod_x for item in sublist]
-        # flat_mod_x = np.reshape(mod_x,shape_mod_x[0]*shape_mod_x[1])
         # print(flat_mod_x)
         simulated_y = [selectedSimulator(x) for x in flat_mod_x]
         #print('  * Sim_y:   ', simulated_y)

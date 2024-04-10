@@ -1,10 +1,5 @@
 import numpy as np
 
-# from sklearn.preprocessing import PolynomialFeatures
-# from sklearn.linear_model import LinearRegression
-# from sklearn.metrics import mean_squared_error
-# from sklearn.pipeline import make_pipeline
-
 from Validators import Validators
 from Logger import Logger
 validator = Validators()
@@ -21,9 +16,7 @@ class ValidatorController:
 
     def validatorController(self,mod_x_list, sim_y_list, selectedValidator, global_interval):
         print('Validator...')
-        # if selectedValidator is None:
-        #     selectedValidator = Validators.local_exploration_validator_A  # Set default if not provided
-                        
+
         if np.any(self.unfit_x_interval): # if self.unfit_x_interval is not empty
             # Add all new points to oldl unfit points
             points = list(zip(mod_x_list, sim_y_list))
@@ -57,7 +50,6 @@ class ValidatorController:
                     validator_unfit_points.append(unfit_points)
                     continue
                 else:
-                # if np.any(unfit_points):
                     logger_validator_arguments = {}
                     logger_validator_arguments["log_contex"] = "internal VAL stats"
                     logger_validator_arguments["new_unfit_interval"] = each_interval
@@ -65,7 +57,6 @@ class ValidatorController:
                     logger.log_validator(logger_validator_arguments)
                     
                     unfit_x_values, unfit_y_values = zip(*unfit_points)
-                    #Return NEW unfit interval(s) withing each_interval
                     equation,new_unfit_points,new_unfit_interval,_,fit_interval = getattr(validator, selectedValidator.__name__)(unfit_x_values, unfit_y_values, selected_interval=each_interval)
                     validator_unfit_intervals.append(new_unfit_interval)
                     validator_unfit_points.append(new_unfit_points)
@@ -79,13 +70,11 @@ class ValidatorController:
             self.unfit_points = validator_unfit_points
 
         else: 
-            #TODO: whi is unfit_points not used?
             equation,new_unfit_points,validator_unfit_intervals,fit_points,fit_interval  = getattr(validator, selectedValidator.__name__)(x_values=mod_x_list, y_values=sim_y_list, selected_interval=global_interval)
             #print('equation,fit_points,fit_interval\n',equation,'\n',fit_points,'\n\n',fit_interval)
 
             self.unfit_x_interval = validator_unfit_intervals
             self.unfit_points = new_unfit_points
-            # self.fit_x_intervals = self.get_fit_intervals(validator_intervals, domain_min_interval =mdv['domain_min_interval'], domain_max_interval=mdv['domain_max_interval']) #global minus self.unfit_x_interval     
             # Log the equation
         #print('       *** OUTPUT validator_intervals', validator_unfit_intervals, '\n')
         
