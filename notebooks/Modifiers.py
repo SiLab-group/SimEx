@@ -1,6 +1,7 @@
 import numpy as np
-class Modifiers:
 
+
+class Modifiers:
 
     def rescaler(old_list, new_min, new_max):
         """
@@ -21,10 +22,10 @@ class Modifiers:
             >>> rescaled_values = rescaler(old_values, new_min, new_max)
             >>> print(rescaled_values)
             [0.0, 0.25, 0.5, 1.0]
-        """    
+        """
         # handle empty list case
         if not np.any(old_list):
-            return []  
+            return []
 
         old_min = min(old_list)
         old_max = max(old_list)
@@ -43,8 +44,8 @@ class Modifiers:
                 # Handle the case when the interval is zero
                 new_values.append(new_min)
         return new_values
-    
-    def modifierA(x,new_min,new_max):
+
+    def modifierA(x, new_min, new_max):
         """
         Applies a rescaling operation to the input value x.
 
@@ -60,11 +61,11 @@ class Modifiers:
             >>> modifierA(5, 0, 10)
             25.0
         """
-        temp = np.array(x)**2
-        temp = Modifiers.rescaler(temp,new_min,new_max)
+        temp = np.array(x) ** 2
+        temp = Modifiers.rescaler(temp, new_min, new_max)
         return temp
 
-    def modifierB(x,new_min,new_max):
-        temp = x*2/3
-        temp = Modifiers.rescaler(temp,new_min,new_max)
+    def modifierB(x, new_min, new_max):
+        temp = x * 2 / 3
+        temp = Modifiers.rescaler(temp, new_min, new_max)
         return temp

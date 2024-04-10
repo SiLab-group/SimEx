@@ -3,11 +3,11 @@ class SimulatorController:
     def simulatorController(mod_x, selectedSimulator):
         print("Simulator...")
         # shape_mod_x = np.shape(mod_x)
-        if mod_x is False: 
+        if mod_x is False:
             return False  # Possible iterations have ended
-        
+
         flat_mod_x = [item for sublist in mod_x for item in sublist]
         # print(flat_mod_x)
         simulated_y = [selectedSimulator(x) for x in flat_mod_x]
-        #print('  * Sim_y:   ', simulated_y)
+        # print('  * Sim_y:   ', simulated_y)
         return flat_mod_x, simulated_y

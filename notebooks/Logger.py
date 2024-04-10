@@ -45,7 +45,7 @@ class Logger:
             # Convert the string into a function
             terms = re.findall(
                 r'([+-]?\s*\d+\.?\d*(?:e[+-]?\d+)?)(x\^\d+)?', fitting_function_str.replace(' ', ''))
-            coefficients = [0]*10  # Initialize a list of 10 zeros
+            coefficients = [0] * 10  # Initialize a list of 10 zeros
             for term in terms:
                 coef = float(term[0])
                 if term[1]:  # If there is an 'x' term
@@ -65,7 +65,7 @@ class Logger:
             ax.plot(x, y, label=f'Interval: {interval}')
             plt.ylim([-100, 100])
             ax.set_xticks(np.arange(*ax.get_xlim(),
-                          (ax.get_xlim()[1]-ax.get_xlim()[0])/20))
+                                    (ax.get_xlim()[1] - ax.get_xlim()[0]) / 20))
 
         for element in remaining_unfit_intervals:
             ax.axvspan(*element['interval'], color='gray',
@@ -107,10 +107,10 @@ class Logger:
             message = ("\n\n   ***   OVERALL STATS   ***   \n")
             self._write_log(False, message)
             message = "MOD - Total generated points: " + \
-                str(mgs["points_generated_total"])
+                      str(mgs["points_generated_total"])
             self._write_log('[MAIN]: ', message)
             message = "MOD - Total intervals used for points generation: " + \
-                str(mgs["points_generation_intervals"])
+                      str(mgs["points_generation_intervals"])
             self._write_log('[MAIN]: ', message)
             message = ("   ***   main cycle ENDED   ***   ")
             self._write_log('[MAIN]: ', message)
@@ -118,7 +118,8 @@ class Logger:
             self._write_log(False, message)
             self._write_results()
 
-        if logger_arguments["log_contex"] == "overall MAIN stats" and logger_arguments["main_status"] == "no generated points":
+        if logger_arguments["log_contex"] == "overall MAIN stats" and logger_arguments[
+            "main_status"] == "no generated points":
             for element in logger_arguments.get("remaining_unfit_intervals"):
                 new_unfit_entry = {"interval": element}
                 remaining_unfit_intervals.append(new_unfit_entry)
@@ -129,7 +130,8 @@ class Logger:
                        str(logger_arguments['remaining_unfit_intervals']))
             self._write_log('[MAIN]: ', message)
 
-        if logger_arguments["log_contex"] == "overall MAIN stats" and logger_arguments["main_status"] == "no unfit intervals":
+        if logger_arguments["log_contex"] == "overall MAIN stats" and logger_arguments[
+            "main_status"] == "no unfit intervals":
             message = (
                 "   ***   main cycle COMPLETED: No more unfit points/intervals from Validator   ***   ")
             self._write_log('[MAIN]: ', message)
@@ -155,7 +157,7 @@ class Logger:
             if lgs["log_granularity"] > 2:
                 for i, sublist in enumerate(all_intervals_mod):
                     message = "      * The x value(s) of the interval " + \
-                        str(i) + " is/are: " + str(sublist)
+                              str(i) + " is/are: " + str(sublist)
                     self._write_log('[MOD]: ', message)
 
     def log_simulator(self, message):
@@ -167,7 +169,7 @@ class Logger:
             validator_intervals = logger_arguments.get("validator_intervals")
             if lgs["log_granularity"] > 0:
                 message = "   * Found " + \
-                    str(len(validator_intervals)) + " unfit interval(s)"
+                          str(len(validator_intervals)) + " unfit interval(s)"
                 self._write_log('[VAL]: ', message)
 
             if lgs["log_granularity"] > 1:
@@ -177,7 +179,7 @@ class Logger:
             # add interval min-max
             if lgs["log_granularity"] > 2:
                 message = "     * The unfit interval(s) are: " + \
-                    str(validator_intervals)
+                          str(validator_intervals)
                 self._write_log('[VAL]: ', message)
 
         if logger_arguments["log_contex"] == "internal VAL stats" and "new_unfit_interval" in logger_arguments:
@@ -185,7 +187,7 @@ class Logger:
             unfit_points = logger_arguments.get("unfit_points")
             if lgs["log_granularity"] > 0:
                 message = "   * The new unfit interval is: " + \
-                    str(new_unfit_interval)
+                          str(new_unfit_interval)
                 self._write_log('[VAL]: ', message)
 
             if lgs["log_granularity"] > 1:

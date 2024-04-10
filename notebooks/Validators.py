@@ -23,7 +23,8 @@ class Validators:
             equation += f'{sign} {coeff}x^{degree} '
         return equation
 
-    def fit_curve(self, x_values, y_values, max_deg=vfs['max_deg'], improvement_threshold=vfs['improvement_threshold'], penality_weight=vfs['penality_weight']):
+    def fit_curve(self, x_values, y_values, max_deg=vfs['max_deg'], improvement_threshold=vfs['improvement_threshold'],
+                  penality_weight=vfs['penality_weight']):
         x_values = np.array(x_values)  # Convert to numpy array
         y_values = np.array(y_values)  # Convert to numpy array
         mse = np.Infinity
@@ -43,7 +44,7 @@ class Validators:
                 y_values, current_y_pred) + penality_weight * np.sum(current_coeff[:-1] ** 2)
             has_mse_improved: bool = current_mse <= mse
             is_acceptable_improvement: bool = (
-                mse - current_mse) >= improvement_threshold
+                                                      mse - current_mse) >= improvement_threshold
 
             if not has_mse_improved or not is_acceptable_improvement:
                 break
@@ -102,29 +103,29 @@ class Validators:
                 else:
                     # print('\nthis is len(current_interval)==0 else')
                     # close the interval with point[-1]+threshold
-                    interpoint_interval = point - x_values[i-1]
+                    interpoint_interval = point - x_values[i - 1]
                     current_interval.append(
-                        x_values[i-1]+vfs["threshold_x_interval"]*interpoint_interval)
+                        x_values[i - 1] + vfs["threshold_x_interval"] * interpoint_interval)
                     list_of_intervals.append(current_interval)
                     current_interval = []
             else:
-                if len(current_interval) == 0 and 0 < i < len(x_values)-1:
+                if len(current_interval) == 0 and 0 < i < len(x_values) - 1:
                     # print('\nthis is len(current_interval)==0 and 0<i<len(x_values)')
-                    interpoint_interval = point - x_values[i-1]
+                    interpoint_interval = point - x_values[i - 1]
                     current_interval.append(
-                        point-vfs["threshold_x_interval"]*interpoint_interval)
+                        point - vfs["threshold_x_interval"] * interpoint_interval)
                 elif len(current_interval) == 0 and i == 0:
                     # print('\nthis is len(current_interval)==0 and i==0')
                     current_interval.append(point)
-                elif len(current_interval) == 0 and i == len(x_values)-1:
+                elif len(current_interval) == 0 and i == len(x_values) - 1:
                     # print('\nthis is len(current_interval)==0 and i==len(x_values)')
-                    interpoint_interval = point - x_values[i-1]
+                    interpoint_interval = point - x_values[i - 1]
                     current_interval.append(
-                        point-vfs["threshold_x_interval"]*interpoint_interval)
+                        point - vfs["threshold_x_interval"] * interpoint_interval)
                     current_interval.append(point)
                     list_of_intervals.append(current_interval)
                     current_interval = []
-                elif len(current_interval) > 0 and i == len(x_values)-1:
+                elif len(current_interval) > 0 and i == len(x_values) - 1:
                     # print('\nthis is len(current_interval)>0 and i==len(x_values)')
                     current_interval.append(point)
                     list_of_intervals.append(current_interval)
@@ -145,7 +146,7 @@ class Validators:
 
     def get_fit_intervals(self, unfit_x_interval, domain_min_interval, domain_max_interval):
         # Convert a single interval to a list of intervals
-        if unfit_x_interval == []:
+        if not unfit_x_interval:
             return [[domain_min_interval, domain_max_interval]]
 
         if not isinstance(unfit_x_interval[0], list):
@@ -199,11 +200,8 @@ class Validators:
             filtered_fit_points = [(round(point[0], 5), round(
                 point[1], 5)) for point in fit_points if interval[0] <= point[0] <= interval[1]]
 
-            logger_validator_arguments = {}
-            logger_validator_arguments["log_contex"] = "fit_VAL_stats"
-            logger_validator_arguments["fit_interval"] = interval
-            logger_validator_arguments["fitting_function"] = equation
-            logger_validator_arguments["fit_points"] = filtered_fit_points
+            logger_validator_arguments = {"log_contex": "fit_VAL_stats", "fit_interval": interval,
+                                          "fitting_function": equation, "fit_points": filtered_fit_points}
             logger.log_validator(logger_validator_arguments)
 
         # print(unfit_interval)
