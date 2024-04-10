@@ -18,7 +18,7 @@ class ModifierController:
         logger_modifier_arguments = {}
 
         # Check if it's possible to generate more data points
-        if (mds["modifier_data_point"] < mds["modifier_incremental_unit"]):
+        if mds["modifier_data_point"] < mds["modifier_incremental_unit"]:
             if simexSettings["extensive_search"] is True and simexSettings["extensive_iteration"] is False:
                 mds["modifier_data_point"] = 1
                 simexSettings["extensive_iteration"] = True

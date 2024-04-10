@@ -100,14 +100,13 @@ class Validator:
                 if len(current_interval) == 0:
                     # print('this is len(current_interval)==0')
                     continue
-                else:
-                    # print('\nthis is len(current_interval)==0 else')
-                    # close the interval with point[-1]+threshold
-                    interpoint_interval = point - x_values[i - 1]
-                    current_interval.append(
-                        x_values[i - 1] + vfs["threshold_x_interval"] * interpoint_interval)
-                    list_of_intervals.append(current_interval)
-                    current_interval = []
+                # print('\nthis is len(current_interval)==0 else')
+                # close the interval with point[-1]+threshold
+                interpoint_interval = point - x_values[i - 1]
+                current_interval.append(
+                    x_values[i - 1] + vfs["threshold_x_interval"] * interpoint_interval)
+                list_of_intervals.append(current_interval)
+                current_interval = []
             else:
                 if len(current_interval) == 0 and 0 < i < len(x_values) - 1:
                     # print('\nthis is len(current_interval)==0 and 0<i<len(x_values)')
@@ -141,7 +140,6 @@ class Validator:
         # print('LF... rest_of_points:      ',rest_of_points)
         # Convert the result to a list of lists
         rest_of_points_list = [list(point) for point in rest_of_points]
-
         return rest_of_points_list
 
     def get_fit_intervals(self, unfit_x_interval, domain_min_interval, domain_max_interval):

@@ -24,14 +24,11 @@ class Logger:
             self.file.close()
 
     def _write_log(self, level, message):
-        if not level:
-            self.file.write(message)
-            self.file.flush()
-        else:
+        if level:
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            log_entry = f"{timestamp} - {level} - {message}\n"
-            self.file.write(log_entry)
-            self.file.flush()  # Ensure the message is written immediately
+            message = f"{timestamp} - {level} - {message}\n"
+        self.file.write(message)
+        self.file.flush()  # Ensure the message is written immediately
 
     def _plot_results(self, all_fit_intervals_data, remaining_unfit_intervals):
 
@@ -89,7 +86,7 @@ class Logger:
             all_intervals.sort(key=lambda x: x['interval'][0])
 
             for element in all_intervals:
-                if (len(element.keys()) > 1):
+                if len(element.keys()) > 1:
                     result_entry = f"FI: {str(element['interval']):<40} | FF: {str(element['fitting_function']):<30} | PTs: {str(element['fit_points']):<50}\n"
                 else:
                     result_entry = f"UI: {str(element['interval']):<40} | \n"
@@ -100,11 +97,11 @@ class Logger:
     def log_main(self, logger_arguments):
         # TODO: log simEx settings
         if logger_arguments["log_contex"] == "overall MAIN stats" and logger_arguments["main_status"] == "begin cycle":
-            message = ("   ***   main cycle STARTED   ***   \n")
+            message = "   ***   main cycle STARTED   ***   \n"
             self._write_log(False, message)
 
         if logger_arguments["log_contex"] == "Overall Stats" and logger_arguments["main_status"] == "end cycle":
-            message = ("\n\n   ***   OVERALL STATS   ***   \n")
+            message = "\n\n   ***   OVERALL STATS   ***   \n"
             self._write_log(False, message)
             message = "MOD - Total generated points: " + \
                       str(mgs["points_generated_total"])
@@ -112,9 +109,9 @@ class Logger:
             message = "MOD - Total intervals used for points generation: " + \
                       str(mgs["points_generation_intervals"])
             self._write_log('[MAIN]: ', message)
-            message = ("   ***   main cycle ENDED   ***   ")
+            message = "   ***   main cycle ENDED   ***   "
             self._write_log('[MAIN]: ', message)
-            message = ("\n\n   ***   RESULTS   ***   \n")
+            message = "\n\n   ***   RESULTS   ***   \n"
             self._write_log(False, message)
             self._write_results()
 
