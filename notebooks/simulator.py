@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 
-class Simulators:
+class Simulator:
 
     def sim_func_A(x):
         # print('\nthis should be a single point: ',x)

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from global_settings import mds, mgs
 from global_settings import simexSettings
-from Logger import Logger
+from logger_utils import Logger
 
 logger = Logger()
 

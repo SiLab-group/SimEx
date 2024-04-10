@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from global_settings import vfs
-from Logger import Logger
+from logger_utils import Logger
 from sklearn.metrics import mean_squared_error
 
 logger = Logger()
 
 
-class Validators:
+class Validator:
     def __init__(self):
         self.unfit_intercept = None
 

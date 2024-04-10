@@ -1,9 +1,9 @@
 import numpy as np
 
-from Validators import Validators
-from Logger import Logger
+from validator import Validator
+from logger_utils import Logger
 
-validator = Validators()
+validator = Validator()
 logger = Logger()
 
 
@@ -83,9 +83,8 @@ class ValidatorController:
             # Log the equation
         # print('       *** OUTPUT validator_intervals', validator_unfit_intervals, '\n')
 
-        logger_validator_arguments = {}
-        logger_validator_arguments["log_contex"] = "internal VAL stats"
-        logger_validator_arguments["validator_intervals"] = validator_unfit_intervals
+        logger_validator_arguments = {"log_contex": "internal VAL stats",
+                                      "validator_intervals": validator_unfit_intervals}
         logger.log_validator(logger_validator_arguments)
 
         return validator_unfit_intervals

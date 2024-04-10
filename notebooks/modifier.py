@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Modifiers:
+class Modifier:
 
     def rescaler(old_list, new_min, new_max):
         """
@@ -62,10 +62,10 @@ class Modifiers:
             25.0
         """
         temp = np.array(x) ** 2
-        temp = Modifiers.rescaler(temp, new_min, new_max)
+        temp = Modifier.rescaler(temp, new_min, new_max)
         return temp
 
     def modifierB(x, new_min, new_max):
         temp = x * 2 / 3
-        temp = Modifiers.rescaler(temp, new_min, new_max)
+        temp = Modifier.rescaler(temp, new_min, new_max)
         return temp
