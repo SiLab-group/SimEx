@@ -9,7 +9,7 @@ logger = Logger()
 
 class ModifierController:
 
-    def modifierController(intervals_list, selectedModifier, do_plot):
+    def control(intervals_list, selected_modifier, do_plot):
         print("Modifier...")
         # Function to control modifiers given the input and the selected modifier function. Option to plot or not. 
         # print("[MODC]: *** Entering Modifier controller ***")
@@ -37,8 +37,8 @@ class ModifierController:
             mod_filtered_ticks = [tick for tick in mod_ticks if interval_min_tick < tick < interval_max_tick]
             if np.any(mod_filtered_ticks):
                 print("[MODC]: mod_ticks: ", mod_filtered_ticks)
-                mod_x = selectedModifier(mod_filtered_ticks, new_min=np.min(np.array(mod_filtered_ticks)),
-                                         new_max=np.max(np.array(mod_filtered_ticks)))
+                mod_x = selected_modifier(mod_filtered_ticks, new_min=np.min(np.array(mod_filtered_ticks)),
+                                          new_max=np.max(np.array(mod_filtered_ticks)))
 
                 print("[MODC]: mod_x: ", mod_x)
 

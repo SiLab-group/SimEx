@@ -3,7 +3,7 @@ import numpy as np
 
 class Modifier:
 
-    def rescaler(old_list, new_min, new_max):
+    def rescale(old_list, new_min, new_max):
         """
         Rescales a list of values from the original range to a new range.
 
@@ -19,7 +19,7 @@ class Modifier:
             >>> old_values = [10, 20, 30, 40]
             >>> new_min = 0
             >>> new_max = 1
-            >>> rescaled_values = rescaler(old_values, new_min, new_max)
+            >>> rescaled_values = rescale(old_values, new_min, new_max)
             >>> print(rescaled_values)
             [0.0, 0.25, 0.5, 1.0]
         """
@@ -62,10 +62,10 @@ class Modifier:
             25.0
         """
         temp = np.array(x) ** 2
-        temp = Modifier.rescaler(temp, new_min, new_max)
+        temp = Modifier.rescale(temp, new_min, new_max)
         return temp
 
     def modifierB(x, new_min, new_max):
         temp = x * 2 / 3
-        temp = Modifier.rescaler(temp, new_min, new_max)
+        temp = Modifier.rescale(temp, new_min, new_max)
         return temp
