@@ -1,6 +1,6 @@
 class SimulatorController:
 
-    def simulatorController(mod_x, selected_simulator):
+    def simulate(mod_x, selected_simulator):
         print("Simulator...")
         # shape_mod_x = np.shape(mod_x)
         if mod_x is False:
