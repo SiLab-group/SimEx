@@ -18,7 +18,7 @@ class Validator:
             degree = highest_degree - idx
             sign = '+' if coeff >= 0 and idx != 0 else ''
             if degree == 0:
-                equation += str(coeff)
+                equation += f'{sign} {str(coeff)}'
                 break
             equation += f'{sign} {coeff}x^{degree} '
         return equation
