@@ -14,8 +14,9 @@ mds = {"domain_min_interval": 0,
 # Validator Function Settings
 vfs = {'threshold_y_fitting': 5,
        'threshold_x_interval': 0.75,
-       'degree': 1,
+       'degree': 2,
        'max_deg': 9,
+       'early_stop': False,
        'improvement_threshold': 0.1,
        'penality_weight': 1}
 

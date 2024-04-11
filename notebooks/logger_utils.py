@@ -60,7 +60,7 @@ class Logger:
             x = np.linspace(interval[0], interval[1], 400)
             y = fitting_function(x)
             ax.plot(x, y, label=f'Interval: {interval}')
-            plt.ylim([-100, 100])
+            #plt.ylim([-100, 100])
             ax.set_xticks(np.arange(*ax.get_xlim(),
                                     (ax.get_xlim()[1] - ax.get_xlim()[0]) / 20))
 

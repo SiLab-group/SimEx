@@ -30,9 +30,10 @@ class Validator:
         mse = np.Infinity
         coeff = None
         intersect = None
-        y_pred = None
+        y_pred = None   
 
         degree = vfs['degree']
+        is_early_stop = vfs['early_stop']
 
         while degree <= max_deg:
             current_coeff = np.polyfit(x_values, y_values, deg=degree)
@@ -46,13 +47,22 @@ class Validator:
             is_acceptable_improvement: bool = (
                                                       mse - current_mse) >= improvement_threshold
 
-            if not has_mse_improved or not is_acceptable_improvement:
-                break
-
-            mse = current_mse
-            coeff = current_coeff
-            intersect = current_intersect
-            y_pred = current_y_pred
+            
+            if is_early_stop:
+                # If early stop flag is set to True and we do not have a sufficient improvement by increasing dimension, we stop
+                if not has_mse_improved or not is_acceptable_improvement:
+                    break
+                mse = current_mse
+                coeff = current_coeff
+                intersect = current_intersect
+                y_pred = current_y_pred
+            elif has_mse_improved and is_acceptable_improvement:
+                # If no early stop, we go trough all dimensions and we keep the best approximation
+                    mse = current_mse
+                    coeff = current_coeff
+                    intersect = current_intersect
+                    y_pred = current_y_pred
+            
             degree += 1
         equation = self.build_equation_string(coeff)
         # print("\n\nCALLED FIT_CURVE")
