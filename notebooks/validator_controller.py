@@ -1,25 +1,29 @@
 import numpy as np
 
 from validator import Validator
-from logger_utils import Logger
-
-validator = Validator()
-logger = Logger()
 
 
 class ValidatorController:
-    def __init__(self):
+    def __init__(self, logger, settings):
         self.unfit_x_interval = None
         self.unfit_points = []
         self.fit_x_interval = None
         self.fit_points = None
         self.equation = None
+        self.predicted_values = None
+        self.fitted_curve = None
+        self.x_values = None
+        self.y_values = None
+        self.unfit_interval = None
+        self.logger = logger
+        self.settings = settings
 
     def validate(self, mod_x_list, sim_y_list, selected_validator, global_interval):
+        validator = Validator(self.logger, self.settings)
         print('Validator...')
 
         if np.any(self.unfit_x_interval):  # if self.unfit_x_interval is not empty
-            # Add all new points to oldl unfit points
+            # Add all new points to old unfit points
             points = list(zip(mod_x_list, sim_y_list))
             points = [list(point) for point in points]
             points.extend(self.unfit_points)
@@ -43,14 +47,14 @@ class ValidatorController:
                     # validator_unfit_intervals.append(each_interval)
                     logger_validator_arguments = {"log_contex": "internal VAL stats",
                                                   "new_unfit_interval": each_interval, "unfit_points": unfit_points}
-                    logger.log_validator(logger_validator_arguments)
+                    self.logger.log_validator(logger_validator_arguments)
 
                     validator_unfit_intervals.append([each_interval])
                     validator_unfit_points.append(unfit_points)
                 else:
                     logger_validator_arguments = {"log_contex": "internal VAL stats",
                                                   "new_unfit_interval": each_interval, "unfit_points": unfit_points}
-                    logger.log_validator(logger_validator_arguments)
+                    self.logger.log_validator(logger_validator_arguments)
 
                     unfit_x_values, unfit_y_values = zip(*unfit_points)
                     equation, new_unfit_points, new_unfit_interval, _, fit_interval = getattr(validator,
@@ -72,7 +76,6 @@ class ValidatorController:
                                                                                                       selected_validator.__name__)(
                 x_values=mod_x_list, y_values=sim_y_list, selected_interval=global_interval)
             # print('equation,fit_points,fit_interval\n',equation,'\n',fit_points,'\n\n',fit_interval)
-
             self.unfit_x_interval = validator_unfit_intervals
             self.unfit_points = new_unfit_points
             # Log the equation
@@ -80,6 +83,8 @@ class ValidatorController:
 
         logger_validator_arguments = {"log_contex": "internal VAL stats",
                                       "validator_intervals": validator_unfit_intervals}
-        logger.log_validator(logger_validator_arguments)
-
+        self.logger.log_validator(logger_validator_arguments)
+        self.fitted_curve, self.predicted_values, self.unfit_interval = validator.get_curve_values()
+        self.x_values = mod_x_list
+        self.y_values = sim_y_list
         return validator_unfit_intervals
