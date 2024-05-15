@@ -42,3 +42,7 @@ lgs = {"log_granularity": 3}
 
 # DDL: (for everything) END OF MARCH
 # TODO: ?? - 04/24 a some point, introduce exploitation mode (just from modifier to sim and no validator)
+
+# SUMOvsl settings
+sumovsls = {"model_path": "/home/amy/tmp/repos/sumovsl/SPSC_MD/model_MD/",
+          "sumo_path": "/usr/share/sumo/bin/sumo-gui"}
