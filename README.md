@@ -1,6 +1,6 @@
 # SimEx
 
-## Install and run jupyter notbook
+## Install and run jupyter notebook
 1. Create venv/conda environment and install the dependencies
 ```bash
 # Creates environment in the .venv directory
