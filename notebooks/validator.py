@@ -10,6 +10,8 @@ logger = Logger()
 class Validator:
     def __init__(self):
         self.unfit_intercept = None
+        self.predicted_values = None
+        self.fitted_curve = None
 
     def build_equation_string(self, coefficients: list):
         equation = 'y = '
@@ -217,7 +219,8 @@ class Validator:
                         unfit_interval, predicted_values)
 
         # print('       *** OUTPUT unfit_interval',unfit_interval,'\n')
-
+        self.fitted_curve = fitted_curve
+        self.predicted_values = predicted_values
         return equation, unfit_points, unfit_interval, fit_points, fit_interval
 
     def plot_curve(self, x_values, y_values, fitted_curve, unfit_interval, predicted_values):  # Add self
@@ -243,3 +246,6 @@ class Validator:
         plt.title('Fitted Curve with unfit Intervals')
         plt.legend()
         plt.show()
+
+    def get_curve_values(self):
+        return self.fitted_curve, self.predicted_values

@@ -19,9 +19,8 @@ class SimulatorController:
         print("Simulator...")
         if mod_x is False:
             return False  # Possible iterations have ended
-        ids = [ mod_x[x][0] for x in range(0,len(mod_x))]
-        arrays = [ mod_x[x][1] for x in range(0,len(mod_x))]
+        ids = [mod_x[x][0] for x in range(0, len(mod_x))]
+        arrays = [mod_x[x][1] for x in range(0, len(mod_x))]
         # print(f" IN SIMULATE arrays: {arrays}")
         simulated_y = [selected_simulator(array) for array in arrays]
-
         return ids, simulated_y

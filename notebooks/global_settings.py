@@ -9,7 +9,7 @@ simexSettings = {"do_plot": False,
 mds = {"domain_min_interval": 0,
        "domain_max_interval": 100,
        "modifier_incremental_unit": 2,
-       "modifier_data_point": 10}
+       "modifier_data_point": 10} # tick
 
 # Validator Function Settings
 vfs = {'threshold_y_fitting': 5,
@@ -45,4 +45,5 @@ lgs = {"log_granularity": 3}
 
 # SUMOvsl settings
 sumovsls = {"model_path": "/home/amy/tmp/repos/sumovsl/SPSC_MD/model_MD/",
-          "sumo_path": "/usr/share/sumo/bin/sumo-gui"}
+          "sumo_path": "/usr/share/sumo/bin/sumo-gui",
+            "step_modifier": "25"}
