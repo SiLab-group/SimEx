@@ -87,7 +87,7 @@ class ValidatorController:
         logger_validator_arguments = {"log_contex": "internal VAL stats",
                                       "validator_intervals": validator_unfit_intervals}
         logger.log_validator(logger_validator_arguments)
-        self.fitted_curve, self.predicted_values= validator.get_curve_values()
+        self.fitted_curve, self.predicted_values = validator.get_curve_values()
         self.x_values = mod_x_list
         self.y_values = sim_y_list
         return validator_unfit_intervals
