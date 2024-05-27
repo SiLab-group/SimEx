@@ -12,7 +12,7 @@ remaining_unfit_intervals = []
 class Logger:
 
     def __init__(self, filename="LOG-"):
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         self.filename = f"{filename}{timestamp}.txt"
         self._open_file()
 
@@ -25,7 +25,7 @@ class Logger:
 
     def _write_log(self, level, message):
         if level:
-            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
             message = f"{timestamp} - {level} - {message}\n"
         self.file.write(message)
         self.file.flush()  # Ensure the message is written immediately
