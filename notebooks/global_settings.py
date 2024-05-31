@@ -6,17 +6,18 @@ simexSettings = {"do_plot": False,
                  "SimEx_mode": "exploration"}
 
 # Modifier Domain Settings
-mds = {"domain_min_interval": 0,
-       "domain_max_interval": 100,
-       "modifier_incremental_unit": 2,
-       "modifier_data_point": 10} # tick
+mds = {"domain_min_interval": 2500,
+       "domain_max_interval": 4500,
+       "modifier_incremental_unit": 25, #increment
+       "modifier_data_point": 100 # ID
+       }
 
 # Validator Function Settings
 vfs = {'threshold_y_fitting': 5,
        'threshold_x_interval': 0.75,
        'degree': 2,
        'max_deg': 9,
-       'early_stop': False,
+       'early_stop': True,
        'improvement_threshold': 0.1,
        'penality_weight': 1}
 
@@ -44,6 +45,6 @@ lgs = {"log_granularity": 3}
 # TODO: ?? - 04/24 a some point, introduce exploitation mode (just from modifier to sim and no validator)
 
 # SUMOvsl settings
-sumovsls = {"model_path": "/home/amy/tmp/repos/sumovsl/SPSC_MD/model_MD/",
-          "sumo_path": "/usr/share/sumo/bin/sumo-gui",
+sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/",
+          "sumo_path": "C:/Program Files (x86)/Eclipse/Sumo/bin/sumo",
             "step_modifier": "25"}

@@ -43,8 +43,8 @@ class ModifierController:
                 print("[MODC]: mod_x: ", mod_x)
 
                 all_intervals_mod.append(mod_x)
-            else:
-                all_intervals_mod.append([])
+            # else:
+            #     all_intervals_mod.append([])
 
         current_iteration_points_number = sum(len(sublist) for sublist in all_intervals_mod)
         mgs["points_generation_intervals"] += len(all_intervals_mod)
