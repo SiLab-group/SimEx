@@ -12,6 +12,7 @@ class Validator:
         self.unfit_intercept = None
         self.predicted_values = None
         self.fitted_curve = None
+        self.validator_name = None
 
     def build_equation_string(self, coefficients: list):
         equation = 'y = '
@@ -224,6 +225,8 @@ class Validator:
         return equation, unfit_points, unfit_interval, fit_points, fit_interval
 
     def plot_curve(self, x_values, y_values, fitted_curve, unfit_interval, predicted_values):  # Add self
+        import datetime
+        timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
         plt.figure(figsize=(10, 6))
         plt.scatter(x_values, y_values, label='Original Data')
@@ -245,9 +248,13 @@ class Validator:
         plt.xlabel('Traffic volume [veh/h]')
         # plt.ylabel('Y Values')
         plt.ylabel('TTS [veh$\cdot$h]')
-        plt.title('Fitted Curve with unfit Intervals')
+        plt.title(f'Fitted Curve with unfit Intervals for {self.validator_name}')
         plt.legend()
+        plt.savefig(f"TTS_vs_Volume_{self.validator_name}-{timestamp}.pdf", format='pdf')
         plt.show()
 
     def get_curve_values(self):
         return self.fitted_curve, self.predicted_values
+
+    def set_name(self, name):
+        self.validator_name = name

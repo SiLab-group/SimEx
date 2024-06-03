@@ -7,13 +7,13 @@ simexSettings = {"do_plot": False,
 
 # Modifier Domain Settings
 mds = {"domain_min_interval": 2500,
-       "domain_max_interval": 4500,
+       "domain_max_interval": 4000,
        "modifier_incremental_unit": 25, #increment
        "modifier_data_point": 100 # ID
        }
 
 # Validator Function Settings
-vfs = {'threshold_y_fitting': 5,
+vfs = {'threshold_y_fitting': 10,
        'threshold_x_interval': 0.75,
        'degree': 2,
        'max_deg': 9,
@@ -48,3 +48,6 @@ lgs = {"log_granularity": 3}
 sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/",
           "sumo_path": "C:/Program Files (x86)/Eclipse/Sumo/bin/sumo",
             "step_modifier": "25"}
+# sumovsls = {"model_path": "/home/amy/tmp/repos/sumovsl/SPSC_MD/model_MD/",
+#           "sumo_path": "/usr/share/sumo/bin/sumo",
+#             "step_modifier": "25"}

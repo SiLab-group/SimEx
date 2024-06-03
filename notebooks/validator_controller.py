@@ -8,7 +8,7 @@ logger = Logger()
 
 
 class ValidatorController:
-    def __init__(self):
+    def __init__(self, name):
         self.unfit_x_interval = None
         self.unfit_points = []
         self.fit_x_interval = None
@@ -18,6 +18,8 @@ class ValidatorController:
         self.fitted_curve = None
         self.x_values = None
         self.y_values = None
+        self.name = validator.set_name(name)
+
 
     def validate(self, mod_x_list, sim_y_list, selected_validator, global_interval):
         print('Validator...')
