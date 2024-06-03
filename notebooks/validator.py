@@ -241,8 +241,10 @@ class Validator:
             plt.axvspan(start, end, color='orange',
                         alpha=0.3, label='unfit Interval')
 
-        plt.xlabel('X Values')
-        plt.ylabel('Y Values')
+        # plt.xlabel('X Values')
+        plt.xlabel('Traffic volume [veh/h]')
+        # plt.ylabel('Y Values')
+        plt.ylabel('TTS [veh$\cdot$h]')
         plt.title('Fitted Curve with unfit Intervals')
         plt.legend()
         plt.show()
