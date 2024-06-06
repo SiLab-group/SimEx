@@ -18,8 +18,9 @@ class ValidatorController:
         self.fitted_curve = None
         self.x_values = None
         self.y_values = None
-        self.name = validator.set_name(name)
-
+        self.name = name
+        self.unfit_interval = None
+        validator.set_name(name)
 
     def validate(self, mod_x_list, sim_y_list, selected_validator, global_interval):
         print('Validator...')
@@ -89,7 +90,7 @@ class ValidatorController:
         logger_validator_arguments = {"log_contex": "internal VAL stats",
                                       "validator_intervals": validator_unfit_intervals}
         logger.log_validator(logger_validator_arguments)
-        self.fitted_curve, self.predicted_values = validator.get_curve_values()
+        self.fitted_curve, self.predicted_values, self.unfit_interval = validator.get_curve_values()
         self.x_values = mod_x_list
         self.y_values = sim_y_list
         return validator_unfit_intervals

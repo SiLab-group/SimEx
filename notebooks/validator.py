@@ -13,6 +13,7 @@ class Validator:
         self.predicted_values = None
         self.fitted_curve = None
         self.validator_name = None
+        self.unfit_interval = None
 
     def build_equation_string(self, coefficients: list):
         equation = 'y = '
@@ -226,9 +227,11 @@ class Validator:
 
     def plot_curve(self, x_values, y_values, fitted_curve, unfit_interval, predicted_values):  # Add self
         import datetime
+        self.unfit_interval = unfit_interval
+        plt.rcParams.update({'font.size': 12})
         timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(12, 6))
         plt.scatter(x_values, y_values, label='Original Data')
         plt.scatter(x_values, predicted_values,
                     label='Predicted y Data', marker='x')
@@ -239,10 +242,11 @@ class Validator:
                  vfs["threshold_y_fitting"], color='black', label='threshold ')
         plt.plot(fitted_curve[2], fitted_curve[1] -
                  vfs["threshold_y_fitting"], color='black', label='threshold ')
-
+        count = 0
         for start, end in unfit_interval:
+            count += 1
             plt.axvspan(start, end, color='orange',
-                        alpha=0.3, label='unfit Interval')
+                        alpha=0.3, label=f'Unfit Interval {count}: [{start},{end}]')
 
         # plt.xlabel('X Values')
         plt.xlabel('Traffic volume [veh/h]')
@@ -254,7 +258,7 @@ class Validator:
         plt.show()
 
     def get_curve_values(self):
-        return self.fitted_curve, self.predicted_values
+        return self.fitted_curve, self.predicted_values,self.unfit_interval
 
     def set_name(self, name):
         self.validator_name = name

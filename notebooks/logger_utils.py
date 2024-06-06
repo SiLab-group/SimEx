@@ -12,6 +12,8 @@ remaining_unfit_intervals = []
 class Logger:
 
     def __init__(self, filename="LOG-"):
+        self.remaining_unfit_intervals = []
+        self.all_fit_intervals_data = []
         timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
         self.filename = f"{filename}{timestamp}.txt"
         self._open_file()
@@ -92,6 +94,8 @@ class Logger:
                     result_entry = f"UI: {str(element['interval']):<40} | \n"
                 self.file.write(result_entry)
                 self.file.flush()  # Ensure the message is written immediately
+        self.all_fit_intervals_data = all_fit_intervals_data
+        self.remaining_unfit_intervals = remaining_unfit_intervals
         self._plot_results(all_fit_intervals_data, remaining_unfit_intervals)
 
     def log_main(self, logger_arguments):

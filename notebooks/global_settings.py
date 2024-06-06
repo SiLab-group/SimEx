@@ -13,8 +13,8 @@ mds = {"domain_min_interval": 2500,
        }
 
 # Validator Function Settings
-vfs = {'threshold_y_fitting': 10,
-       'threshold_x_interval': 0.75,
+vfs = {'threshold_y_fitting': 15,
+       'threshold_x_interval': 0.80,
        'degree': 2,
        'max_deg': 9,
        'early_stop': True,
