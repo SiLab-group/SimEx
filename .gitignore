@@ -8,3 +8,5 @@ notebooks/.ipynb_checkpoints
 notebooks/vc_*loop*.pkl
 notebooks/*.pdf
 notebooks/*.png
+.venv
+venv
