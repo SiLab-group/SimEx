@@ -246,7 +246,7 @@ class Validator:
         for start, end in unfit_interval:
             count += 1
             plt.axvspan(start, end, color='orange',
-                        alpha=0.3, label=f'Unfit Interval {count}: [{start},{end}]')
+                        alpha=0.3, label=f'Unfit Interval {count}: [{round(start)},{round(end)}]')
 
         # plt.xlabel('X Values')
         plt.xlabel('Traffic volume [veh/h]')
