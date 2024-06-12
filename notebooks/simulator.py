@@ -25,7 +25,7 @@ class Simulator:
 
     def sumo_simulator_vsl(flat_mod_x):
         modifier_list = [flat_mod_x] * 90
-        print(f"x list {modifier_list}")
+        print(f" len {len(modifier_list)}x list {modifier_list}")
         # Given modifier_list this returns list of TTS_sim NOT Aggregated for id
         tts_sim = []
         print("Running sumo simulator")
@@ -56,7 +56,8 @@ class Simulator:
             seeds = [28815]
             # rnd=random.randint(20000, 30000)
             rnd = seeds[seed_ID]
-            sumoCmd = [sumoBinary, "-c", root + "highway_model.sumocfg", "--seed", str(rnd), "--start", "1", "--quit-on-end", "1"]
+            # sumoCmd = [sumoBinary, "-c", root + "highway_model.sumocfg", "--seed", str(rnd), "--start", "1", "--quit-on-end", "1","--remote-port", "9999"]
+            sumoCmd = [sumoBinary, "-c", root + "highway_model.sumocfg", "--seed", str(rnd), "--start", "1","--quit-on-end","1"]
             return sumoCmd
         
         #==================================================================
@@ -114,8 +115,6 @@ class Simulator:
     
             step += 1
         traci.close()
-        # print(f"TTS SIM array {tts_sim}")
-        #return tts_sim
         return TTSsim
 
     def sumo_simulator_novsl(flat_mod_x):
