@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+
+# Run novsl case without jupyter
+
+# IMPORT LIBRARIES
+import numpy as np
+
+from components_configuration import components
+from global_settings import simexSettings, mds
+
+from validator_controller import ValidatorController
+from modifier_controller import ModifierController
+from simulator_controller import SimulatorController
+from logger_utils import Logger
+
+import pickle
+import datetime
+
+
+def save_object(obj, filename):
+    with open(filename, 'wb') as outp:  # Overwrites any existing file.
+        pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
+
+
+validator_controller_novsl = ValidatorController("NOVSL")
+logger = Logger()
+logger_main_arguments = {}
+is_main_func = True
+# Initialize interval list for the first iteration
+intervals_list = [[mds['domain_min_interval'], mds['domain_max_interval']]]
+# Values for the timestamp of the pickle file
+count = 0
+filename1 = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+while is_main_func:
+
+    # Calls Modifier Controller
+    mod_outcome = ModifierController.control(intervals_list=intervals_list, selected_modifier=components['modifierA'],
+                                             do_plot=simexSettings['do_plot'])
+    mod_x_list = mod_outcome[0]
+    checked_intervals = mod_outcome[1]
+    print("MAIN mod outcome", mod_outcome)
+
+    # breaks loop if iterations end by granularity reached
+    if not mod_x_list:  # FALSE IF ['modifier_data_point'] < mdv['modifier_incremental_unit']:
+        logger_main_arguments['log_contex'] = 'overall MAIN stats'
+        logger_main_arguments['main_status'] = 'no generated points'
+        logger_main_arguments['remaining_unfit_intervals'] = checked_intervals
+        logger.log_main(logger_main_arguments)
+        break
+
+    # Calls Simulator
+    mod_x, sim_y_list = SimulatorController.simulate(mod_x_list, selected_simulator=components['sumo_simulator_novsl'])
+    print(f"MODX {mod_x} and sim_y_list {sim_y_list}")
+    assert len(mod_x) == len(sim_y_list)
+
+    print("MAIN modx", mod_x)
+
+    # Calls Validator controller
+    intervals_list = validator_controller_novsl.validate(mod_x_list=np.array(mod_x), sim_y_list=np.array(sim_y_list),
+                                                         selected_validator=components['validator'],
+                                                         global_interval=[mds["domain_min_interval"],
+                                                                          mds["domain_max_interval"]])
+    print("MAIN interval list from VAL:", intervals_list)
+    # Loop number (loop-1,loop2..etc)
+    count += 1
+    save_object(validator_controller_novsl, f"vc_novsl_loop-{count}-{filename1}.pkl")
+
+    # Updates interval_list to new range output from validator controller
+    # No more unfit intervals -> write MAIN log
+    if not intervals_list:
+        is_main_func = False
+        logger_main_arguments['log_contex'] = 'overall MAIN stats'
+        logger_main_arguments['main_status'] = 'no unfit intervals'
+        logger.log_main(logger_main_arguments)
+
+# MAIN cycle completed/interrupted -> write OVERALL statistics
+logger_main_arguments['log_contex'] = 'Overall Stats'
+logger_main_arguments['main_status'] = 'end cycle'
+logger.log_main(logger_main_arguments)
