@@ -27,7 +27,7 @@ class Modifier:
         if not np.any(old_list):
             return []
         
-        # FIX: Cast list to to np.in64 for windows https://github.com/numpy/numpy/issues/8433
+        # FIX: Cast list to to np.int64 for windows https://github.com/numpy/numpy/issues/8433
         # Fixed in numpy 2.0
         old_list = np.int64(old_list)
         new_min = np.int64(new_min)
