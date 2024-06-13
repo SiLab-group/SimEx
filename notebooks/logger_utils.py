@@ -63,8 +63,8 @@ class Logger:
             y = fitting_function(x)
             ax.plot(x, y, label=f'Interval: {interval}')
             #plt.ylim([-100, 100])
-            ax.set_xticks(np.arange(*ax.get_xlim(),
-                                    (ax.get_xlim()[1] - ax.get_xlim()[0]) / 20))
+            # ax.set_xticks(np.arange(*ax.get_xlim(),
+            #                         (ax.get_xlim()[1] - ax.get_xlim()[0]) / 20))
 
         for element in remaining_unfit_intervals:
             ax.axvspan(*element['interval'], color='gray',
