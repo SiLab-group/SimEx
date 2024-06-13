@@ -26,12 +26,15 @@ class Modifier:
         # handle empty list case
         if not np.any(old_list):
             return []
-        print(f" OLD LIST: {old_list}")
+        
+        # FIX: Cast list to to np.in64 for windows https://github.com/numpy/numpy/issues/8433
+        # Fixed in numpy 2.0
+        old_list = np.int64(old_list)
+        new_min = np.int64(new_min)
+        new_max = np.int64(new_max)
         
         old_min = min(old_list)
         old_max = max(old_list)
-        print(f" OLD MIN: {old_min}")
-        print(f" OLD MAX: {old_max}")
 
         if old_min == old_max:
             # Handle the case when all elements in old_list are the same
@@ -41,11 +44,8 @@ class Modifier:
         for old_value in old_list:
             denominator = old_max - old_min
             if denominator != 0:
-                print(f"(({old_value} - {old_min}) * ({new_max}-{new_min}))/ {denominator}) + {new_min} = ")
-                scaled_value = (((old_value - old_min) * (new_max - new_min)) / denominator) + new_min
-                print(f"{type(scaled_value)} and scaled value = {scaled_value}")
+                scaled_value = (((old_value - old_min) * (new_max - new_min))/ denominator) + new_min
                 new_values.append(scaled_value)
-                del scaled_value
             else:
                 # Handle the case when the interval is zero
                 new_values.append(new_min)
@@ -68,8 +68,8 @@ class Modifier:
             25.0
         """
         temp = np.array(x) ** 2
-        value = Modifier.rescale(temp, new_min, new_max)
-        return value
+        temp = Modifier.rescale(temp, new_min, new_max)
+        return temp
 
     def modifierB(x, new_min, new_max):
         temp = x * 2 / 3
