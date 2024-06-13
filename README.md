@@ -1,4 +1,12 @@
 # SimEx
+This repository contains Structured simulation framework.
+
+## Run Simex-sumo simulation
+To run the simulation the jupyter notebook or normal python script can be used. Follow the instructions in the 
+notebook to setup the settings for the sumo and model path.
+1. VSL: `notebooks/SimEx_sumo_vsl_notebook.ipynb` or `notebooks/sumo_vsl_run.py`
+2. NOVSL: `notebooks/SimEx_sumo_novsl_notebook.ipynb` or `notebooks/sumo_novsl_run.py`
+3. Plots from the saved pickle objects: `notebooks/SimEX_sumo_plot.ipynb`
 
 ## Install and run jupyter notebook
 1. Create venv environment and install the dependencies Linux:
