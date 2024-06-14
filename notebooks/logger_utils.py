@@ -14,8 +14,8 @@ class Logger:
     def __init__(self, filename="LOG-"):
         self.remaining_unfit_intervals = []
         self.all_fit_intervals_data = []
-        timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-        self.filename = f"{filename}{timestamp}.txt"
+        self.timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        self.filename = f"{filename}{self.timestamp}.txt"
         self._open_file()
 
     def _open_file(self):
@@ -61,7 +61,9 @@ class Logger:
             # Adjust the number of points as needed
             x = np.linspace(interval[0], interval[1], 400)
             y = fitting_function(x)
-            ax.plot(x, y, label=f'Interval: {interval}')
+
+            # ax.plot(x, y, label=f'Interval: {interval}')
+            ax.plot(x, y, '-', linewidth=2, label=f'Interval novsl: [{round(interval[0]), round(interval[1])}]')
             #plt.ylim([-100, 100])
             # ax.set_xticks(np.arange(*ax.get_xlim(),
             #                         (ax.get_xlim()[1] - ax.get_xlim()[0]) / 20))
@@ -69,6 +71,12 @@ class Logger:
         for element in remaining_unfit_intervals:
             ax.axvspan(*element['interval'], color='gray',
                        alpha=0.3, label='unfit Interval')
+
+        plt.xlabel('Traffic volume [veh/h]')
+        plt.ylabel('TTS [veh$\cdot$h]')
+        plt.title(f'Overall fitted functions')
+        plt.legend()
+        plt.show()
 
     def _write_results(self):
 
