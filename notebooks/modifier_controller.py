@@ -35,10 +35,13 @@ class ModifierController:
 
             # Extract mod_ticks that are within intervals_list
             mod_filtered_ticks = [tick for tick in mod_ticks if interval_min_tick < tick < interval_max_tick]
+            # If not empty
             if np.any(mod_filtered_ticks):
                 print("[MODC]: mod_ticks: ", mod_filtered_ticks)
-                mod_x = selected_modifier(mod_filtered_ticks, new_min=np.min(np.array(mod_filtered_ticks)),
-                                          new_max=np.max(np.array(mod_filtered_ticks)))
+                # FIX: Set type to np.int64 due to issue on windows: https://github.com/numpy/numpy/issues/8433
+                # Fixed in numpy 2.0
+                mod_x = selected_modifier(mod_filtered_ticks, new_min=np.min(np.array(mod_filtered_ticks, dtype=np.int64)),
+                                          new_max=np.max(np.array(mod_filtered_ticks, dtype=np.int64)))
 
                 print("[MODC]: mod_x: ", mod_x)
 

@@ -22,7 +22,7 @@ def save_object(obj, filename):
         pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
 
-validator_controller_novsl = ValidatorController("NOVSL")
+validator_controller_novsl = ValidatorController("NOVSL_script")
 logger = Logger()
 logger_main_arguments = {}
 is_main_func = True
@@ -35,6 +35,7 @@ filename1 = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 while is_main_func:
 
     # Calls Modifier Controller
+    # NOTE: intervals_list type is set to np.int64 due to: https://github.com/numpy/numpy/issues/8433 on windows
     mod_outcome = ModifierController.control(intervals_list=intervals_list, selected_modifier=components['modifierA'],
                                              do_plot=simexSettings['do_plot'])
     mod_x_list = mod_outcome[0]
