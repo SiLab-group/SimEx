@@ -79,3 +79,10 @@ while is_main_func:
 logger_main_arguments['log_contex'] = 'Overall Stats'
 logger_main_arguments['main_status'] = 'end cycle'
 logger.log_main(logger_main_arguments)
+
+# Save data for the last plot located in logger object
+save_object(logger.all_fit_intervals_data,f"logger-novsl-fitted_intervals-{filename1}.pkl")
+# If not empty
+if logger.remaining_unfit_intervals:
+    save_object(logger.remaining_unfit_intervals,f"logger-novsl-unfitted_intervals-{filename1}.pkl")
+print(f"Logger object saved with timestamp {filename1}")
