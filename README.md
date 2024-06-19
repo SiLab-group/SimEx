@@ -30,4 +30,4 @@ sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/"
            "sumo_path": "C:/Program Files (x86)/Eclipse/Sumo/bin/sumo"}
 ```
 5. Run `notebooks/SimEx_sumo_vsl_notebook.ipynb` or `notebooks/SimEx_sumo_novsl_notebook.ipynb`
-6. For the overal plots adjustments from pkl objects run `notebooks/SimEx_sumo_plot.ipynb`
+6. For the overall plots adjustments from pkl objects run `notebooks/SimEx_sumo_plot.ipynb`

@@ -1,6 +1,6 @@
 #python==3.10.13
 # included in jupyter/tensorflow-notebook
-numpy
+numpy==1.26.0
 scikit-learn
 matplotlib
 jupyter
