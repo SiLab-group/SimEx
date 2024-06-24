@@ -1,25 +1,25 @@
 # Overall SimEx settings
 # possible modes exploration (this one) and exploitation (mod with prob threes)
-simexSettings = {"do_plot": False,
-                 "extensive_search": False,
-                 "extensive_iteration": False,
-                 "SimEx_mode": "exploration"}
+simexSettings = {"do_plot": False,  # No special meaning at the moment. Should be refactored.
+                 "extensive_search": False,  #  Complete exploration setting modifier_data_point to 1 and enabling extensive iteration
+                 "extensive_iteration": False,  #  Gets enabled when extensive search is True
+                 "SimEx_mode": "exploration"}  # Only exploration implemented
 
 # Modifier Domain Settings
 mds = {"domain_min_interval": 2500,
        "domain_max_interval": 4000,
-       "modifier_incremental_unit": 25, #increment
-       "modifier_data_point": 100 # ID
+       "modifier_incremental_unit": 25,  # Second round modifier_data_point - modifier_incremental_unit to make smaller granularity. Note: If extensive search True then increment set to 1
+       "modifier_data_point": 100  # Data points on the X axis in the first round. Step size (100,200,300,..)
        }
 
 # Validator Function Settings
-vfs = {'threshold_y_fitting': 15,
-       'threshold_x_interval': 0.80,
-       'degree': 2,
-       'max_deg': 9,
-       'early_stop': True,
-       'improvement_threshold': 0.1,
-       'penality_weight': 1}
+vfs = {'threshold_y_fitting': 15,  # Threshold on the y axis
+       'threshold_x_interval': 0.80,  # Percentage on x how good or bad point
+       'degree': 2,  # Minimum degree for exploration
+       'max_deg': 9,  # Max degree for exploration
+       'early_stop': True,  # Validator: if True and not sufficient improvement by increasing dimension, we stop
+       'improvement_threshold': 0.1,  # Sufficient improvement threshold
+       'penality_weight': 1}  # Penalty for MSE to avoid overfitting with high dimension polynomial
 
 ## Data and settings for log purposes ##
 
@@ -46,8 +46,6 @@ lgs = {"log_granularity": 3}
 
 # SUMOvsl settings
 sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/",
-          "sumo_path": "C:/Program Files (x86)/Eclipse/Sumo/bin/sumo",
-            "step_modifier": "25"}
-# sumovsls = {"model_path": "/home/amy/tmp/repos/sumovsl/SPSC_MD/model_MD/",
-#           "sumo_path": "/usr/share/sumo/bin/sumo",
-#             "step_modifier": "25"}
+            "sumo_path": "C:/Program Files (x86)/Eclipse/Sumo/bin/sumo"}
+# sumovsls = {"model_path": "/home/amy/tmp/repos/SimEx/model_MD/",
+#             "sumo_path": "/usr/share/sumo/bin/sumo"}
