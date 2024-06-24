@@ -22,16 +22,17 @@ vfs = {'threshold_y_fitting': 15,  # Threshold on the y axis
        'penality_weight': 1}  # Penalty for MSE to avoid overfitting with high dimension polynomial
 
 ## Data and settings for log purposes ##
+# These settings are filled during the runtime and used as a global data structure for the logger statistics.
 
 # Modifier Global Statistics 
-mgs = {"points_generated_total": 0,
-       "points_generation_intervals": 0,
-       "mod_iterations": 0}
+mgs = {"points_generated_total": 0, # Number of generated points
+       "points_generation_intervals": 0, # Number of intervals generated
+       "mod_iterations": 0}  # Number of modifier iterations
 
 # Validator Global statistics
-vgs = {"points_fitting_total": 0,
-       "points_unfitting_total": 0,
-       "intervals_unfit_total": 0}
+vgs = {"points_fitting_total": 0,  # Not used
+       "points_unfitting_total": 0,  # Not used
+       "intervals_unfit_total": 0}  # Not used
 
 # Logger Granularity Settings
 # log_granularity:
