@@ -33,9 +33,12 @@ class Logger:
         self.file.flush()  # Ensure the message is written immediately
 
     def _plot_results(self, all_fit_intervals_data, remaining_unfit_intervals):
-
+        # Create graph
         _, ax = plt.subplots(figsize=(10, 5))
-
+        # Remember color for the same fitted functions
+        vsl_func = []
+        colors = {}
+        element_count = 0
         # Plot FI intervals with their fitting functions
         for element in all_fit_intervals_data:
             interval = element['interval']
@@ -61,9 +64,17 @@ class Logger:
             # Adjust the number of points as needed
             x = np.linspace(interval[0], interval[1], 400)
             y = fitting_function(x)
-
+            if fitting_function_str in vsl_func:
+                ax.plot(x, y, linewidth=3, label=f'Interval vsl: [{round(interval[0]), round(interval[1])}]',
+                        color=colors[fitting_function_str])
+            else:
+                ax.plot(x, y, linewidth=3, label=f'Interval vsl: [{round(interval[0]), round(interval[1])}]')
+                vsl_func.append(fitting_function_str)
+                color = ax.get_lines()[element_count].get_color()
+                colors[fitting_function_str] = color
+            element_count += 1
             # ax.plot(x, y, label=f'Interval: {interval}')
-            ax.plot(x, y, '-', linewidth=2, label=f'Interval novsl: [{round(interval[0]), round(interval[1])}]')
+            # ax.plot(x, y, '-', linewidth=2, label=f'Interval novsl: [{round(interval[0]), round(interval[1])}]')
             #plt.ylim([-100, 100])
             # ax.set_xticks(np.arange(*ax.get_xlim(),
             #                         (ax.get_xlim()[1] - ax.get_xlim()[0]) / 20))
