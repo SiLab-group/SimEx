@@ -13,7 +13,8 @@ mds = {"domain_min_interval": 2500,
        }
 
 # Validator Function Settings
-# When fitting function we calculate MSE for each fitted function:
+# For each fitted function we calculate Mean squared error(MSE):
+# https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html
 # MSE ( (y_values, current_y_pred) + penality_weight * np.sum(current_coeff[:-1] ** 2) ) and compare it to the previous
 # We consider improvement acceptable if: (previous_mse - current_mse) >= improvement_threshold
 vfs = {'threshold_y_fitting': 15,  # Threshold on the y axis
@@ -26,16 +27,15 @@ vfs = {'threshold_y_fitting': 15,  # Threshold on the y axis
 
 ## Data and settings for log purposes ##
 # These settings are filled during the runtime and used as a global data structure for the logger statistics.
-
 # Modifier Global Statistics 
-mgs = {"points_generated_total": 0, # Number of generated points
-       "points_generation_intervals": 0, # Number of intervals generated
-       "mod_iterations": 0}  # Number of modifier iterations
+mgs = {"points_generated_total": 0, # Number of generated points TODO: Should be refactored
+       "points_generation_intervals": 0, # Number of intervals generated TODO: Should be refactored
+       "mod_iterations": 0}  # Number of modifier iterations TODO: Should be refactored
 
 # Validator Global statistics
-vgs = {"points_fitting_total": 0,  # Not used
-       "points_unfitting_total": 0,  # Not used
-       "intervals_unfit_total": 0}  # Not used
+vgs = {"points_fitting_total": 0,  # Not used TODO: Should be refactored
+       "points_unfitting_total": 0,  # Not used TODO: Should be refactored
+       "intervals_unfit_total": 0}  # Not used TODO: Should be refactored
 
 # Logger Granularity Settings
 # log_granularity:
@@ -44,9 +44,6 @@ vgs = {"points_fitting_total": 0,  # Not used
 # 2 medium
 # 3 detailed)
 lgs = {"log_granularity": 3}
-
-# DDL: (for everything) END OF MARCH
-# TODO: ?? - 04/24 a some point, introduce exploitation mode (just from modifier to sim and no validator)
 
 # SUMOvsl settings
 sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/",
