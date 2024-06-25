@@ -8,8 +8,9 @@ simexSettings = {"do_plot": False,  # No special meaning at the moment. TODO: Sh
 # Modifier Domain Settings
 mds = {"domain_min_interval": 2500,
        "domain_max_interval": 4000,
-       "modifier_incremental_unit": 25,  # Second round modifier_data_point - modifier_incremental_unit to make smaller granularity. Note: If extensive search True then increment set to 1
-       "modifier_data_point": 100  # Data points on the X axis in the first round. Step size (100,200,300,..)
+       "modifier_incremental_unit": 25,  # Minimal incremental unit is the smallest allowed step_size. Note: If extensive search True then minimal increment is set to 1
+       "modifier_data_point": 100  # Data point step size on the X axis in the first round. In next iterations
+                                   # modifier_data_point = modifier_data_point - modifier_incremental_unit until modifier_data_point < minimal_increment_unit.
        }
 
 # Validator Function Settings
