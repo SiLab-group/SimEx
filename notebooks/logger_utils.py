@@ -1,9 +1,10 @@
 import re
+import csv
 from datetime import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
-from global_settings import lgs, mgs
+from global_settings import lgs, mgs, vfs
 
 all_fit_intervals_data = []
 remaining_unfit_intervals = []
@@ -63,15 +64,13 @@ class Logger:
             x = np.linspace(interval[0], interval[1], 400)
             y = fitting_function(x)
             if fitting_function_str in colors.keys():
-                ax.plot(x, y, linewidth=3, label=f'Interval vsl: [{round(interval[0]), round(interval[1])}]',
+                ax.plot(x, y, linewidth=3, label=f'Interval: [{round(interval[0]), round(interval[1])}]',
                         color=colors[fitting_function_str])
             else:
-                ax.plot(x, y, linewidth=3, label=f'Interval vsl: [{round(interval[0]), round(interval[1])}]')
+                ax.plot(x, y, linewidth=3, label=f'Interval: [{round(interval[0]), round(interval[1])}]')
                 color = ax.get_lines()[-1].get_color()
                 colors[fitting_function_str] = color
-            # ax.plot(x, y, label=f'Interval: {interval}')
-            # ax.plot(x, y, '-', linewidth=2, label=f'Interval novsl: [{round(interval[0]), round(interval[1])}]')
-            #plt.ylim([-100, 100])
+            # plt.ylim([-100, 100])
             # ax.set_xticks(np.arange(*ax.get_xlim(),
             #                         (ax.get_xlim()[1] - ax.get_xlim()[0]) / 20))
 
@@ -111,6 +110,9 @@ class Logger:
                 self.file.flush()  # Ensure the message is written immediately
         self.all_fit_intervals_data = all_fit_intervals_data
         self.remaining_unfit_intervals = remaining_unfit_intervals
+        # Write results to csv file
+        self.write_csv_file()
+        # Plot resultss
         self._plot_results(all_fit_intervals_data, remaining_unfit_intervals)
 
     def log_main(self, logger_arguments):
@@ -223,3 +225,27 @@ class Logger:
 
     def close(self):
         self._close_file()
+
+    def write_csv_file(self):
+        with open(f'simex_output-{self.timestamp}.csv', 'w') as f:
+            # Create the csv writer
+            writer = csv.writer(f)
+            # Create header for the CSV file based on the global_settings configuration
+            header = ['interval_start', 'interval_end', 'exponent_max_degree']
+            [header.append(f'exponent_max_degree-{i}') for i in range(1, vfs['max_deg']-1)]
+            writer.writerow(header)
+            for interval in self.all_fit_intervals_data:
+                exp = []
+                # Convert the string into a function array of terms
+                terms = re.findall(r'([+-]?\s*\d+\.?\d*(?:e[+-]?\d+)?)(x\^\d+)?', interval['fitting_function'].replace(' ', ''))
+                # For each element if x present, we extract exponent
+                for term in terms:
+                    if term[1]:  # If there is an 'x' term
+                        exponent = int(term[1][2:])  # Get the exponent
+                        exp.append(exponent)
+                # For given interval
+                row = [interval['interval'][0], interval['interval'][1]]
+                # Append all the exponents
+                [row.append(ex) for ex in exp]
+                writer.writerow(row)
+            print(f'Data written to the csv file simex_output-{self.timestamp}.txt')
