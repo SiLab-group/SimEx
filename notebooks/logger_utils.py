@@ -10,6 +10,24 @@ all_fit_intervals_data = []
 remaining_unfit_intervals = []
 
 
+def get_coefficients(interval):
+    # Convert the string into a function array of terms
+    terms = re.findall(r'([+-]?\s*\d+\.?\d*(?:e[+-]?\d+)?)(x\^\d+)?', interval['fitting_function'].replace(' ', ''))
+    # For each element if x present, we extract exponent
+    coefficients = [0] * (vfs['max_deg']+1)  # Initialize a list for coefficients
+    for term in terms:
+        coef = float(term[0])
+        if term[1]:  # If there is an 'x' term
+            exponent = int(term[1][2:])  # Get the exponent
+            while len(coefficients) <= exponent:  # Expand the list if needed
+                coefficients.append(0)
+            # Assign the coefficient to the corresponding position in the list
+            coefficients[exponent] = coef
+        else:  # If there is no 'x' term, it's the constant term
+            coefficients[0] = coef
+    return coefficients
+
+
 class Logger:
 
     def __init__(self, filename="LOG-"):
@@ -43,20 +61,7 @@ class Logger:
             interval = element['interval']
             fitting_function_str = element['fitting_function']
 
-            # Convert the string into a function
-            terms = re.findall(
-                r'([+-]?\s*\d+\.?\d*(?:e[+-]?\d+)?)(x\^\d+)?', fitting_function_str.replace(' ', ''))
-            coefficients = [0] * 10  # Initialize a list of 10 zeros
-            for term in terms:
-                coef = float(term[0])
-                if term[1]:  # If there is an 'x' term
-                    exponent = int(term[1][2:])  # Get the exponent
-                    while len(coefficients) <= exponent:  # Expand the list if needed
-                        coefficients.append(0)
-                    # Assign the coefficient to the corresponding position in the list
-                    coefficients[exponent] = coef
-                else:  # If there is no 'x' term, it's the constant term
-                    coefficients[0] = coef
+            coefficients = get_coefficients(element)
             # Reverse the list to match the order expected by np.poly1d
             fitting_function = np.poly1d(coefficients[::-1])
 
@@ -236,23 +241,11 @@ class Logger:
             [header.append(f'exponent_max_degree{i}') for i in reversed(range(0, vfs['max_deg'] + 1))]
             writer.writerow(header)
             for interval in self.all_fit_intervals_data:
-                # Convert the string into a function array of terms
-                terms = re.findall(r'([+-]?\s*\d+\.?\d*(?:e[+-]?\d+)?)(x\^\d+)?', interval['fitting_function'].replace(' ', ''))
                 # For each element if x present, we extract exponent
-                coefficients = [0] * (vfs['max_deg']+1)  # Initialize a list for coefficients
-                for term in terms:
-                    coef = float(term[0])
-                    if term[1]:  # If there is an 'x' term
-                        exponent = int(term[1][2:])  # Get the exponent
-                        while len(coefficients) <= exponent:  # Expand the list if needed
-                            coefficients.append(0)
-                        # Assign the coefficient to the corresponding position in the list
-                        coefficients[exponent] = coef
-                    else:  # If there is no 'x' term, it's the constant term
-                        coefficients[0] = coef
+                coefficients = get_coefficients(interval)
                 # For given interval
                 row = [interval['interval'][0], interval['interval'][1]]
-                # Append all the exponents
+                # Append all the exponents in reversed order
                 [row.append(c) for c in reversed(coefficients)]
                 writer.writerow(row)
 
