@@ -231,21 +231,34 @@ class Logger:
             # Create the csv writer
             writer = csv.writer(f)
             # Create header for the CSV file based on the global_settings configuration
-            header = ['interval_start', 'interval_end', 'exponent_max_degree']
-            [header.append(f'exponent_max_degree-{i}') for i in range(1, vfs['max_deg']-1)]
+            header = ['interval_start', 'interval_end']
+            # Append header reversed max_degree9,max_degree8...max_degree0 range defined in global settings
+            [header.append(f'exponent_max_degree{i}') for i in reversed(range(0, vfs['max_deg'] + 1))]
             writer.writerow(header)
             for interval in self.all_fit_intervals_data:
-                exp = []
                 # Convert the string into a function array of terms
                 terms = re.findall(r'([+-]?\s*\d+\.?\d*(?:e[+-]?\d+)?)(x\^\d+)?', interval['fitting_function'].replace(' ', ''))
                 # For each element if x present, we extract exponent
+                coefficients = [0] * (vfs['max_deg']+1)  # Initialize a list for coefficients
                 for term in terms:
+                    coef = float(term[0])
                     if term[1]:  # If there is an 'x' term
                         exponent = int(term[1][2:])  # Get the exponent
-                        exp.append(exponent)
+                        while len(coefficients) <= exponent:  # Expand the list if needed
+                            coefficients.append(0)
+                        # Assign the coefficient to the corresponding position in the list
+                        coefficients[exponent] = coef
+                    else:  # If there is no 'x' term, it's the constant term
+                        coefficients[0] = coef
                 # For given interval
                 row = [interval['interval'][0], interval['interval'][1]]
                 # Append all the exponents
-                [row.append(ex) for ex in exp]
+                [row.append(c) for c in reversed(coefficients)]
+                writer.writerow(row)
+
+            # For unfit intervals append 0
+            for u_interval in self.remaining_unfit_intervals:
+                row = [u_interval['interval'][0], u_interval['interval'][1]]
+                [row.append(0) for i in range(0, vfs['max_deg']+1)]
                 writer.writerow(row)
             print(f'Data written to the csv file simex_output-{self.timestamp}.txt')
