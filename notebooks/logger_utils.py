@@ -69,16 +69,16 @@ class Logger:
             # Adjust the number of points as needed
             x = np.linspace(interval[0], interval[1], 400)
             y = fitting_function(x)
+            # Check if the function was already plotted and use the same color
             if fitting_function_str in colors.keys():
                 ax.plot(x, y, linewidth=3, label=f'Interval: [{round(interval[0]), round(interval[1])}]',
                         color=colors[fitting_function_str])
             else:
                 ax.plot(x, y, linewidth=3, label=f'Interval: [{round(interval[0]), round(interval[1])}]')
+                # Get the color for the last graph and save it in the color dictionary for given function
+                # When function repeats use the same color for that function
                 color = ax.get_lines()[-1].get_color()
                 colors[fitting_function_str] = color
-            # plt.ylim([-100, 100])
-            # ax.set_xticks(np.arange(*ax.get_xlim(),
-            #                         (ax.get_xlim()[1] - ax.get_xlim()[0]) / 20))
 
         for element in remaining_unfit_intervals:
             ax.axvspan(*element['interval'], color='gray',
@@ -91,7 +91,6 @@ class Logger:
         plt.show()
 
     def _write_results(self):
-
         if not remaining_unfit_intervals:
             all_fit_intervals_data.sort(key=lambda x: x['interval'][0])
             result_entry = "No unfit interval(s) left.\n"
