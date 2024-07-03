@@ -229,10 +229,10 @@ class Validator:
     def plot_curve(self, x_values, y_values, fitted_curve, unfit_interval, predicted_values):  # Add self
         import datetime
         self.unfit_interval = unfit_interval
-        plt.rcParams.update({'font.size': 12})
+        plt.rcParams.update({'font.size': vfs['font_size']})
         timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
-        plt.figure(figsize=(12, 6))
+        plt.figure(figsize=(vfs['figsize_x'], vfs['figsize_y']))
         plt.scatter(x_values, y_values, label='Original Data')
         plt.scatter(x_values, predicted_values,
                     label='Predicted y Data', marker='x')
@@ -257,5 +257,5 @@ class Validator:
         plt.show()
 
     def get_curve_values(self):
-        return self.fitted_curve, self.predicted_values,self.unfit_interval
+        return self.fitted_curve, self.predicted_values, self.unfit_interval
 

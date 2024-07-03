@@ -54,7 +54,7 @@ class Logger:
 
     def _plot_results(self, all_fit_intervals_data, remaining_unfit_intervals):
         # Create graph
-        _, ax = plt.subplots(figsize=(10, 5))
+        _, ax = plt.subplots(figsize=(ops['figsize_x'], ops['figsize_y']))
         # Remember color for the same fitted functions
         colors = {}
         # Plot FI intervals with their fitting functions
@@ -71,10 +71,10 @@ class Logger:
             y = fitting_function(x)
             # Check if the function was already plotted and use the same color
             if fitting_function_str in colors.keys():
-                ax.plot(x, y, linewidth=3, label=f'Interval: [{round(interval[0]), round(interval[1])}]',
+                ax.plot(x, y, linewidth=ops['linewidth'], label=f'Interval: [{round(interval[0]), round(interval[1])}]',
                         color=colors[fitting_function_str])
             else:
-                ax.plot(x, y, linewidth=3, label=f'Interval: [{round(interval[0]), round(interval[1])}]')
+                ax.plot(x, y, linewidth=ops['linewidth'], label=f'Interval: [{round(interval[0]), round(interval[1])}]')
                 # Get the color for the last graph and save it in the color dictionary for given function
                 # When function repeats use the same color for that function
                 color = ax.get_lines()[-1].get_color()

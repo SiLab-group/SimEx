@@ -29,14 +29,20 @@ vfs = {'threshold_y_fitting': 15,  # Threshold on the y axis
        'penality_weight': 1, # Penalty for MSE to avoid overfitting with high dimension polynomial
        'x_labels': 'Traffic volume [veh/h]',  # Y axis label name validator graph
        'y_labels': 'TTS [veh$\cdot$h]',  # Y axis label name validator graph
-       'title': f'Fitted Curve with unfit Intervals for {os.environ["INSTANCE_NAME"]}'  # Title for validator graph
+       'title': f'Fitted Curve with unfit Intervals for {os.environ["INSTANCE_NAME"]}',  # Title for validator graph
+       'figsize_x': 12,  # X size of the figure
+       'figsize_y': 6,  # Y size of the figure
+       'font_size': 12  # Fontsize in the figure
        }
 
 # Overall plot settings
 ops = {
     'x_labels': 'Traffic volume [veh/h]',
     'y_labels': 'TTS [veh$\cdot$h]',
-    'title': f'Total fitted curves for {os.environ["INSTANCE_NAME"]} case'
+    'title': f'Total fitted curves for {os.environ["INSTANCE_NAME"]} case',
+    'figsize_x': 10,  # X size of the figure
+    'figsize_y': 5,   # Y size of the figure
+    'linewidth': 3  # Linewidth for the functions plotted
     }
 
 ## Data and settings for log purposes ##
