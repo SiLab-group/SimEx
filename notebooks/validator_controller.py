@@ -8,7 +8,7 @@ logger = Logger()
 
 
 class ValidatorController:
-    def __init__(self, name):
+    def __init__(self):
         self.unfit_x_interval = None
         self.unfit_points = []
         self.fit_x_interval = None
@@ -18,9 +18,8 @@ class ValidatorController:
         self.fitted_curve = None
         self.x_values = None
         self.y_values = None
-        self.name = name
         self.unfit_interval = None
-        validator.set_name(name)
+
 
     def validate(self, mod_x_list, sim_y_list, selected_validator, global_interval):
         print('Validator...')
@@ -83,9 +82,6 @@ class ValidatorController:
             self.unfit_points = new_unfit_points
             # Log the equation
         # print('       *** OUTPUT validator_intervals', validator_unfit_intervals, '\n')
-        # # FIXME: Nasty hack amy
-        # self.predicted_values = validator.predicted_values
-        # self.equation = equation
 
         logger_validator_arguments = {"log_contex": "internal VAL stats",
                                       "validator_intervals": validator_unfit_intervals}

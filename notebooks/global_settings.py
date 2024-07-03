@@ -1,5 +1,7 @@
 # Overall SimEx settings
 # possible modes exploration (this one) and exploitation (mod with prob threes)
+import os
+
 simexSettings = {"do_plot": False,  # No special meaning at the moment. TODO: Should be refactored.
                  "extensive_search": False,  #  Complete exploration setting modifier_data_point to 1 and enabling extensive iteration
                  "extensive_iteration": False,  #  Gets enabled when extensive search is True. TODO: should be refactored
@@ -7,9 +9,9 @@ simexSettings = {"do_plot": False,  # No special meaning at the moment. TODO: Sh
 
 # Modifier Domain Settings
 mds = {"domain_min_interval": 2500,
-       "domain_max_interval": 4000,
-       "modifier_incremental_unit": 25,  # Minimal incremental unit is the smallest allowed step_size. Note: If extensive search True then minimal increment is set to 1
-       "modifier_data_point": 100  # Data point step size on the X axis in the first round. In next iterations
+        "domain_max_interval": 4000,
+        "modifier_incremental_unit": 25,  # Minimal incremental unit is the smallest allowed step_size. Note: If extensive search True then minimal increment is set to 1
+        "modifier_data_point": 100,  # Data point step size on the X axis in the first round. In next iterations
                                    # modifier_data_point = modifier_data_point - modifier_incremental_unit until modifier_data_point < minimal_increment_unit.
        }
 
@@ -24,7 +26,18 @@ vfs = {'threshold_y_fitting': 15,  # Threshold on the y axis
        'max_deg': 9,  # Max degree for exploration to which degree we try to fit function x^max_degree
        'early_stop': True,  # if early_stop = True and improvement is not acceptable by increasing dimension, we stop
        'improvement_threshold': 0.1,  # Sufficient improvement threshold (previous_mse - current_mse) >= improvement_threshold
-       'penality_weight': 1}  # Penalty for MSE to avoid overfitting with high dimension polynomial
+       'penality_weight': 1, # Penalty for MSE to avoid overfitting with high dimension polynomial
+       'x_labels': 'Traffic volume [veh/h]',  # Y axis label name validator graph
+       'y_labels': 'TTS [veh$\cdot$h]',  # Y axis label name validator graph
+       'title': f'Fitted Curve with unfit Intervals for {os.environ["INSTANCE_NAME"]}'  # Title for validator graph
+       }
+
+# Overall plot settings
+ops = {
+    'x_labels': 'Traffic volume [veh/h]',
+    'y_labels': 'TTS [veh$\cdot$h]',
+    'title': f'Total fitted curves for {os.environ["INSTANCE_NAME"]} case'
+    }
 
 ## Data and settings for log purposes ##
 # These settings are filled during the runtime and used as a global data structure for the logger statistics.

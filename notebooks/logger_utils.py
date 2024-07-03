@@ -1,10 +1,11 @@
+import os
 import re
 import csv
 from datetime import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
-from global_settings import lgs, mgs, vfs
+from global_settings import lgs, mgs, vfs, ops
 
 all_fit_intervals_data = []
 remaining_unfit_intervals = []
@@ -83,9 +84,9 @@ class Logger:
             ax.axvspan(*element['interval'], color='gray',
                        alpha=0.3, label='unfit Interval')
 
-        plt.xlabel('Traffic volume [veh/h]')
-        plt.ylabel('TTS [veh$\cdot$h]')
-        plt.title(f'Overall fitted functions')
+        plt.xlabel(ops['x_labels'])
+        plt.ylabel(ops['y_labels'])
+        plt.title(ops['title'])
         plt.legend()
         plt.show()
 
@@ -117,7 +118,7 @@ class Logger:
         self.remaining_unfit_intervals = remaining_unfit_intervals
         # Write results to csv file
         self.write_csv_file()
-        # Plot resultss
+        # Plot results
         self._plot_results(all_fit_intervals_data, remaining_unfit_intervals)
 
     def log_main(self, logger_arguments):
@@ -232,7 +233,7 @@ class Logger:
         self._close_file()
 
     def write_csv_file(self):
-        with open(f'simex_output-{self.timestamp}.csv', 'w') as f:
+        with open(f'simex_output-{os.environ["INSTANCE_NAME"]}-{self.timestamp}.csv', 'w') as f:
             # Create the csv writer
             writer = csv.writer(f)
             # Create header for the CSV file based on the global_settings configuration
@@ -254,4 +255,4 @@ class Logger:
                 row = [u_interval['interval'][0], u_interval['interval'][1]]
                 [row.append(0) for i in range(0, vfs['max_deg']+1)]
                 writer.writerow(row)
-            print(f'Data written to the csv file simex_output-{self.timestamp}.txt')
+            print(f'Data written to the csv file simex_output-{os.environ["INSTANCE_NAME"]}-{self.timestamp}.csv')

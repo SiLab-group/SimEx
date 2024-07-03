@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 from global_settings import vfs
@@ -12,7 +14,6 @@ class Validator:
         self.unfit_intercept = None
         self.predicted_values = None
         self.fitted_curve = None
-        self.validator_name = None
         self.unfit_interval = None
 
     def build_equation_string(self, coefficients: list):
@@ -248,17 +249,13 @@ class Validator:
             plt.axvspan(start, end, color='orange',
                         alpha=0.3, label=f'Unfit Interval {count}: [{round(start)},{round(end)}]')
 
-        # plt.xlabel('X Values')
-        plt.xlabel('Traffic volume [veh/h]')
-        # plt.ylabel('Y Values')
-        plt.ylabel('TTS [veh$\cdot$h]')
-        plt.title(f'Fitted Curve with unfit Intervals for {self.validator_name}')
+        plt.xlabel(vfs['x_labels'])
+        plt.ylabel(vfs['y_labels'])
+        plt.title(vfs['title'])
         plt.legend()
-        plt.savefig(f"TTS_vs_Volume_{self.validator_name}-{timestamp}.pdf", format='pdf')
+        plt.savefig(f"TTS_vs_Volume_{os.environ['INSTANCE_NAME']}-{timestamp}.pdf", format='pdf')
         plt.show()
 
     def get_curve_values(self):
         return self.fitted_curve, self.predicted_values,self.unfit_interval
 
-    def set_name(self, name):
-        self.validator_name = name
