@@ -3,7 +3,10 @@
 # Run vsl case without jupyter
 
 # IMPORT LIBRARIES
+import os
 import numpy as np
+# Set instance name
+os.environ['INSTANCE_NAME'] = 'VSL_script'
 
 from components_configuration import components
 from global_settings import simexSettings, mds
@@ -22,7 +25,7 @@ def save_object(obj, filename):
         pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
 
-validator_controller_vsl = ValidatorController("VSL_script")
+validator_controller_vsl = ValidatorController()
 logger = Logger()
 logger_main_arguments = {}
 is_main_func = True
