@@ -35,7 +35,7 @@ vfs = {'threshold_y_fitting': 15,  # Threshold on the y axis
        'font_size': 12  # Fontsize in the figure
        }
 
-# Overall plot settings
+# Overall plot settings (the last plot with all the functions)
 ops = {
     'x_labels': 'Traffic volume [veh/h]',
     'y_labels': 'TTS [veh$\cdot$h]',
@@ -57,6 +57,11 @@ vgs = {"points_fitting_total": 0,  # Not used TODO: Should be refactored
        "points_unfitting_total": 0,  # Not used TODO: Should be refactored
        "intervals_unfit_total": 0}  # Not used TODO: Should be refactored
 
+# Filename settings
+fs = {
+    "log_filename": f"LOG-{os.environ['INSTANCE_NAME']}",
+    "csv_filename": f"simex_output-{os.environ['INSTANCE_NAME']}"
+    }
 # Logger Granularity Settings
 # log_granularity:
 # 0 only general stats
