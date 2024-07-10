@@ -69,6 +69,7 @@ class Logger:
             # Adjust the number of points as needed
             x = np.linspace(interval[0], interval[1], 400)
             y = fitting_function(x)
+
             # Check if the function was already plotted and use the same color
             if fitting_function_str in colors.keys():
                 ax.plot(x, y, linewidth=ops['linewidth'], label=f'Interval: [{round(interval[0]), round(interval[1])}]',
@@ -235,6 +236,7 @@ class Logger:
         with open(f'{fs["csv_filename"]}-{self.timestamp}.csv', 'w') as f:
             # Create the csv writer
             writer = csv.writer(f)
+            rows = []
             # Create header for the CSV file based on the global_settings configuration
             header = ['interval_start', 'interval_end']
             # Append header reversed max_degree9,max_degree8...max_degree0 range defined in global settings
@@ -247,11 +249,18 @@ class Logger:
                 row = [interval['interval'][0], interval['interval'][1]]
                 # Append all the exponents in reversed order
                 [row.append(c) for c in reversed(coefficients)]
-                writer.writerow(row)
+                rows.append(row)
 
             # For unfit intervals append 0
             for u_interval in self.remaining_unfit_intervals:
                 row = [u_interval['interval'][0], u_interval['interval'][1]]
                 [row.append(0) for i in range(0, vfs['max_deg']+1)]
+                rows.append(row)
+
+            # Sort rows on the interval start
+            sorted(rows, key=lambda x: x[0])
+
+            # Write sorted rows in the csv file
+            for row in rows:
                 writer.writerow(row)
             print(f'Data written to the csv file {fs["csv_filename"]}-{self.timestamp}.csv')
