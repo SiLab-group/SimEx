@@ -5,7 +5,7 @@ from datetime import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
-from global_settings import lgs, mgs, vfs, ops, fs
+from global_settings import lgs, mgs, vfs, ops, fs, mds
 
 all_fit_intervals_data = []
 remaining_unfit_intervals = []
@@ -119,7 +119,8 @@ class Logger:
         # Write results to csv file
         self.write_csv_file()
         # Plot results
-        self._plot_results(all_fit_intervals_data, remaining_unfit_intervals)
+        self._plot_results_tailing(all_fit_intervals_data, remaining_unfit_intervals)
+        # self._plot_results(all_fit_intervals_data, remaining_unfit_intervals)
 
     def log_main(self, logger_arguments):
         # TODO: log simEx settings
@@ -264,3 +265,117 @@ class Logger:
             for row in rows:
                 writer.writerow(row)
             print(f'Data written to the csv file {fs["csv_filename"]}-{self.timestamp}.csv')
+
+    def _plot_results_tailing(self, all_fit_intervals_data, remaining_unfit_intervals):
+        # Create graph
+        _, ax = plt.subplots(figsize=(ops['figsize_x'], ops['figsize_y']))
+        # Remember color for the same fitted functions
+        colors = {}
+        points = []
+        labels = []
+        funcs = []
+        connection_points = []
+        # Save labels and points for the fitting functions
+        for element in all_fit_intervals_data:
+            interval = element['interval']
+            fitting_function_str = element['fitting_function']
+            labels.append(fitting_function_str)
+            [points.append(i) for i in element['fit_points']]
+
+            # Get coefficients
+            coefficients = get_coefficients(element)
+            fitting_function = np.poly1d(coefficients[::-1])
+            funcs.append(fitting_function)
+
+            if interval[1] != mds["domain_max_interval"]:
+                connection_points.append(interval[1])
+
+        if ops['predicted_points']:
+            x_point = []
+            y_point = []
+            for fit_point in points:
+                print(f"FIT POINT: {fit_point}")
+                x_point.append(fit_point[0])
+                y_point.append(fit_point[1])
+
+        # Create x values
+        x = np.linspace(mds["domain_min_interval"]-mds[''], mds["domain_max_interval"],400)
+
+        def transition(x, x_conn, width=1):
+            print(f"1 / (1 + np.exp(-2 / {type(width)} * ({type(x)} - {type(x_conn)})))")
+            print(f"1 / (1 + np.exp(-2 / {width} * ({x} - {x_conn}))) ")
+            return 1.0 / (1.0 + np.exp(-2 / width * (x - x_conn)))
+
+        # Fit the y values for the generated x
+        y_values = [f(x) for f in funcs]
+        # Initialize the first function as base for the combined
+        y = y_values[0]
+
+        # Iterate over the remaining functions
+        for i in range(1, len(funcs)):
+            # Compute the transition values
+            t = transition(x, connection_points[i - 1])
+            # Update the combined function
+            y = (1 - t) * y + t * y_values[i]
+
+        for i in range(len(funcs)):
+            # For the first function
+            if i == 0:
+                ax.plot(x[x <= connection_points[i]], y_values[i][x <= connection_points[i]], label=labels[i],
+                        linewidth=2)
+                color = ax.get_lines()[-1].get_color()
+                colors[labels[i]] = color
+                ax.plot(x[x <= connection_points[i]],
+                            y_values[i][x <= connection_points[i]] - vfs['threshold_y_fitting'], 'm--', linewidth=2)
+                ax.plot(x[x <= connection_points[i]],
+                            y_values[i][x <= connection_points[i]] + vfs['threshold_y_fitting'], 'm--', linewidth=2)
+            # Check if the function was already plotted and use the same color
+            elif labels[i] in colors.keys() and i != len(funcs) - 1:
+                print(f"Con points: {i}  and {len(connection_points)} {connection_points[i - 1]}")
+                ax.plot(x[(x >= connection_points[i - 1]) & (x < connection_points[i])],
+                        y_values[i][(x >= connection_points[i - 1]) & (x < connection_points[i])], colors[labels[i]],
+                        label=labels[i], linewidth=2)
+                ax.plot(x[(x >= connection_points[i - 1]) & (x < connection_points[i])],
+                        (y_values[i][(x >= connection_points[i - 1]) & (x < connection_points[i])]) - vfs[
+                            'threshold_y_fitting'], 'm--', linewidth=2)
+                ax.plot(x[(x >= connection_points[i - 1]) & (x < connection_points[i])],
+                        y_values[i][(x >= connection_points[i - 1]) & (x < connection_points[i])] + vfs[
+                            'threshold_y_fitting'], 'm--', linewidth=2)
+            elif i == len(funcs) - 1 and labels[i] in colors.keys():  # Last function
+                ax.plot(x[x >= connection_points[i - 1]], y_values[i][x >= connection_points[i - 1]],
+                        colors[labels[i]], label=labels[i], linewidth=2)
+                ax.plot(x[x >= connection_points[i - 1]],
+                        y_values[i][x >= connection_points[i - 1]] - vfs['threshold_y_fitting'], 'm--', linewidth=2)
+                ax.plot(x[x >= connection_points[i - 1]],
+                        y_values[i][x >= connection_points[i - 1]] + vfs['threshold_y_fitting'], 'm--', linewidth=2)
+            elif i == len(funcs) - 1 and labels[i] not in colors.keys():  # Last function
+                ax.plot(x[x >= connection_points[i - 1]], y_values[i][x >= connection_points[i - 1]], label=labels[i],
+                        linewidth=2)
+            else:
+                ax.plot(x[(x >= connection_points[i - 1]) & (x < connection_points[i])],
+                        y_values[i][(x >= connection_points[i - 1]) & (x < connection_points[i])], '--',
+                        label=labels[i], linewidth=2)
+                ax.plot(x[(x >= connection_points[i - 1]) & (x < connection_points[i])],
+                        (y_values[i][(x >= connection_points[i - 1]) & (x < connection_points[i])]) - vfs[
+                            'threshold_y_fitting'], 'm--', linewidth=2)
+                ax.plot(x[(x >= connection_points[i - 1]) & (x < connection_points[i])],
+                        y_values[i][(x >= connection_points[i - 1]) & (x < connection_points[i])] + vfs[
+                            'threshold_y_fitting'], 'm--', linewidth=2)
+                color = ax.get_lines()[-1].get_color()
+                colors[labels[i]] = color
+
+
+        for element in remaining_unfit_intervals:
+            ax.axvspan(*element['interval'], color='gray',
+                       alpha=0.3, label='unfit Interval')
+        ax.plot(x, y, 'g-', label='smoothened')
+        for x_conn in connection_points:
+            ax.axvline(x=x_conn, color='purple', linestyle=':')
+
+        if ops['predicted_points']:
+            ax.plot(x_point, y_point, "ro", label="original points")
+        plt.xlabel(ops['x_labels'])
+        plt.ylabel(ops['y_labels'])
+        plt.title(ops['title'])
+        plt.legend()
+        plt.show()

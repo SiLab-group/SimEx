@@ -44,7 +44,8 @@ ops = {
     'title': f'Total fitted curves for {os.environ["INSTANCE_NAME"]} case',
     'figsize_x': 10,  # X size of the figure
     'figsize_y': 5,   # Y size of the figure
-    'linewidth': 3  # Linewidth for the functions plotted
+    'linewidth': 3,  # Linewidth for the functions plotted
+    'predicted_points': True  # Plot predicted points
     }
 
 ## Data and settings for log purposes ##
