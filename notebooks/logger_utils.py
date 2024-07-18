@@ -41,11 +41,6 @@ class FittedFunction:
     func_form: float
     fitted_points: List[Tuple[float, float]]
 
-    # color: str
-
-    # def get_color(self) -> str:
-    #     return self.color
-
     def get_interval(self) -> Tuple[float, float]:
         return self.interval
 
@@ -415,7 +410,7 @@ class Logger:
         connection_points = []
         funcs_values = []
         # Create x values
-        x = np.linspace(mds["domain_min_interval"], mds["domain_max_interval"], 600)
+        x = np.linspace(mds["domain_min_interval"], mds["domain_max_interval"], 400, dtype=np.float128)
         # Save labels and points for the fitting functions
         for element in all_fit_intervals_data:
             # Get coefficients
