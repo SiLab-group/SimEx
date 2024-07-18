@@ -29,6 +29,32 @@ def get_coefficients(interval):
     return coefficients
 
 
+from dataclasses import dataclass
+from typing import Tuple, List
+
+
+@dataclass
+class FittedFunction:
+    """Class for keeping track fitted functions."""
+    name: str
+    interval: Tuple[float, float]
+    func_form: float
+    fitted_points: List[Tuple[float, float]]
+
+    # color: str
+
+    # def get_color(self) -> str:
+    #     return self.color
+
+    def get_interval(self) -> Tuple[float, float]:
+        return self.interval
+
+@dataclass
+class FunctionValues:
+    name: str
+    x_values: np.ndarray
+    y_values: np.ndarray
+
 class Logger:
 
     def __init__(self, filename=f"{fs['log_filename']}-"):
@@ -266,7 +292,7 @@ class Logger:
                 writer.writerow(row)
             print(f'Data written to the csv file {fs["csv_filename"]}-{self.timestamp}.csv')
 
-    def _plot_results_tailing(self, all_fit_intervals_data, remaining_unfit_intervals):
+    def _plot_results_tailing_old(self, all_fit_intervals_data, remaining_unfit_intervals):
         # Create graph
         _, ax = plt.subplots(figsize=(ops['figsize_x'], ops['figsize_y']))
         # Remember color for the same fitted functions
@@ -299,7 +325,7 @@ class Logger:
                 y_point.append(fit_point[1])
 
         # Create x values
-        x = np.linspace(mds["domain_min_interval"]-mds[''], mds["domain_max_interval"],400)
+        x = np.linspace(mds["domain_min_interval"], mds["domain_max_interval"],400)
 
         def transition(x, x_conn, width=1):
             print(f"1 / (1 + np.exp(-2 / {type(width)} * ({type(x)} - {type(x_conn)})))")
@@ -369,6 +395,84 @@ class Logger:
             ax.axvspan(*element['interval'], color='gray',
                        alpha=0.3, label='unfit Interval')
         ax.plot(x, y, 'g-', label='smoothened')
+        for x_conn in connection_points:
+            ax.axvline(x=x_conn, color='purple', linestyle=':')
+
+        if ops['predicted_points']:
+            ax.plot(x_point, y_point, "ro", label="original points")
+        plt.xlabel(ops['x_labels'])
+        plt.ylabel(ops['y_labels'])
+        plt.title(ops['title'])
+        plt.legend()
+        plt.show()
+
+    def _plot_results_tailing(self, all_fit_intervals_data, remaining_unfit_intervals):
+        # Create graph
+        _, ax = plt.subplots(figsize=(ops['figsize_x'], ops['figsize_y']))
+        # Remember color for the same fitted functions
+        points = []
+        funcs = []
+        connection_points = []
+        funcs_values = []
+        # Create x values
+        x = np.linspace(mds["domain_min_interval"], mds["domain_max_interval"], 600)
+        # Save labels and points for the fitting functions
+        for element in all_fit_intervals_data:
+            # Get coefficients
+            coefficients = get_coefficients(element)
+            fitting_function = np.poly1d(coefficients[::-1])
+            f = FittedFunction(name=element['fitting_function'], interval=element['interval'],
+                               func_form=fitting_function,
+                               fitted_points=[points.append(i) for i in element['fit_points']])
+            funcs.append(f)
+            x_temp = x[np.logical_and(x >= f.interval[0], x <= f.interval[1])]
+            f_values = FunctionValues(name=element['fitting_function'],
+                                      x_values=x[np.logical_and(x >= f.interval[0], x <= f.interval[1])],
+                                      y_values=np.array([f.func_form(el) for el in x_temp]))
+            funcs_values.append(f_values)
+
+            if f.interval[1] != mds["domain_max_interval"]:
+                connection_points.append(f.interval[1])
+
+        if ops['predicted_points']:
+            x_point = []
+            y_point = []
+            for fit_point in points:
+                print(f"FIT POINT: {fit_point}")
+                x_point.append(fit_point[0])
+                y_point.append(fit_point[1])
+
+        def transition(x, x_conn, width=ops['sigmoid_width']):
+            return 1.0 / (1.0 + np.exp(-2 / width * (x - x_conn)))
+
+        # Fit the y values for the generated x
+        y_values = [fun.func_form(x) for fun in funcs]
+        # Initialize the first function as base for the combined
+        y = y_values[0]
+
+        # Iterate over the remaining functions
+        for i in range(1, len(funcs)):
+            # Compute the transition values
+            t = transition(x, connection_points[i - 1])
+            # Update the combined function
+            y = (1 - t) * y + t * y_values[i]
+
+        colors = {}
+        for i in range(0, len(funcs)):
+            custom_label = f"Interval: [{funcs[i].interval[0]},{funcs[i].interval[1]}]"
+            if funcs[i].name in colors.keys():
+                ax.plot(funcs_values[i].x_values, funcs_values[i].y_values, label=custom_label,
+                        color=colors[funcs[i].name], linewidth=2)
+            else:
+                ax.plot(funcs_values[i].x_values, funcs_values[i].y_values, label=custom_label, linewidth=2)
+                color = ax.get_lines()[-1].get_color()
+                colors[funcs[i].name] = color
+
+        for element in remaining_unfit_intervals:
+            ax.axvspan(*element['interval'], color='gray',
+                       alpha=0.3, label='unfit Interval')
+        ax.plot(x, y, 'r--', label='smoothened', linewidth=2)
+
         for x_conn in connection_points:
             ax.axvline(x=x_conn, color='purple', linestyle=':')
 

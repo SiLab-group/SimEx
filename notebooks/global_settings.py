@@ -45,7 +45,8 @@ ops = {
     'figsize_x': 10,  # X size of the figure
     'figsize_y': 5,   # Y size of the figure
     'linewidth': 3,  # Linewidth for the functions plotted
-    'predicted_points': True  # Plot predicted points
+    'predicted_points': True,  # Plot predicted points
+    'sigmoid_width': 15
     }
 
 ## Data and settings for log purposes ##
