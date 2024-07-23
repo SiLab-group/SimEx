@@ -31,3 +31,11 @@ sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/"
 ```
 5. Run `notebooks/SimEx_sumo_vsl_notebook.ipynb` or `notebooks/SimEx_sumo_novsl_notebook.ipynb`
 6. For the overall plots adjustments from pkl objects run `notebooks/SimEx_sumo_plot.ipynb`
+
+## Time comparison for parallelization of simulation runs
+
+| Solution                        |         VSL         |       NOVSL        |
+|:--------------------------------|:-------------------:|:------------------:|
+| ProcessPoolExecutor             |  9.776681780815125  | 11.462244868278503 |
+| ThreadPoolExecutor with Process |  9.74341140985489   | 11.33800235191981  |
+| No parallelization              | 33.91311665376028   |  36.22358120282491 |
