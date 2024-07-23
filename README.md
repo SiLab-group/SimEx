@@ -34,7 +34,7 @@ sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/"
 
 ## Time comparison for parallelization of simulation runs
 
-| Solution                        |         VSL         |       NOVSL        |
+| Solution                        | VSL runtime (min)   | NOVSL runtime (min)|
 |:--------------------------------|:-------------------:|:------------------:|
 | ProcessPoolExecutor             |  9.776681780815125  | 11.462244868278503 |
 | ThreadPoolExecutor with Process |  9.74341140985489   | 11.33800235191981  |
