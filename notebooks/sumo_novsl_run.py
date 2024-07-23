@@ -54,7 +54,7 @@ while is_main_func:
         break
 
     # Calls Simulator
-    mod_x, sim_y_list = SimulatorController.simulate(mod_x_list, selected_simulator=components['sumo_simulator_novsl'])
+    mod_x, sim_y_list = SimulatorController.simulate_parallel(mod_x_list, selected_simulator=components['sumo_simulator_novsl'])
     print(f"MODX {mod_x} and sim_y_list {sim_y_list}")
     assert len(mod_x) == len(sim_y_list)
 

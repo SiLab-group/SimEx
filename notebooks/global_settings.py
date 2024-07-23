@@ -3,9 +3,11 @@
 import os
 
 simexSettings = {"do_plot": False,  # No special meaning at the moment. TODO: Should be refactored.
-                 "extensive_search": False,  #  Complete exploration setting modifier_data_point to 1 and enabling extensive iteration
-                 "extensive_iteration": False,  #  Gets enabled when extensive search is True. TODO: should be refactored
-                 "SimEx_mode": "exploration"}  # Only exploration implemented
+                 "extensive_search": False,  # Complete exploration setting modifier_data_point to 1 and enabling extensive iteration
+                 "extensive_iteration": False,  # Gets enabled when extensive search is True. TODO: should be refactored
+                 "SimEx_mode": "exploration",  # Only exploration implemented
+                 "max_workers": 14  # Maximum workers for the parallelization ( numbers of processors on the machine )
+                 }
 
 # Modifier Domain Settings
 mds = {"domain_min_interval": 2500,
