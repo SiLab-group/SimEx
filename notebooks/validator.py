@@ -2,7 +2,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from global_settings import vfs
+from global_settings import vfs, simexSettings, timestamp
 from logger_utils import Logger
 from sklearn.metrics import mean_squared_error
 
@@ -230,7 +230,6 @@ class Validator:
         import datetime
         self.unfit_interval = unfit_interval
         plt.rcParams.update({'font.size': vfs['font_size']})
-        timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
         plt.figure(figsize=(vfs['figsize_x'], vfs['figsize_y']))
         plt.scatter(x_values, y_values, label='Original Data')
@@ -253,7 +252,7 @@ class Validator:
         plt.ylabel(vfs['y_labels'])
         plt.title(vfs['title'])
         plt.legend()
-        plt.savefig(f"TTS_vs_Volume_{os.environ['INSTANCE_NAME']}-{timestamp}.pdf", format='pdf')
+        plt.savefig(os.path.join(simexSettings['results_dir'], f"TTS_vs_Volume_{os.environ['INSTANCE_NAME']}-{timestamp}.pdf"), format='pdf')
         plt.show()
 
     def get_curve_values(self):

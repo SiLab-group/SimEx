@@ -1,12 +1,16 @@
 # Overall SimEx settings
 # possible modes exploration (this one) and exploitation (mod with prob threes)
 import os
+import datetime
+
+timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 simexSettings = {"do_plot": False,  # No special meaning at the moment. TODO: Should be refactored.
                  "extensive_search": False,  # Complete exploration setting modifier_data_point to 1 and enabling extensive iteration
                  "extensive_iteration": False,  # Gets enabled when extensive search is True. TODO: should be refactored
                  "SimEx_mode": "exploration",  # Only exploration implemented
-                 "max_workers": 14  # Maximum workers for the parallelization ( numbers of processors on the machine )
+                 "max_workers": 14,  # Maximum workers for the parallelization ( numbers of processors on the machine )
+                 "results_dir": f"results_dir_{os.environ['INSTANCE_NAME']}-{timestamp}"
                  }
 
 # Modifier Domain Settings
@@ -28,7 +32,7 @@ vfs = {'threshold_y_fitting': 15,  # Threshold on the y axis
        'max_deg': 9,  # Max degree for exploration to which degree we try to fit function x^max_degree
        'early_stop': True,  # if early_stop = True and improvement is not acceptable by increasing dimension, we stop
        'improvement_threshold': 0.1,  # Sufficient improvement threshold (previous_mse - current_mse) >= improvement_threshold
-       'penality_weight': 1, # Penalty for MSE to avoid overfitting with high dimension polynomial
+       'penality_weight': 1,  # Penalty for MSE to avoid overfitting with high dimension polynomial
        'x_labels': 'Traffic volume [veh/h]',  # Y axis label name validator graph
        'y_labels': 'TTS [veh$\cdot$h]',  # Y axis label name validator graph
        'title': f'Fitted Curve with unfit Intervals for {os.environ["INSTANCE_NAME"]}',  # Title for validator graph
@@ -45,8 +49,11 @@ ops = {
     'figsize_x': 10,  # X size of the figure
     'figsize_y': 5,   # Y size of the figure
     'linewidth': 3,  # Linewidth for the functions plotted
+    'number_x_points': 400,  # Number of points for last graph
     'predicted_points': True,  # Plot predicted points
-    'sigmoid_width': 15
+    'sigmoid_width': 15,
+    'threshold_plot': True,  # Plot the threshold in the final plot
+    'sigmoid_tailing': True   # Enable sigmoid tailing
     }
 
 ## Data and settings for log purposes ##

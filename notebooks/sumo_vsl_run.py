@@ -8,9 +8,17 @@ import numpy as np
 # Set instance name
 os.environ['INSTANCE_NAME'] = 'VSL_script'
 
-from components_configuration import components
-from global_settings import simexSettings, mds
 
+from global_settings import simexSettings, mds, timestamp, fs
+
+# Create directory for the results
+script_dir = os.path.abspath('')
+results_dir = os.path.join(script_dir, f'{simexSettings["results_dir"]}')
+
+if not os.path.isdir(results_dir):
+    os.makedirs(results_dir)
+
+from components_configuration import components
 from validator_controller import ValidatorController
 from modifier_controller import ModifierController
 from simulator_controller import SimulatorController
@@ -19,11 +27,9 @@ from logger_utils import Logger
 import pickle
 import datetime
 
-
 def save_object(obj, filename):
     with open(filename, 'wb') as outp:  # Overwrites any existing file.
         pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
-
 
 validator_controller_vsl = ValidatorController()
 logger = Logger()
@@ -31,10 +37,8 @@ logger_main_arguments = {}
 is_main_func = True
 # Initialize interval list for the first iteration
 intervals_list = [[mds['domain_min_interval'], mds['domain_max_interval']]]
-
 # Timestamp for the validator pickle file
 count = 0
-filename1 = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 while is_main_func:
 
@@ -69,7 +73,7 @@ while is_main_func:
     print("MAIN interval list from VAL:", intervals_list)
     # Loop number ( Loop-1,Loop-2..etc)
     count += 1
-    save_object(validator_controller_vsl, f"vc_vsl_loop-{count}-{filename1}.pkl")
+    save_object(validator_controller_vsl, os.path.join(results_dir, f"vc_vsl_loop-{count}-{timestamp}.pkl"))
 
     # Updates interval_list to new range output from validator controller
     # No more unfit intervals -> write MAIN log
@@ -85,8 +89,9 @@ logger_main_arguments['main_status'] = 'end cycle'
 logger.log_main(logger_main_arguments)
 
 # Save data for the last plot located in logger object
-save_object(logger.all_fit_intervals_data,f"logger-vsl_script-fitted_intervals-{filename1}.pkl")
+save_object(logger.all_fit_intervals_data,os.path.join(results_dir,f"logger-vsl_script-fitted_intervals-{timestamp}.pkl"))
 # If not empty
 if logger.remaining_unfit_intervals:
-    save_object(logger.remaining_unfit_intervals,f"logger-vsl_script-unfitted_intervals-{filename1}.pkl")
-print(f"Logger object saved with timestamp {filename1}")
+    save_object(logger.remaining_unfit_intervals,os.path.join(results_dir,f"logger-vsl_script-unfitted_intervals-{timestamp}.pkl"))
+# print(f"Logger object saved with timestamp {timestamp}")
+print(f"{fs['csv_filename']}-{timestamp}.csv")
