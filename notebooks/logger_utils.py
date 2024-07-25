@@ -288,7 +288,7 @@ class Logger:
             # Write sorted rows in the csv file
             for row in rows:
                 writer.writerow(row)
-            print(f'Data written to the csv file {fs["csv_filename"]}-{self.timestamp}.csv')
+            # print(f'Data written to the csv file {fs["csv_filename"]}-{self.timestamp}.csv')
 
     def _plot_results_tailing_old(self, all_fit_intervals_data, remaining_unfit_intervals):
         # Create graph

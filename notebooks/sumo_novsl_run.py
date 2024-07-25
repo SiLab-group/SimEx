@@ -93,4 +93,5 @@ save_object(logger.all_fit_intervals_data,os.path.join(results_dir, f"logger-nov
 if logger.remaining_unfit_intervals:
     save_object(logger.remaining_unfit_intervals,os.path.join(results_dir,f"logger-novsl_script-unfitted_intervals-{timestamp}.pkl"))
 # print(f"Logger object saved with timestamp {timestamp}")
-print(f"{fs['csv_filename']}-{timestamp}.csv")
+file = f"{fs['csv_filename']}-{timestamp}.csv"
+print(f"{os.path.join(results_dir,file)}")

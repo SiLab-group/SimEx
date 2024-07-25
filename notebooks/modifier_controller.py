@@ -13,7 +13,7 @@ class ModifierController:
         print("Modifier...")
         # Function to control modifiers given the input and the selected modifier function. Option to plot or not. 
         # print("[MODC]: *** Entering Modifier controller ***")
-        print("[MODC]: intervals list: ", intervals_list)
+        #print("[MODC]: intervals list: ", intervals_list)
         all_intervals_mod = []
         logger_modifier_arguments = {}
 
