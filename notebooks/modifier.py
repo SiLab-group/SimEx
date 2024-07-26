@@ -61,11 +61,33 @@ class Modifier:
             >>> modifierA(5, 0, 10)
             25.0
         """
+        print(f"Temp x: {x}")
         temp = np.array(x) ** 2
         temp = Modifier.rescale(temp, new_min, new_max)
         return temp
 
     def modifierB(x, new_min, new_max):
         temp = x * 2 / 3
+        temp = Modifier.rescale(temp, new_min, new_max)
+        return temp
+
+    def modifierC(x, new_min, new_max):
+        """
+        Applies a rescaling operation to the input value x.
+
+        Args:
+            x (float): The input value.
+            new_min (float): The desired minimum value after rescaling.
+            new_max (float): The desired maximum value after rescaling.
+
+        Returns:
+            float: The rescaled value of x.
+
+        Example:
+            >>> modifierA(5, 0, 10)
+            25.0
+        """
+        print(f"Temp x: {x}")
+        temp = np.array(x) ** 3
         temp = Modifier.rescale(temp, new_min, new_max)
         return temp

@@ -6,6 +6,7 @@ from validator import Validator
 components = {
     'modifierA': Modifier.modifierA,
     'modifierB': Modifier.modifierB,
+    'modifierC': Modifier.modifierC,
     'simulator': Simulator.sim_func_B,
     'sumo_simulator_vsl': Simulator.sumo_simulator_vsl,
     'sumo_simulator_novsl': Simulator.sumo_simulator_novsl,
