@@ -44,8 +44,9 @@ class ModifierController:
                                           new_max=np.max(np.array(mod_filtered_ticks, dtype=np.int64)))
 
                 print("[MODC]: mod_x: ", mod_x)
-
-                all_intervals_mod.append(mod_x)
+                print(f"[MODC]: mod_x: ", {len(mod_x)})
+                new_mod_x = [float(interval_min_tick)] + mod_x + [float(interval_max_tick)]
+                all_intervals_mod.append(new_mod_x)
             # else:
             #     all_intervals_mod.append([])
 
