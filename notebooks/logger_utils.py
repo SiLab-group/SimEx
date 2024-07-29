@@ -110,7 +110,7 @@ class Logger:
         plt.xlabel(ops['x_labels'])
         plt.ylabel(ops['y_labels'])
         plt.title(ops['title'])
-        plt.legend()
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         plt.show()
 
     def _write_results(self):
@@ -411,7 +411,7 @@ class Logger:
         plt.xlabel(ops['x_labels'])
         plt.ylabel(ops['y_labels'])
         plt.title(ops['title'])
-        plt.legend()
+        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         figname = f"total_function-{os.environ['INSTANCE_NAME']}-{self.timestamp}.pdf"
         plt.savefig(os.path.join(simexSettings['results_dir'], f"{figname}"), format='pdf')
         plt.show()
