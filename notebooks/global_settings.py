@@ -82,7 +82,14 @@ fs = {
 lgs = {"log_granularity": 3}
 
 # SUMOvsl settings
-sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/",
-            "sumo_path": "C:/Program Files (x86)/Eclipse/Sumo/bin/sumo"}
-# sumovsls = {"model_path": "/home/amy/tmp/repos/SimEx/model_MD/",
-#             "sumo_path": "/usr/share/sumo/bin/sumo"}
+if os.path.isfile("sumo_config.ini"):
+    import configparser
+    sumo_config = configparser.ConfigParser()
+    sumo_config.read("sumo_config.ini")
+    sumovsls = {"model_path": sumo_config['SUMO']['MODEL_PATH'],
+            "sumo_path": sumo_config['SUMO']['SUMO_PATH']}
+else:
+    sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/",
+             "sumo_path": "C:/Program Files (x86)/Eclipse/Sumo/bin/sumo"}
+    # sumovsls = {"model_path": "/home/amy/tmp/repos/SimEx/model_MD/",
+    #             "sumo_path": "/usr/share/sumo/bin/sumo"}

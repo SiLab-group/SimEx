@@ -22,12 +22,13 @@ pip3 install -r requirementsAMY.txt
    - Run vscode
    - Open the Notebook to run: Select kernel -> Create new environment .venv -> Select requriementsAmy.txt -> Run the jupyter notebook
 3. Run jupyter-lab in the environment
-4. Adjust path for the sumo and the models in `notebooks/global_settings.py` sumovsls variables.
-```python
+4. Set the sumo model path and the sumo binary path in the `notebooks/sumo_config.ini`.
+```bash
 # Path to the model used
 # Path for the sumo
-sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/",
-           "sumo_path": "C:/Program Files (x86)/Eclipse/Sumo/bin/sumo"}
+[SUMO]
+MODEL_PATH = /home/amy/tmp/repos/SimEx/model_MD/
+SUMO_PATH = /usr/share/sumo/bin/sumo
 ```
 5. Run `notebooks/SimEx_sumo_vsl_notebook.ipynb` or `notebooks/SimEx_sumo_novsl_notebook.ipynb`
 6. For the overall plots adjustments from pkl objects run `notebooks/SimEx_sumo_plot.ipynb`
