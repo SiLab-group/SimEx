@@ -45,8 +45,11 @@ class ModifierController:
 
                 print("[MODC]: mod_x: ", mod_x)
                 print(f"[MODC]: mod_x: ", {len(mod_x)})
-                new_mod_x = [float(interval_min_tick)] + mod_x + [float(interval_max_tick)]
-                all_intervals_mod.append(new_mod_x)
+                if mds["add_first_last_points"]:
+                    new_mod_x = [float(interval_min_tick)] + mod_x + [float(interval_max_tick)]
+                    all_intervals_mod.append(new_mod_x)
+                else:
+                    all_intervals_mod.append(mod_x)
             # else:
             #     all_intervals_mod.append([])
 

@@ -19,6 +19,7 @@ mds = {"domain_min_interval": 2500,
         "modifier_incremental_unit": 25,  # Minimal incremental unit is the smallest allowed step_size. Note: If extensive search True then minimal increment is set to 1
         "modifier_data_point": 100,  # Data point step size on the X axis in the first round. In next iterations
                                    # modifier_data_point = modifier_data_point - modifier_incremental_unit until modifier_data_point < minimal_increment_unit.
+        "add_first_last_points": True  # Add first point and the last point the modified intervals
        }
 
 # Validator Function Settings
