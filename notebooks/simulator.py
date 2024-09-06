@@ -4,7 +4,7 @@ import math
 import traci
 import sim_get_set as sim
 import vsl_controller as VSL
-from global_settings import sumovsls
+from global_settings import SumoVsl
 
 class Simulator:
 
@@ -48,8 +48,8 @@ class Simulator:
 
         # SUMO variables
         # Adjust path for the sumo
-        root = sumovsls["model_path"]
-        sumoBinary = sumovsls["sumo_path"] 
+        root = SumoVsl.model_path
+        sumoBinary = SumoVsl.sumo_path
         def SUMO_Cmd(seed_ID):
             # def SUMOCmd():
             # seeds=[21121,29350,23496,22287,22903,25614,23864,22426,23345,28815]
@@ -143,8 +143,8 @@ class Simulator:
 
         # SUMO variables
         # Adjust path for the sumo
-        root = sumovsls["model_path"]
-        sumoBinary = sumovsls["sumo_path"]
+        root = SumoVsl.model_path
+        sumoBinary = SumoVsl.sumo_path
 
         def SUMO_Cmd(seed_ID):
             # def SUMOCmd():

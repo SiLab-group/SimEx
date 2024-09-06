@@ -9,11 +9,11 @@ import numpy as np
 # Set instance name
 os.environ['INSTANCE_NAME'] = 'NOVSL_script'
 
-from global_settings import simexSettings, mds, timestamp, fs
+from global_settings import SimexSettings, Mds, timestamp, Fs
 
 # Create directory for the results
 script_dir = os.path.abspath('')
-results_dir = os.path.join(script_dir, f'{simexSettings["results_dir"]}')
+results_dir = os.path.join(script_dir, f'{SimexSettings.results_dir}')
 
 if not os.path.isdir(results_dir):
     os.makedirs(results_dir)
@@ -37,7 +37,7 @@ logger = Logger()
 logger_main_arguments = {}
 is_main_func = True
 
-intervals_list = [[mds['domain_min_interval'], mds['domain_max_interval']]]
+intervals_list = [[Mds.domain_min_interval, Mds.domain_max_interval]]
 # Values for the timestamp of the pickle file
 count = 0
 
@@ -46,7 +46,7 @@ while is_main_func:
     # Calls  Modifier Controller
     # NOTE: intervals_list type is set to np.int64 due to: https://github.com/numpy/numpy/issues/8433 on windows
     mod_outcome = ModifierController.control(intervals_list=intervals_list, selected_modifier=components['modifierA'],
-                                                 do_plot=simexSettings['do_plot'])
+                                                 do_plot=SimexSettings.do_plot)
     mod_x_list = mod_outcome[0]
     checked_intervals = mod_outcome[1]
     print("MAIN mod outcome", mod_outcome)
@@ -69,8 +69,8 @@ while is_main_func:
     # Calls Validator controller
     intervals_list = validator_controller_novsl.validate(mod_x_list=np.array(mod_x), sim_y_list=np.array(sim_y_list),
                                                          selected_validator=components['validator'],
-                                                         global_interval=[mds["domain_min_interval"],
-                                                                          mds["domain_max_interval"]])
+                                                         global_interval=[Mds.domain_min_interval,
+                                                                          Mds.domain_max_interval])
     print("MAIN interval list from VAL:", intervals_list)
     # Loop number (loop-1,loop2..etc)
     count += 1
@@ -95,5 +95,5 @@ save_object(logger.all_fit_intervals_data,os.path.join(results_dir, f"logger-nov
 if logger.remaining_unfit_intervals:
     save_object(logger.remaining_unfit_intervals,os.path.join(results_dir,f"logger-novsl_script-unfitted_intervals-{timestamp}.pkl"))
 # print(f"Logger object saved with timestamp {timestamp}")
-file = f"{fs['csv_filename']}-{timestamp}.csv"
+file = f"{Fs.csv_filename}-{timestamp}.csv"
 print(f"{os.path.join(results_dir,file)}")
