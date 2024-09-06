@@ -10,7 +10,7 @@ simexSettings = {"do_plot": False,  # No special meaning at the moment. TODO: Sh
                  "extensive_iteration": False,  # Gets enabled when extensive search is True. TODO: should be refactored
                  "SimEx_mode": "exploration",  # Only exploration implemented
                  "max_workers": 14,  # Maximum workers for the parallelization ( numbers of processors on the machine )
-                 "results_dir": f"results_dir_{os.environ['INSTANCE_NAME']}-{timestamp}"
+                 #"results_dir": f"results_dir_{os.environ['INSTANCE_NAME']}-{timestamp}"
                  }
 
 # Modifier Domain Settings

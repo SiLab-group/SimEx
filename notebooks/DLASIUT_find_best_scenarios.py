@@ -176,23 +176,27 @@ def automatic_performance(dataset_baseline, dataset_control, incremnet_step_for_
         output_with_intervals_and_results = np.append(output_with_intervals_and_results, [
             [int(_lower__value_in_x_interval), int(_lower__value_in_x_interval + incremnet_step_for_x),int(interval_for_exploration)]], axis=0)
 
+    # print(f"{output_with_intervals_and_results}")
     # output matrice
     # 1 column - start od interval, 2 - column - end of interval 3- column  exploration or not (binary)
     intervals = []
     for n, el in enumerate(output_with_intervals_and_results):
         if el[2] == 1:
             intervals.append([el[0], el[1]])
-
-    intervals.sort(key=lambda interval: interval[0])
-    merged = [intervals[0]]
-    for current in intervals:
-        previous = merged[-1]
-        if current[0] <= previous[1]:
-            previous[1] = max(previous[1], current[1])
-        else:
-            merged.append(current)
-    # print(intervals)
-    # print(merged)
+    print(f"INTERVALS: {intervals}")
+    if intervals:
+        intervals.sort(key=lambda interval: interval[0])
+        merged = [intervals[0]]
+        for current in intervals:
+            previous = merged[-1]
+            if current[0] <= previous[1]:
+                previous[1] = max(previous[1], current[1])
+            else:
+                merged.append(current)
+            # print(intervals)
+            #print(f"MERGED: {merged})
+    else:
+         merged = None
     return merged
 
 

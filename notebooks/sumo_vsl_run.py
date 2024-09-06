@@ -32,31 +32,21 @@ def save_object(obj, filename):
     with open(filename, 'wb') as outp:  # Overwrites any existing file.
         pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--intervals_pkl", help="Pass unfitted intervals pkl file name", required=False)
-args = parser.parse_args()
-if args.intervals_pkl:
-    print("Args intervals_pkl passed")
 
 validator_controller_vsl = ValidatorController()
 logger = Logger()
 logger_main_arguments = {}
 is_main_func = True
 # Initialize interval list for the first iteration
-if args.intervals_pkl:
-    mod_outcome = pickle.load(open(args.intervals_pkl, "rb"))
-else:
-    mod_outcome = []
+
 intervals_list = [[mds['domain_min_interval'], mds['domain_max_interval']]]
 # Timestamp for the validator pickle file
 count = 0
 
 while is_main_func:
-
-    if not mod_outcome:
-        # Calls Modifier Controller
-        # NOTE: intervals_list type is set to np.int64 due to: https://github.com/numpy/numpy/issues/8433 on windows
-        mod_outcome = ModifierController.control(intervals_list=intervals_list, selected_modifier=components['modifierA'],
+    # Calls Modifier Controller
+    # NOTE: intervals_list type is set to np.int64 due to: https://github.com/numpy/numpy/issues/8433 on windows
+    mod_outcome = ModifierController.control(intervals_list=intervals_list, selected_modifier=components['modifierA'],
                                              do_plot=simexSettings['do_plot'])
     mod_x_list = mod_outcome[0]
     checked_intervals = mod_outcome[1]
