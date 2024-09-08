@@ -2,12 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from global_settings import Mds, mgs
 from global_settings import SimexSettings
-from logger_utils import Logger
-
-logger = Logger()
-
 
 class ModifierController:
+
+    def __init__(self, logger):
+        self.logger = logger
 
     def control(intervals_list, selected_modifier, do_plot):
         print("Modifier...")
@@ -64,7 +63,7 @@ class ModifierController:
         logger_modifier_arguments["current_iteration_points_number"] = current_iteration_points_number
         logger_modifier_arguments["all_intervals_mod"] = all_intervals_mod
         logger_modifier_arguments["intervals_list"] = intervals_list
-        logger.log_modifier(logger_modifier_arguments)
+        self.logger.log_modifier(logger_modifier_arguments)
 
         # update the mdv to decrease the interdatapoint distance for the next iteration
         Mds.modifier_data_point = Mds.modifier_data_point - Mds.modifier_incremental_unit

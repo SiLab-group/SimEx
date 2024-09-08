@@ -6,15 +6,14 @@ from global_settings import Vfs, SimexSettings, timestamp
 from logger_utils import Logger
 from sklearn.metrics import mean_squared_error
 
-logger = Logger()
-
 
 class Validator:
-    def __init__(self):
+    def __init__(self, logger):
         self.unfit_intercept = None
         self.predicted_values = None
         self.fitted_curve = None
         self.unfit_interval = None
+        self.logger = logger
 
     def build_equation_string(self, coefficients: list):
         equation = 'y = '
@@ -215,7 +214,7 @@ class Validator:
 
             logger_validator_arguments = {"log_contex": "fit_VAL_stats", "fit_interval": interval,
                                           "fitting_function": equation, "fit_points": filtered_fit_points}
-            logger.log_validator(logger_validator_arguments)
+            self.logger.log_validator(logger_validator_arguments)
 
         # print(unfit_interval)
         self.plot_curve(x_values, y_values, fitted_curve,
