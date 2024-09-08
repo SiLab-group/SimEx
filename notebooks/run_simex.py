@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from global_settings import SimexSettings, Mds, timestamp, Fs
+from global_settings import SimexSettings, timestamp
 
 
 # class SimexRunner():
@@ -8,12 +8,16 @@ from global_settings import SimexSettings, Mds, timestamp, Fs
 #         self.instance_name = name
 
 def run_simex(simulator_function, modifier, validator, instance_name):
-    SimexSettings.instance_name=instance_name
-    print(f"Instance name {SimexSettings.instance_name}")
-    resultdir = f"results_dir_{SimexSettings.instance_name}-{timestamp}"
+
+    sim = SimexSettings(instance_name=instance_name)
+    # sim.set_instance_name(instance_name)
+
+    print(f"Instance name {sim.instance_name}")
+    resultdir = f"results_dir_{sim.instance_name}-{timestamp}"
     # Create directory for the results
     script_dir = os.path.abspath('')
     results_dir = os.path.join(script_dir, resultdir)
+    sim.results_dir = results_dir
 
     if not os.path.isdir(results_dir):
         os.makedirs(results_dir)
@@ -25,22 +29,21 @@ def run_simex(simulator_function, modifier, validator, instance_name):
     from simulator_controller import SimulatorController
 
     import pickle
-    import datetime
 
     def save_object(obj, filename):
         with open(filename, 'wb') as outp:  # Overwrites any existing file.
             pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
-    logger = Logger(filename=os.path.join(results_dir, f"{Fs.log_filename}-{timestamp}.txt"))
-    validator_controller = ValidatorController(logger)
-    modifier_controller = ModifierController(logger)
+    logger = Logger(filename=os.path.join(results_dir, f"{sim.log_filename}-{timestamp}.txt"), simex_settings=sim)
+    validator_controller = ValidatorController(logger, settings=sim)
+    modifier_controller = ModifierController(logger, settings=sim)
     # logger = Logger()
     logger_main_arguments = {}
     is_main_func = True
     # Initialize interval list for the first iteration
 
 
-    intervals_list = [[Mds.domain_min_interval, Mds.domain_max_interval]]
+    intervals_list = [[sim.domain_min_interval, sim.domain_max_interval]]
     # Timestamp for the validator pickle file
     count = 0
 
@@ -48,7 +51,7 @@ def run_simex(simulator_function, modifier, validator, instance_name):
         # Calls Modifier Controller
         # NOTE: intervals_list type is set to np.int64 due to: https://github.com/numpy/numpy/issues/8433 on windows
         mod_outcome = modifier_controller.control(intervals_list=intervals_list, selected_modifier=modifier,
-                                                 do_plot=SimexSettings.do_plot)
+                                                 do_plot=sim.do_plot)
         mod_x_list = mod_outcome[0]
         checked_intervals = mod_outcome[1]
         print("MAIN mod outcome", mod_outcome)
@@ -71,12 +74,12 @@ def run_simex(simulator_function, modifier, validator, instance_name):
         # Calls Validator controller
         intervals_list = validator_controller.validate(mod_x_list=np.array(mod_x), sim_y_list=np.array(sim_y_list),
                                                            selected_validator=validator,
-                                                           global_interval=[Mds.domain_min_interval,
-                                                                            Mds.domain_max_interval])
+                                                           global_interval=[sim.domain_min_interval,
+                                                                            sim.domain_max_interval])
         print("MAIN interval list from VAL:", intervals_list)
         # Loop number ( Loop-1,Loop-2..etc)
         count += 1
-        save_object(validator_controller, os.path.join(results_dir, f"vc_vsl_loop-{count}-{timestamp}.pkl"))
+        # save_object(validator_controller, os.path.join(results_dir, f"vc_vsl_loop-{count}-{timestamp}.pkl"))
 
         # Updates interval_list to new range output from validator controller
         # No more unfit intervals -> write MAIN log
@@ -99,7 +102,7 @@ def run_simex(simulator_function, modifier, validator, instance_name):
         save_object(logger.remaining_unfit_intervals
                     ,os.path.join(results_dir ,f"logger-vsl_script-unfitted_intervals-{timestamp}.pkl"))
     # print(f"Logger object saved with timestamp {timestamp}")
-    file = f"{Fs.csv_filename}-{timestamp}.csv"
+    file = f"{sim.csv_filename}-{timestamp}.csv"
     file_path = os.path.join(results_dir ,file)
     print(f"{file_path}")
     return file_path

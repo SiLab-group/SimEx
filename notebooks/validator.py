@@ -2,18 +2,19 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from global_settings import Vfs, SimexSettings, timestamp
+from global_settings import timestamp
 from logger_utils import Logger
 from sklearn.metrics import mean_squared_error
 
 
 class Validator:
-    def __init__(self, logger):
+    def __init__(self, logger, settings):
         self.unfit_intercept = None
         self.predicted_values = None
         self.fitted_curve = None
         self.unfit_interval = None
         self.logger = logger
+        self.settings = settings
 
     def build_equation_string(self, coefficients: list):
         equation = 'y = '
@@ -27,8 +28,10 @@ class Validator:
             equation += f'{sign} {coeff}x^{degree} '
         return equation
 
-    def fit_curve(self, x_values, y_values, max_deg=Vfs.max_deg, improvement_threshold=Vfs.improvement_threshold,
-                  penality_weight=Vfs.penality_weight):
+    def fit_curve(self, x_values, y_values):
+        max_deg = self.settings.vfs_max_deg
+        improvement_threshold = self.settings.vfs_improvement_threshold
+        penality_weight = self.settings.vfs_penality_weight
         x_values = np.array(x_values)  # Convert to numpy array
         y_values = np.array(y_values)  # Convert to numpy array
         mse = np.Infinity
@@ -36,8 +39,8 @@ class Validator:
         intersect = None
         y_pred = None   
 
-        degree = Vfs.degree
-        is_early_stop = Vfs.early_stop
+        degree = self.settings.vfs_degree
+        is_early_stop = self.settings.vfs_early_stop
 
         while degree <= max_deg:
             current_coeff = np.polyfit(x_values, y_values, deg=degree)
@@ -87,7 +90,7 @@ class Validator:
         # Get all indeces where residual is higher than threshold*y_predict value
         # print(vlv["threshold_y_fitting"])
         unfit_indices = np.where(
-            np.abs(residuals) > Vfs.threshold_y_fitting)[0]
+            np.abs(residuals) > self.settings.vfs_threshold_y_fitting)[0]
         # print('unfit_indices' ,unfit_indices)
 
         # Create a list of points with the residuals higher than threshold
@@ -118,7 +121,7 @@ class Validator:
                 # close the interval with point[-1]+threshold
                 interpoint_interval = point - x_values[i - 1]
                 current_interval.append(
-                    x_values[i - 1] + Vfs.threshold_x_interval * interpoint_interval)
+                    x_values[i - 1] + self.settings.vfs_threshold_x_interval * interpoint_interval)
                 list_of_intervals.append(current_interval)
                 current_interval = []
             else:
@@ -126,7 +129,7 @@ class Validator:
                     # print('\nthis is len(current_interval)==0 and 0<i<len(x_values)')
                     interpoint_interval = point - x_values[i - 1]
                     current_interval.append(
-                        point - Vfs.threshold_x_interval * interpoint_interval)
+                        point - self.settings.vfs_threshold_x_interval * interpoint_interval)
                 elif len(current_interval) == 0 and i == 0:
                     # print('\nthis is len(current_interval)==0 and i==0')
                     current_interval.append(point)
@@ -134,7 +137,7 @@ class Validator:
                     # print('\nthis is len(current_interval)==0 and i==len(x_values)')
                     interpoint_interval = point - x_values[i - 1]
                     current_interval.append(
-                        point - Vfs.threshold_x_interval * interpoint_interval)
+                        point - self.settings.vfs_threshold_x_interval * interpoint_interval)
                     current_interval.append(point)
                     list_of_intervals.append(current_interval)
                     current_interval = []
@@ -228,9 +231,9 @@ class Validator:
     def plot_curve(self, x_values, y_values, fitted_curve, unfit_interval, predicted_values):  # Add self
         import datetime
         self.unfit_interval = unfit_interval
-        plt.rcParams.update({'font.size': Vfs.font_size})
+        plt.rcParams.update({'font.size': self.settings.vfs_font_size})
 
-        plt.figure(figsize=(Vfs.figsize_x, Vfs.figsize_y))
+        plt.figure(figsize=(self.settings.vfs_figsize_x, self.settings.vfs_figsize_y))
         plt.scatter(x_values, y_values, label='Original Data')
         plt.scatter(x_values, predicted_values,
                     label='Predicted y Data', marker='x')
@@ -238,20 +241,20 @@ class Validator:
         plt.plot(fitted_curve[2], fitted_curve[1],
                  color='red', label='Polynomial Regression')
         plt.plot(fitted_curve[2], fitted_curve[1] +
-                 Vfs.threshold_y_fitting, color='black', label='threshold ')
+                 self.settings.vfs_threshold_y_fitting, color='black', label='threshold ')
         plt.plot(fitted_curve[2], fitted_curve[1] -
-                 Vfs.threshold_y_fitting, color='black', label='threshold ')
+                 self.settings.vfs_threshold_y_fitting, color='black', label='threshold ')
         count = 0
         for start, end in unfit_interval:
             count += 1
             plt.axvspan(start, end, color='orange',
                         alpha=0.3, label=f'Unfit Interval {count}: [{round(start)},{round(end)}]')
 
-        plt.xlabel(Vfs.x_labels)
-        plt.ylabel(Vfs.y_labels)
-        plt.title(Vfs.title)
+        plt.xlabel(self.settings.vfs_x_labels)
+        plt.ylabel(self.settings.vfs_y_labels)
+        plt.title(self.settings.vfs_title)
         plt.legend()
-        plt.savefig(os.path.join(SimexSettings.results_dir, f"TTS_vs_Volume_{SimexSettings.instance_name}-{timestamp}.pdf"), format='pdf')
+        plt.savefig(os.path.join(self.settings.results_dir, f"TTS_vs_Volume_{self.settings.instance_name}-{timestamp}.pdf"), format='pdf')
         plt.show()
 
     def get_curve_values(self):

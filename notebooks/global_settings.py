@@ -1,5 +1,5 @@
 # Overall SimEx settings
-# possible modes exploration (this one) and exploitation (mod with prob threes)
+# possible modes exploration (this one) and exploitation (mod with prob trees)
 import os
 import datetime
 from dataclasses import dataclass
@@ -14,6 +14,45 @@ class SimexSettings:
     SimEx_mode: str = "exploration"
     max_workers: int = 14
     results_dir: str = f"results_dir_{instance_name}-{timestamp}"
+    domain_min_interval: int = 2500
+    domain_max_interval: int = 4000
+    modifier_incremental_unit: int = 25
+    modifier_data_point: int = 100
+    add_first_last_points: bool = True
+    vfs_threshold_y_fitting: int = 15
+    vfs_threshold_x_interval: float = 0.80
+    vfs_degree: int = 2
+    vfs_max_deg: int = 9
+    vfs_early_stop: bool = True
+    vfs_improvement_threshold: float = 0.1
+    vfs_penality_weight: int = 1
+    vfs_x_labels: str = 'Traffic volume [veh/h]'
+    vfs_y_labels: str = 'TTS [veh$\cdot$h]'
+    vfs_title: str = f'Fitted Curve with unfit Intervals for {instance_name}'
+    vfs_figsize_x: int = 12
+    vfs_figsize_y: int = 6
+    vfs_font_size: int = 12
+    ops_x_labels: str = 'Traffic volume [veh/h]'
+    ops_y_labels: str = 'TTS [veh$\cdot$h]'
+    ops_title: str = f'Optimal Curve for {instance_name}'
+    ops_figsize_x: int = 10
+    ops_figsize_y: int = 5
+    ops_linewidth: int = 3
+    ops_number_x_points: int = 400
+    ops_predicted_points: bool = True
+    ops_sigmoid_width: int = 15
+    ops_threshold_plot: bool = True
+    ops_sigmoid_tailing: bool = True
+    log_filename: str = f"LOG-{instance_name}"
+    csv_filename: str = f"simex_output-{instance_name}"
+
+    def __post__init__(self):
+        self.log_filename = f"LOG-{self.instance_name}"
+        self.csv_filename = f"simex_output-{self.instance_name}"
+        self.ops_title = f'Optimal Curve for {self.instance_name}'
+        self.vfs_title = f'Fitted Curve with unfit Intervals for {self.instance_name}'
+        self.results_dir = f'Fitted Curve with unfit Intervals for {self.instance_name}'
+
 
 # SimexSettings = {"do_plot": False,  # No special meaning at the moment. TODO: Should be refactored.
 #                  "extensive_search": False,  # Complete exploration setting modifier_data_point to 1 and enabling extensive iteration
@@ -23,13 +62,13 @@ class SimexSettings:
 #                  #"results_dir": f"results_dir_{os.environ['INSTANCE_NAME']}-{timestamp}"
 #                  }
 
-@dataclass
-class Mds:
-    domain_min_interval: int = 2500
-    domain_max_interval: int = 4000
-    modifier_incremental_unit: int = 25
-    modifier_data_point: int = 100
-    add_first_last_points: bool = True
+# @dataclass
+# class Mds:
+#     domain_min_interval: int = 2500
+#     domain_max_interval: int = 4000
+#     modifier_incremental_unit: int = 25
+#     modifier_data_point: int = 100
+#     add_first_last_points: bool = True
 # # Modifier Domain Settings
 # mds = {"domain_min_interval": 2500,
 #         "domain_max_interval": 4000,
@@ -39,21 +78,21 @@ class Mds:
 #         "add_first_last_points": True  # Add first point and the last point the modified intervals
 #        }
 
-@dataclass
-class Vfs:
-    threshold_y_fitting: int = 15
-    threshold_x_interval: float = 0.80
-    degree: int = 2
-    max_deg: int = 9
-    early_stop: bool = True
-    improvement_threshold: float = 0.1
-    penality_weight: int = 1
-    x_labels: str = 'Traffic volume [veh/h]'
-    y_labels: str = 'TTS [veh$\cdot$h]'
-    title: str = f'Fitted Curve with unfit Intervals for {SimexSettings.instance_name}'
-    figsize_x: int = 12
-    figsize_y: int = 6
-    font_size: int = 12
+# @dataclass
+# class Vfs:
+#     threshold_y_fitting: int = 15
+#     threshold_x_interval: float = 0.80
+#     degree: int = 2
+#     max_deg: int = 9
+#     early_stop: bool = True
+#     improvement_threshold: float = 0.1
+#     penality_weight: int = 1
+#     x_labels: str = 'Traffic volume [veh/h]'
+#     y_labels: str = 'TTS [veh$\cdot$h]'
+#     title: str = f'Fitted Curve with unfit Intervals for {SimexSettings.instance_name}'
+#     figsize_x: int = 12
+#     figsize_y: int = 6
+#     font_size: int = 12
 
 # Validator Function Settings
 # For each fitted function we calculate Mean squared error(MSE):
@@ -75,19 +114,19 @@ class Vfs:
 #        'font_size': 12  # Fontsize in the figure
 #        }
 
-@dataclass
-class Ops:
-    x_labels: str = 'Traffic volume [veh/h]'
-    y_labels: str = 'TTS [veh$\cdot$h]'
-    title: str = f'Optimal Curve for {SimexSettings.instance_name}'
-    figsize_x: int = 10
-    figsize_y: int = 5
-    linewidth: int = 3
-    number_x_points: int = 400
-    predicted_points: bool = True
-    sigmoid_width: int = 15
-    threshold_plot: bool = True
-    sigmoid_tailing: bool = True
+# @dataclass
+# class Ops:
+#     x_labels: str = 'Traffic volume [veh/h]'
+#     y_labels: str = 'TTS [veh$\cdot$h]'
+#     title: str = f'Optimal Curve for {SimexSettings.instance_name}'
+#     figsize_x: int = 10
+#     figsize_y: int = 5
+#     linewidth: int = 3
+#     number_x_points: int = 400
+#     predicted_points: bool = True
+#     sigmoid_width: int = 15
+#     threshold_plot: bool = True
+#     sigmoid_tailing: bool = True
 # # Overall plot settings (the last plot with all the functions)
 # ops = {
 #     'x_labels': 'Traffic volume [veh/h]',
@@ -115,10 +154,10 @@ vgs = {"points_fitting_total": 0,  # Not used TODO: Should be refactored
        "points_unfitting_total": 0,  # Not used TODO: Should be refactored
        "intervals_unfit_total": 0}  # Not used TODO: Should be refactored
 
-@dataclass
-class Fs:
-    log_filename: str = f"LOG-{SimexSettings.instance_name}"
-    csv_filename: str = f"simex_output-{SimexSettings.instance_name}"
+# @dataclass
+# class Fs:
+#     log_filename: str = f"LOG-{SimexSettings.instance_name}"
+#     csv_filename: str = f"simex_output-{SimexSettings.instance_name}"
 # Filename settings
 # fs = {
 #     "log_filename": f"LOG-{os.environ['INSTANCE_NAME']}",

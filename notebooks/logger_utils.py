@@ -7,28 +7,10 @@ from typing import Tuple, List
 
 import matplotlib.pyplot as plt
 import numpy as np
-from global_settings import lgs, mgs, Vfs, Ops, Fs, Mds, SimexSettings, timestamp
+from global_settings import lgs, mgs, timestamp
 
 all_fit_intervals_data = []
 remaining_unfit_intervals = []
-
-
-def get_coefficients(interval):
-    # Convert the string into a function array of terms
-    terms = re.findall(r'([+-]?\s*\d+\.?\d*(?:e[+-]?\d+)?)(x\^\d+)?', interval['fitting_function'].replace(' ', ''))
-    # For each element if x present, we extract exponent
-    coefficients = [0] * (Vfs.max_deg+1)  # Initialize a list for coefficients
-    for term in terms:
-        coef = float(term[0])
-        if term[1]:  # If there is an 'x' term
-            exponent = int(term[1][2:])  # Get the exponent
-            while len(coefficients) <= exponent:  # Expand the list if needed
-                coefficients.append(0)
-            # Assign the coefficient to the corresponding position in the list
-            coefficients[exponent] = coef
-        else:  # If there is no 'x' term, it's the constant term
-            coefficients[0] = coef
-    return coefficients
 
 
 @dataclass
@@ -52,13 +34,14 @@ class FunctionValues:
 
 class Logger:
 
-    def __init__(self, filename=f"{Fs.log_filename}-"):
+    def __init__(self, filename, simex_settings):
         self.remaining_unfit_intervals = []
         self.all_fit_intervals_data = []
         #self.timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
         self.timestamp = timestamp
         #self.filename = os.path.join(SimexSettings.results_dir, f"{filename}{self.timestamp}.txt")
         self.filename = filename
+        self.settings = simex_settings
         self._open_file()
 
     def _open_file(self):
@@ -77,7 +60,7 @@ class Logger:
 
     def _plot_results(self, all_fit_intervals_data, remaining_unfit_intervals):
         # Create graph
-        _, ax = plt.subplots(figsize=(Ops.figsize_x, Ops.figsize_y))
+        _, ax = plt.subplots(figsize=(self.settings.ops_figsize_x, self.settings.ops_figsize_y))
         # Remember color for the same fitted functions
         colors = {}
         # Plot FI intervals with their fitting functions
@@ -85,7 +68,7 @@ class Logger:
             interval = element['interval']
             fitting_function_str = element['fitting_function']
 
-            coefficients = get_coefficients(element)
+            coefficients = self.get_coefficients(element)
             # Reverse the list to match the order expected by np.poly1d
             fitting_function = np.poly1d(coefficients[::-1])
 
@@ -95,10 +78,10 @@ class Logger:
 
             # Check if the function was already plotted and use the same color
             if fitting_function_str in colors.keys():
-                ax.plot(x, y, linewidth=Ops.linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]',
+                ax.plot(x, y, linewidth=self.settings.ops_linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]',
                         color=colors[fitting_function_str])
             else:
-                ax.plot(x, y, linewidth=Ops.linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]')
+                ax.plot(x, y, linewidth=self.settings.ops_linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]')
                 # Get the color for the last graph and save it in the color dictionary for given function
                 # When function repeats use the same color for that function
                 color = ax.get_lines()[-1].get_color()
@@ -108,9 +91,9 @@ class Logger:
             ax.axvspan(*element['interval'], color='gray',
                        alpha=0.3, label='unfit Interval')
 
-        plt.xlabel(Ops.x_labels)
-        plt.ylabel(Ops.y_labels)
-        plt.title(Ops.title)
+        plt.xlabel(self.settings.ops_x_labels)
+        plt.ylabel(self.settings.ops_y_labels)
+        plt.title(self.settings.ops_title)
         plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         plt.show()
 
@@ -142,7 +125,7 @@ class Logger:
         # Write results to csv file
         self.write_csv_file()
         # Plot results
-        if Ops.sigmoid_tailing:
+        if self.settings.ops_sigmoid_tailing:
             self._plot_results_tailing(all_fit_intervals_data, remaining_unfit_intervals)
         else:
             self._plot_results(all_fit_intervals_data, remaining_unfit_intervals)
@@ -259,18 +242,18 @@ class Logger:
         self._close_file()
 
     def write_csv_file(self):
-        with open(os.path.join(SimexSettings.results_dir,f'{Fs.csv_filename}-{self.timestamp}.csv'), 'w') as f:
+        with open(os.path.join(self.settings.results_dir,f'{self.settings.csv_filename}-{self.timestamp}.csv'), 'w') as f:
             # Create the csv writer
             writer = csv.writer(f)
             rows = []
             # Create header for the CSV file based on the global_settings configuration
             header = ['interval_start', 'interval_end']
             # Append header reversed max_degree9,max_degree8...max_degree0 range defined in global settings
-            [header.append(f'exponent_max_degree{i}') for i in reversed(range(0, Vfs.max_deg+ 1))]
+            [header.append(f'exponent_max_degree{i}') for i in reversed(range(0, self.settings.vfs_max_deg+ 1))]
             writer.writerow(header)
             for interval in self.all_fit_intervals_data:
                 # For each element if x present, we extract exponent
-                coefficients = get_coefficients(interval)
+                coefficients = self.get_coefficients(interval)
                 # For given interval
                 row = [interval['interval'][0], interval['interval'][1]]
                 # Append all the exponents in reversed order
@@ -280,7 +263,7 @@ class Logger:
             # For unfit intervals append 0
             for u_interval in self.remaining_unfit_intervals:
                 row = [u_interval['interval'][0], u_interval['interval'][1]]
-                [row.append(0) for i in range(0, Vfs.max_deg+1)]
+                [row.append(0) for i in range(0, self.settings.vfs_max_deg+1)]
                 rows.append(row)
 
             # Sort rows on the interval start
@@ -293,7 +276,7 @@ class Logger:
 
     def _plot_results_tailing_old(self, all_fit_intervals_data, remaining_unfit_intervals):
         # Create graph
-        _, ax = plt.subplots(figsize=(Ops.figsize_x, Ops.figsize_y))
+        _, ax = plt.subplots(figsize=(self.settings.ops_figsize_x, self.settings.ops_figsize_y))
         # Remember color for the same fitted functions
         colors = {}
         # Plot FI intervals with their fitting functions
@@ -301,7 +284,7 @@ class Logger:
             interval = element['interval']
             fitting_function_str = element['fitting_function']
 
-            coefficients = get_coefficients(element)
+            coefficients = self.get_coefficients(element)
             # Reverse the list to match the order expected by np.poly1d
             fitting_function = np.poly1d(coefficients[::-1])
 
@@ -311,10 +294,10 @@ class Logger:
 
             # Check if the function was already plotted and use the same color
             if fitting_function_str in colors.keys():
-                ax.plot(x, y, linewidth=Ops.linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]',
+                ax.plot(x, y, linewidth=self.settings.ops_linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]',
                         color=colors[fitting_function_str])
             else:
-                ax.plot(x, y, linewidth=Ops.linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]')
+                ax.plot(x, y, linewidth=self.settings.ops_linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]')
                 # Get the color for the last graph and save it in the color dictionary for given function
                 # When function repeats use the same color for that function
                 color = ax.get_lines()[-1].get_color()
@@ -324,27 +307,27 @@ class Logger:
             ax.axvspan(*element['interval'], color='gray',
                        alpha=0.3, label='unfit Interval')
 
-        plt.xlabel(Ops.x_labels)
-        plt.ylabel(Ops.y_labels)
-        plt.title(Ops.title)
+        plt.xlabel(self.settings.ops_x_labels)
+        plt.ylabel(self.settings.ops_y_labels)
+        plt.title(self.settings.ops_title)
         plt.legend()
         plt.show()
 
 
     def _plot_results_tailing(self, all_fit_intervals_data, remaining_unfit_intervals):
         # Create graph
-        _, ax = plt.subplots(figsize=(Ops.figsize_x, Ops.figsize_y))
+        _, ax = plt.subplots(figsize=(self.settings.ops_figsize_x, self.settings.ops_figsize_y))
         # Remember color for the same fitted functions
         points = []
         funcs = []
         connection_points = []
         funcs_values = []
         # Create x values
-        x = np.linspace(Mds.domain_min_interval, Mds.domain_max_interval, Ops.number_x_points, dtype=np.float128)
+        x = np.linspace(self.settings.domain_min_interval, self.settings.domain_max_interval, self.settings.ops_number_x_points, dtype=np.float128)
         # Save labels and points for the fitting functions
         for element in all_fit_intervals_data:
             # Get coefficients
-            coefficients = get_coefficients(element)
+            coefficients = self.get_coefficients(element)
             fitting_function = np.poly1d(coefficients[::-1])
             f = FittedFunction(name=element['fitting_function'], interval=element['interval'],
                                func_form=fitting_function,
@@ -356,10 +339,10 @@ class Logger:
                                       y_values=np.array([f.func_form(el) for el in x_temp]))
             funcs_values.append(f_values)
 
-            if f.interval[1] != Mds.domain_max_interval:
+            if f.interval[1] != self.settings.domain_max_interval:
                 connection_points.append(f.interval[1])
 
-        if Ops.predicted_points:
+        if self.settings.ops_predicted_points:
             x_point = []
             y_point = []
             for fit_point in points:
@@ -367,7 +350,7 @@ class Logger:
                 x_point.append(fit_point[0])
                 y_point.append(fit_point[1])
 
-        def transition(x, x_conn, width=Ops.sigmoid_width):
+        def transition(x, x_conn, width=self.settings.ops_sigmoid_width):
             return 1.0 / (1.0 + np.exp(-2 / width * (x - x_conn)))
 
         # Fit the y values for the generated x
@@ -388,16 +371,16 @@ class Logger:
             if funcs[i].name in colors.keys():
                 ax.plot(funcs_values[i].x_values, funcs_values[i].y_values, label=custom_label,
                         color=colors[funcs[i].name], linewidth=3)
-                if Ops.threshold_plot:
-                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values + Vfs.threshold_y_fitting, 'm--', linewidth=2)
-                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values - Vfs.threshold_y_fitting, 'm--', linewidth=2)
+                if self.settings.ops_threshold_plot:
+                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values + self.settings.vfs_threshold_y_fitting, 'm--', linewidth=2)
+                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values - self.settings.vfs_threshold_y_fitting, 'm--', linewidth=2)
             else:
                 ax.plot(funcs_values[i].x_values, funcs_values[i].y_values, label=custom_label, linewidth=3)
                 color = ax.get_lines()[-1].get_color()
                 colors[funcs[i].name] = color
-                if Ops.threshold_plot:
-                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values + Vfs.threshold_y_fitting, 'm--',linewidth=2)
-                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values - Vfs.threshold_y_fitting, 'm--',linewidth=2)
+                if self.settings.ops_threshold_plot:
+                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values + self.settings.vfs_threshold_y_fitting, 'm--',linewidth=2)
+                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values - self.settings.vfs_threshold_y_fitting, 'm--',linewidth=2)
 
         for element in remaining_unfit_intervals:
             ax.axvspan(*element['interval'], color='gray',
@@ -407,13 +390,31 @@ class Logger:
         for x_conn in connection_points:
             ax.axvline(x=x_conn, color='purple', linestyle=':')
 
-        if Ops.predicted_points:
+        if self.settings.ops_predicted_points:
             ax.plot(x_point, y_point, "ro", label="original points")
-        plt.xlabel(Ops.x_labels)
-        plt.ylabel(Ops.y_labels)
-        plt.title(Ops.title)
+        plt.xlabel(self.settings.ops_x_labels)
+        plt.ylabel(self.settings.ops_y_labels)
+        plt.title(self.settings.ops_title)
         plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-        figname = f"total_function-{SimexSettings.instance_name}-{self.timestamp}.pdf"
-        plt.savefig(os.path.join(SimexSettings.results_dir, f"{figname}"), format='pdf')
+        figname = f"total_function-{self.settings.instance_name}-{self.timestamp}.pdf"
+        plt.savefig(os.path.join(self.settings.results_dir, f"{figname}"), format='pdf')
         plt.show()
         # print(f"Figure was saved to {figname}")
+
+    def get_coefficients(self, interval):
+        # Convert the string into a function array of terms
+        terms = re.findall(r'([+-]?\s*\d+\.?\d*(?:e[+-]?\d+)?)(x\^\d+)?',
+                           interval['fitting_function'].replace(' ', ''))
+        # For each element if x present, we extract exponent
+        coefficients = [0] * (self.settings.vfs_max_deg + 1)  # Initialize a list for coefficients
+        for term in terms:
+            coef = float(term[0])
+            if term[1]:  # If there is an 'x' term
+                exponent = int(term[1][2:])  # Get the exponent
+                while len(coefficients) <= exponent:  # Expand the list if needed
+                    coefficients.append(0)
+                # Assign the coefficient to the corresponding position in the list
+                coefficients[exponent] = coef
+            else:  # If there is no 'x' term, it's the constant term
+                coefficients[0] = coef
+        return coefficients

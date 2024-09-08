@@ -1,11 +1,10 @@
 import numpy as np
 
 from validator import Validator
-from logger_utils import Logger
 
 
 class ValidatorController:
-    def __init__(self, logger):
+    def __init__(self, logger, settings):
         self.unfit_x_interval = None
         self.unfit_points = []
         self.fit_x_interval = None
@@ -17,9 +16,10 @@ class ValidatorController:
         self.y_values = None
         self.unfit_interval = None
         self.logger = logger
+        self.settings = settings
 
     def validate(self, mod_x_list, sim_y_list, selected_validator, global_interval):
-        validator = Validator(self.logger)
+        validator = Validator(self.logger, self.settings)
         print('Validator...')
 
         if np.any(self.unfit_x_interval):  # if self.unfit_x_interval is not empty

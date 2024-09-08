@@ -1,12 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from global_settings import Mds, mgs
-from global_settings import SimexSettings
+from global_settings import mgs
 
 class ModifierController:
 
-    def __init__(self, logger):
+    def __init__(self, logger, settings):
         self.logger = logger
+        self.settings = settings
 
     def control(self, intervals_list, selected_modifier, do_plot):
         print("Modifier...")
@@ -17,16 +17,16 @@ class ModifierController:
         logger_modifier_arguments = {}
 
         # Check if it's possible to generate more data points
-        if Mds.modifier_data_point < Mds.modifier_incremental_unit:
-            if SimexSettings.extensive_search is True and SimexSettings.extensive_iteration is False:
-                Mds.modifier_data_point = 1
-                SimexSettings.extensive_iteration = True
+        if self.settings.modifier_data_point < self.settings.modifier_incremental_unit:
+            if self.settings.extensive_search is True and self.settings.extensive_iteration is False:
+                self.settings.modifier_data_point = 1
+                self.settings.extensive_iteration = True
             else:
                 # Exit the function if not possible
                 return False, intervals_list
         mgs["mod_iterations"] += 1
 
-        mod_ticks = np.arange(Mds.domain_min_interval, Mds.domain_max_interval, Mds.modifier_data_point)
+        mod_ticks = np.arange(self.settings.domain_min_interval, self.settings.domain_max_interval, self.settings.modifier_data_point)
         for _, (interval_min_tick, interval_max_tick) in enumerate(intervals_list):
 
             # Generate data points (incremental ticks and function modified x values) within the specified interval
@@ -44,7 +44,7 @@ class ModifierController:
 
                 print("[MODC]: mod_x: ", mod_x)
                 print(f"[MODC]: mod_x: ", {len(mod_x)})
-                if Mds.add_first_last_points:
+                if self.settings.add_first_last_points:
                     new_mod_x = [float(interval_min_tick)] + mod_x + [float(interval_max_tick)]
                     all_intervals_mod.append(new_mod_x)
                 else:
@@ -66,7 +66,7 @@ class ModifierController:
         self.logger.log_modifier(logger_modifier_arguments)
 
         # update the mdv to decrease the interdatapoint distance for the next iteration
-        Mds.modifier_data_point = Mds.modifier_data_point - Mds.modifier_incremental_unit
+        self.settings.modifier_data_point = self.settings.modifier_data_point - self.settings.modifier_incremental_unit
 
         if do_plot:
             # Plot the generated data points
