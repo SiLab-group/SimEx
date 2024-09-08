@@ -8,7 +8,7 @@ class ModifierController:
     def __init__(self, logger):
         self.logger = logger
 
-    def control(intervals_list, selected_modifier, do_plot):
+    def control(self, intervals_list, selected_modifier, do_plot):
         print("Modifier...")
         # Function to control modifiers given the input and the selected modifier function. Option to plot or not. 
         # print("[MODC]: *** Entering Modifier controller ***")

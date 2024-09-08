@@ -57,7 +57,8 @@ class Logger:
         self.all_fit_intervals_data = []
         #self.timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
         self.timestamp = timestamp
-        self.filename = os.path.join(SimexSettings.results_dir, f"{filename}-{self.timestamp}.txt")
+        #self.filename = os.path.join(SimexSettings.results_dir, f"{filename}{self.timestamp}.txt")
+        self.filename = filename
         self._open_file()
 
     def _open_file(self):

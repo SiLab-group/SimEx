@@ -7,7 +7,7 @@ from global_settings import SimexSettings, Mds, timestamp, Fs
 #     def __init__(self, name):
 #         self.instance_name = name
 
-def run_simex(simulator_function, instance_name):
+def run_simex(simulator_function, modifier, validator, instance_name):
     SimexSettings.instance_name=instance_name
     print(f"Instance name {SimexSettings.instance_name}")
     resultdir = f"results_dir_{SimexSettings.instance_name}-{timestamp}"
@@ -17,6 +17,7 @@ def run_simex(simulator_function, instance_name):
 
     if not os.path.isdir(results_dir):
         os.makedirs(results_dir)
+        print(f"Results dir {results_dir}")
 
     from logger_utils import Logger
     from validator_controller import ValidatorController
@@ -30,7 +31,7 @@ def run_simex(simulator_function, instance_name):
         with open(filename, 'wb') as outp:  # Overwrites any existing file.
             pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
-    logger = Logger()
+    logger = Logger(filename=os.path.join(results_dir, f"{Fs.log_filename}-{timestamp}.txt"))
     validator_controller = ValidatorController(logger)
     modifier_controller = ModifierController(logger)
     # logger = Logger()
@@ -44,10 +45,9 @@ def run_simex(simulator_function, instance_name):
     count = 0
 
     while is_main_func:
-        from components_configuration import components
         # Calls Modifier Controller
         # NOTE: intervals_list type is set to np.int64 due to: https://github.com/numpy/numpy/issues/8433 on windows
-        mod_outcome = modifier_controller.control(intervals_list=intervals_list, selected_modifier=components['ModifierA'],
+        mod_outcome = modifier_controller.control(intervals_list=intervals_list, selected_modifier=modifier,
                                                  do_plot=SimexSettings.do_plot)
         mod_x_list = mod_outcome[0]
         checked_intervals = mod_outcome[1]
@@ -70,7 +70,7 @@ def run_simex(simulator_function, instance_name):
 
         # Calls Validator controller
         intervals_list = validator_controller.validate(mod_x_list=np.array(mod_x), sim_y_list=np.array(sim_y_list),
-                                                           selected_validator=components['validator'],
+                                                           selected_validator=validator,
                                                            global_interval=[Mds.domain_min_interval,
                                                                             Mds.domain_max_interval])
         print("MAIN interval list from VAL:", intervals_list)
