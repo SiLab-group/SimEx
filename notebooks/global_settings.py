@@ -2,18 +2,23 @@
 # possible modes exploration (this one) and exploitation (mod with prob trees)
 import os
 import datetime
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 @dataclass
 class SimexSettings:
-    instance_name: str = ""
+    """Define variables for the settings of the Simex"""
+    instance_name: str
+    ops_title: str = field(init=False)
+    results_dir: str = field(init=False)
+    vfs_title: str = field(init=False)
+    log_filename: str = field(init=False)
+    csv_filename: str = field(init=False)
     do_plot: bool = False
     extensive_search: bool = False
     extensive_iteration: bool = False
     SimEx_mode: str = "exploration"
     max_workers: int = 14
-    results_dir: str = f"results_dir_{instance_name}-{timestamp}"
     domain_min_interval: int = 2500
     domain_max_interval: int = 4000
     modifier_incremental_unit: int = 25
@@ -28,13 +33,11 @@ class SimexSettings:
     vfs_penality_weight: int = 1
     vfs_x_labels: str = 'Traffic volume [veh/h]'
     vfs_y_labels: str = 'TTS [veh$\cdot$h]'
-    vfs_title: str = f'Fitted Curve with unfit Intervals for {instance_name}'
     vfs_figsize_x: int = 12
     vfs_figsize_y: int = 6
     vfs_font_size: int = 12
     ops_x_labels: str = 'Traffic volume [veh/h]'
     ops_y_labels: str = 'TTS [veh$\cdot$h]'
-    ops_title: str = f'Optimal Curve for {instance_name}'
     ops_figsize_x: int = 10
     ops_figsize_y: int = 5
     ops_linewidth: int = 3
@@ -43,16 +46,62 @@ class SimexSettings:
     ops_sigmoid_width: int = 15
     ops_threshold_plot: bool = True
     ops_sigmoid_tailing: bool = True
-    log_filename: str = f"LOG-{instance_name}"
-    csv_filename: str = f"simex_output-{instance_name}"
 
-    def __post__init__(self):
+    def __post_init__(self):
+        """ Define variables dependent on the instance name."""
         self.log_filename = f"LOG-{self.instance_name}"
         self.csv_filename = f"simex_output-{self.instance_name}"
         self.ops_title = f'Optimal Curve for {self.instance_name}'
         self.vfs_title = f'Fitted Curve with unfit Intervals for {self.instance_name}'
         self.results_dir = f'Fitted Curve with unfit Intervals for {self.instance_name}'
 
+
+## Data and settings for log purposes ##
+# These settings are filled during the runtime and used as a global data structure for the logger statistics.
+# Modifier Global Statistics 
+mgs = {"points_generated_total": 0, # Number of generated points TODO: Should be refactored
+       "points_generation_intervals": 0, # Number of intervals generated TODO: Should be refactored
+       "mod_iterations": 0}  # Number of modifier iterations TODO: Should be refactored
+
+# Validator Global statistics
+vgs = {"points_fitting_total": 0,  # Not used TODO: Should be refactored
+       "points_unfitting_total": 0,  # Not used TODO: Should be refactored
+       "intervals_unfit_total": 0}  # Not used TODO: Should be refactored
+
+# @dataclass
+# class Fs:
+#     log_filename: str = f"LOG-{SimexSettings.instance_name}"
+#     csv_filename: str = f"simex_output-{SimexSettings.instance_name}"
+# Filename settings
+# fs = {
+#     "log_filename": f"LOG-{os.environ['INSTANCE_NAME']}",
+#     "csv_filename": f"simex_output-{os.environ['INSTANCE_NAME']}"
+#     }
+# Logger Granularity Settings
+# log_granularity:
+# 0 only general stats
+# 1 minimal log
+# 2 medium
+# 3 detailed)
+lgs = {"log_granularity": 3}
+
+
+def get_path():
+    if os.path.isfile("sumo_config.ini"):
+        import configparser
+        sumo_config = configparser.ConfigParser()
+        sumo_config.read("sumo_config.ini")
+        sumovsls = {"model_path": sumo_config['SUMO']['MODEL_PATH'],
+                    "sumo_path": sumo_config['SUMO']['SUMO_PATH']}
+    else:
+        sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/",
+                    "sumo_path": "C:/Program Files (x86)/Eclipse/Sumo/bin/sumo"}
+    return sumovsls
+
+@dataclass
+class SumoVsl:
+    model_path: str = get_path()["model_path"]
+    sumo_path: str = get_path()["sumo_path"]
 
 # SimexSettings = {"do_plot": False,  # No special meaning at the moment. TODO: Should be refactored.
 #                  "extensive_search": False,  # Complete exploration setting modifier_data_point to 1 and enabling extensive iteration
@@ -141,64 +190,3 @@ class SimexSettings:
 #     'threshold_plot': True,  # Plot the threshold in the final plot
 #     'sigmoid_tailing': True   # Enable sigmoid tailing
 #     }
-
-## Data and settings for log purposes ##
-# These settings are filled during the runtime and used as a global data structure for the logger statistics.
-# Modifier Global Statistics 
-mgs = {"points_generated_total": 0, # Number of generated points TODO: Should be refactored
-       "points_generation_intervals": 0, # Number of intervals generated TODO: Should be refactored
-       "mod_iterations": 0}  # Number of modifier iterations TODO: Should be refactored
-
-# Validator Global statistics
-vgs = {"points_fitting_total": 0,  # Not used TODO: Should be refactored
-       "points_unfitting_total": 0,  # Not used TODO: Should be refactored
-       "intervals_unfit_total": 0}  # Not used TODO: Should be refactored
-
-# @dataclass
-# class Fs:
-#     log_filename: str = f"LOG-{SimexSettings.instance_name}"
-#     csv_filename: str = f"simex_output-{SimexSettings.instance_name}"
-# Filename settings
-# fs = {
-#     "log_filename": f"LOG-{os.environ['INSTANCE_NAME']}",
-#     "csv_filename": f"simex_output-{os.environ['INSTANCE_NAME']}"
-#     }
-# Logger Granularity Settings
-# log_granularity:
-# 0 only general stats
-# 1 minimal log
-# 2 medium
-# 3 detailed)
-lgs = {"log_granularity": 3}
-
-
-def get_path():
-    if os.path.isfile("sumo_config.ini"):
-        import configparser
-        sumo_config = configparser.ConfigParser()
-        sumo_config.read("sumo_config.ini")
-        sumovsls = {"model_path": sumo_config['SUMO']['MODEL_PATH'],
-                    "sumo_path": sumo_config['SUMO']['SUMO_PATH']}
-    else:
-        sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/",
-                    "sumo_path": "C:/Program Files (x86)/Eclipse/Sumo/bin/sumo"}
-    return sumovsls
-
-@dataclass
-class SumoVsl:
-    model_path: str = get_path()["model_path"]
-    sumo_path: str = get_path()["sumo_path"]
-
-
-# SUMOvsl settings
-# if os.path.isfile("sumo_config.ini"):
-#     import configparser
-#     sumo_config = configparser.ConfigParser()
-#     sumo_config.read("sumo_config.ini")
-#     sumovsls = {"model_path": sumo_config['SUMO']['MODEL_PATH'],
-#             "sumo_path": sumo_config['SUMO']['SUMO_PATH']}
-# else:
-#     sumovsls = {"model_path": "C:/Users/kusic/Desktop/SSF/SUMOVSL/SPSC_MD/model_MD/",
-#              "sumo_path": "C:/Program Files (x86)/Eclipse/Sumo/bin/sumo"}
-#     # sumovsls = {"model_path": "/home/amy/tmp/repos/SimEx/model_MD/",
-#     #             "sumo_path": "/usr/share/sumo/bin/sumo"}
