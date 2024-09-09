@@ -1,16 +1,11 @@
 import os
 import numpy as np
 from global_settings import SimexSettings, timestamp
-
-
-# class SimexRunner():
-#     def __init__(self, name):
-#         self.instance_name = name
+from logger_utils import Logger
 
 def run_simex(simulator_function, modifier, validator, instance_name):
 
     sim = SimexSettings(instance_name=instance_name)
-    # sim.set_instance_name(instance_name)
 
     print(f"Instance name {sim.instance_name}")
     resultdir = f"results_dir_{sim.instance_name}-{timestamp}"
@@ -23,7 +18,6 @@ def run_simex(simulator_function, modifier, validator, instance_name):
         os.makedirs(results_dir)
         print(f"Results dir {results_dir}")
 
-    from logger_utils import Logger
     from validator_controller import ValidatorController
     from modifier_controller import ModifierController
     from simulator_controller import SimulatorController
@@ -34,10 +28,10 @@ def run_simex(simulator_function, modifier, validator, instance_name):
         with open(filename, 'wb') as outp:  # Overwrites any existing file.
             pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
+
     logger = Logger(filename=os.path.join(results_dir, f"{sim.log_filename}-{timestamp}.txt"), simex_settings=sim)
     validator_controller = ValidatorController(logger, settings=sim)
     modifier_controller = ModifierController(logger, settings=sim)
-    # logger = Logger()
     logger_main_arguments = {}
     is_main_func = True
     # Initialize interval list for the first iteration

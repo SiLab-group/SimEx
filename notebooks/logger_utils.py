@@ -9,10 +9,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from global_settings import lgs, mgs, timestamp
 
-all_fit_intervals_data = []
-remaining_unfit_intervals = []
-
-
 @dataclass
 class FittedFunction:
     """Class for keeping track fitted functions."""
@@ -37,9 +33,7 @@ class Logger:
     def __init__(self, filename, simex_settings):
         self.remaining_unfit_intervals = []
         self.all_fit_intervals_data = []
-        #self.timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
         self.timestamp = timestamp
-        #self.filename = os.path.join(SimexSettings.results_dir, f"{filename}{self.timestamp}.txt")
         self.filename = filename
         self.settings = simex_settings
         self._open_file()
@@ -98,19 +92,19 @@ class Logger:
         plt.show()
 
     def _write_results(self):
-        if not remaining_unfit_intervals:
-            all_fit_intervals_data.sort(key=lambda x: x['interval'][0])
+        if not self.remaining_unfit_intervals:
+            self.all_fit_intervals_data.sort(key=lambda x: x['interval'][0])
             result_entry = "No unfit interval(s) left.\n"
             self.file.write(result_entry)
             self.file.flush()  # Ensure the message is written immediately
 
-            for element in all_fit_intervals_data:
+            for element in self.all_fit_intervals_data:
                 result_entry = f"FI: {str(element['interval']):<20} | FF: {str(element['fitting_function']):<30} | PTs: {str(element['fit_points']):<50}\n"
                 self.file.write(result_entry)
                 self.file.flush()  # Ensure the message is written immediately
         else:
             # OVERALL SORTED
-            all_intervals = all_fit_intervals_data + remaining_unfit_intervals
+            all_intervals = self.all_fit_intervals_data + self.remaining_unfit_intervals
             all_intervals.sort(key=lambda x: x['interval'][0])
 
             for element in all_intervals:
@@ -120,15 +114,15 @@ class Logger:
                     result_entry = f"UI: {str(element['interval']):<40} | \n"
                 self.file.write(result_entry)
                 self.file.flush()  # Ensure the message is written immediately
-        self.all_fit_intervals_data = all_fit_intervals_data
-        self.remaining_unfit_intervals = remaining_unfit_intervals
+        self.all_fit_intervals_data = self.all_fit_intervals_data
+        self.remaining_unfit_intervals = self.remaining_unfit_intervals
         # Write results to csv file
         self.write_csv_file()
         # Plot results
         if self.settings.ops_sigmoid_tailing:
-            self._plot_results_tailing(all_fit_intervals_data, remaining_unfit_intervals)
+            self._plot_results_tailing(self.all_fit_intervals_data, self.remaining_unfit_intervals)
         else:
-            self._plot_results(all_fit_intervals_data, remaining_unfit_intervals)
+            self._plot_results(self.all_fit_intervals_data, self.remaining_unfit_intervals)
 
     def log_main(self, logger_arguments):
         # TODO: log simEx settings
@@ -155,7 +149,7 @@ class Logger:
             "main_status"] == "no generated points":
             for element in logger_arguments.get("remaining_unfit_intervals"):
                 new_unfit_entry = {"interval": element}
-                remaining_unfit_intervals.append(new_unfit_entry)
+                self.remaining_unfit_intervals.append(new_unfit_entry)
             message = (
                 "   ***   main cycle INTERRUPTED: No more points from Modifier   ***   ")
             self._write_log('[MAIN]: ', message)
@@ -236,7 +230,7 @@ class Logger:
                 "interval": logger_arguments.get("fit_interval"),
                 "fitting_function": logger_arguments.get("fitting_function"),
                 "fit_points": logger_arguments.get("fit_points")}
-            all_fit_intervals_data.append(new_fit_entry)
+            self.all_fit_intervals_data.append(new_fit_entry)
 
     def close(self):
         self._close_file()
@@ -361,6 +355,8 @@ class Logger:
         # Iterate over the remaining functions
         for i in range(1, len(funcs)):
             # Compute the transition values
+            print(f"Connection points: {connection_points} and length: {len(connection_points)}")
+            print(f"Functions: {funcs} and length: {len(funcs)}")
             t = transition(x, connection_points[i - 1])
             # Update the combined function
             y = (1 - t) * y + t * y_values[i]

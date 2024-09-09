@@ -45,7 +45,7 @@ class SimexSettings:
     ops_predicted_points: bool = True
     ops_sigmoid_width: int = 15
     ops_threshold_plot: bool = True
-    ops_sigmoid_tailing: bool = True
+    ops_sigmoid_tailing: bool = False
 
     def __post_init__(self):
         """ Define variables dependent on the instance name."""
