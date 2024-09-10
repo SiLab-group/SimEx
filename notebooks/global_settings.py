@@ -9,11 +9,6 @@ timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 class SimexSettings:
     """Define variables for the settings of the Simex"""
     instance_name: str
-    ops_title: str = field(init=False)
-    results_dir: str = field(init=False)
-    vfs_title: str = field(init=False)
-    log_filename: str = field(init=False)
-    csv_filename: str = field(init=False)
     do_plot: bool = False
     extensive_search: bool = False
     extensive_iteration: bool = False
@@ -45,7 +40,12 @@ class SimexSettings:
     ops_predicted_points: bool = True
     ops_sigmoid_width: int = 15
     ops_threshold_plot: bool = True
-    ops_sigmoid_tailing: bool = False
+    ops_sigmoid_tailing: bool = True
+    ops_title: str = field(init=False)
+    results_dir: str = field(init=False)
+    vfs_title: str = field(init=False)
+    log_filename: str = field(init=False)
+    csv_filename: str = field(init=False)
 
     def __post_init__(self):
         """ Define variables dependent on the instance name."""
@@ -103,7 +103,7 @@ class SumoVsl:
     model_path: str = get_path()["model_path"]
     sumo_path: str = get_path()["sumo_path"]
 
-# SimexSettings = {"do_plot": False,  # No special meaning at the moment. TODO: Should be refactored.
+# SimexSettings = {"do_plot": False,  # Plots generated datapoints for modifier.
 #                  "extensive_search": False,  # Complete exploration setting modifier_data_point to 1 and enabling extensive iteration
 #                  "extensive_iteration": False,  # Gets enabled when extensive search is True. TODO: should be refactored
 #                  "SimEx_mode": "exploration",  # Only exploration implemented
