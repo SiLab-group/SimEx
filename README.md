@@ -1,12 +1,12 @@
 # SimEx
-This repository contains Structured simulation framework.
+This repository contains Systematic exploration tool.
 
 ## Run Simex-sumo simulation
 To run the simulation the jupyter notebook or normal python script can be used. Follow the instructions in the 
 notebook to setup the settings for the sumo and model path.
 1. VSL: `notebooks/SimEx_sumo_vsl_notebook.ipynb` or `notebooks/sumo_vsl_run.py`
 2. NOVSL: `notebooks/SimEx_sumo_novsl_notebook.ipynb` or `notebooks/sumo_novsl_run.py`
-3. Plots from the saved pickle objects: `notebooks/SimEX_sumo_plot.ipynb`
+3. Loop for training controller can be run in `notebooks/SimEx_loop.ipynb` or `notebooks/vsl_loop.py`.
 
 ## Install and run jupyter notebook
 1. Create venv environment and install the dependencies Linux:
@@ -30,8 +30,19 @@ pip3 install -r requirementsAMY.txt
 MODEL_PATH = /home/amy/tmp/repos/SimEx/model_MD/
 SUMO_PATH = /usr/share/sumo/bin/sumo
 ```
-5. Run `notebooks/SimEx_sumo_vsl_notebook.ipynb` or `notebooks/SimEx_sumo_novsl_notebook.ipynb`
-6. For the overall plots adjustments from pkl objects run `notebooks/SimEx_sumo_plot.ipynb`
+5. Setting of the default parameters in the `notebooks/global_settings.py` and per instance when calling `run_simex` function located in `notebooks/simex.py` module.
+```python
+from simulator import Simulator
+from validator import Validator
+from modifier import Modifier
+from simex import run_simex
+# All default parameters can be overriden here when calling the run_simex function
+base_file = run_simex(simulator_function=Simulator.sumo_simulator_novsl, modifier=Modifier.modifierA, validator=Validator.local_exploration_validator_A,instance_name='NOVSL_script')
+```
+6. Run `notebooks/SimEx_sumo_vsl_notebook.ipynb` or `notebooks/SimEx_sumo_novsl_notebook.ipynb`
+7. The results of each simulation run are saved into the results directory, which name is defined in `notebooks/global_settings.py`.
+
+
 
 ## Time comparison for parallelization of simulation runs
 
