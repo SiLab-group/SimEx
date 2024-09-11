@@ -29,25 +29,25 @@ class SimexSettings:
     vfs_improvement_threshold (float): Sufficient improvement threshold (previous_mse - current_mse) >= improvement_threshold. Default value is set to '0.1'.
     vfs_penality_weight (int): Penalty for MSE to avoid overfitting with high dimension polynomial. Default value is set to '1'.
     vfs_x_labels (str): X axis label name validator graph. Default value is set to 'Traffic volume [veh/h]'.
-    vfs_y_labels (str): Y axis label name validator graph. Default value is set to 'TTS [veh$\cdot$h]'
+    vfs_y_labels (str): Y axis label name validator graph. Default value is set to 'TTS [veh$\cdot$h]'.
+    vfs_title (str): Title for validator graph. Default value is set to 'Fitted Curve with unfit Intervals for {self.instance_name}'.
     vfs_figsize_x (int): X size of the figure. Default value is set to '12'.
     vfs_figsize_y (int): Y size of the figure. Default value is set to '6'.
     vfs_font_size (int): Font size validator graph. Default value is set to '12'.
-    ops_x_labels (str): Default value is set to 'Traffic volume [veh/h]'.
-    ops_y_labels (str):  Default value is set to 'TTS [veh$\cdot$h]'.
-    ops_figsize_x (int): Default value is set to '10'.
-    ops_figsize_y (int): Default value is set to '5'.
-    ops_linewidth (int): Default value is set to '3'.
-    ops_number_x_points (int): Default value is set to '400'.
-    ops_predicted_points (bool) Default value is set to 'True'.
-    ops_sigmoid_width (int): Default value is set to '15'.
-    ops_threshold_plot (bool): Default value is set to 'True'.
-    ops_sigmoid_tailing: bool = True
-    ops_title: str = field(init=False)
-    results_dir: str = field(init=False)
-    vfs_title: str = field(init=False)
-    log_filename: str = field(init=False)
-    csv_filename: str = field(init=False)
+    ops_x_labels (str): X labels on the final graph. Default value is set to 'Traffic volume [veh/h]'.
+    ops_y_labels (str): Y labels on the final graph. Default value is set to 'TTS [veh$\cdot$h]'.
+    ops_title (str): Title on the final graph. Default value is set to 'Optimal Curve for {self.instance_name}'.
+    ops_figsize_x (int): Figure size on the final graph. Default value is set to '10'.
+    ops_figsize_y (int): Figure size on the final graph. Default value is set to '5'.
+    ops_linewidth (int): Linewidth on the final graph. Default value is set to '3'.
+    ops_number_x_points (int): Number of x axis points for the final graph. Default value is set to '400'.
+    ops_predicted_points (bool): Display predicted points on the final graph. Default value is set to 'True'.
+    ops_sigmoid_tailing (bool): Enable sigmoid tailing smoothener. Default value is set to 'True'.
+    ops_sigmoid_width (int): Sigmoid width for the sigmoid smoothening. Default value is set to '15'.
+    ops_threshold_plot (bool): Plot y_threshold on the final graph. Default value is set to 'True'.
+    results_dir (str): Name of the results directory. Default value is set to 'results_dir_{instance_name}-{timestamp}'.
+    log_filename (str): Filename for the log file. Default name is set to 'LOG-{self.instance_name}'.
+    csv_filename (str): Final csv filename with the results. Default name is set to 'simex_output-{instance_name}'.
     """
     instance_name: str
     do_plot: bool = False
@@ -72,45 +72,29 @@ class SimexSettings:
     vfs_figsize_x: int = 12
     vfs_figsize_y: int = 6
     vfs_font_size: int = 12
+    vfs_title: str = field(init=False)
     ops_x_labels: str = 'Traffic volume [veh/h]'
     ops_y_labels: str = 'TTS [veh$\cdot$h]'
+    ops_title: str = field(init=False)
     ops_figsize_x: int = 10
     ops_figsize_y: int = 5
     ops_linewidth: int = 3
     ops_number_x_points: int = 400
     ops_predicted_points: bool = True
+    ops_sigmoid_tailing: bool = True
     ops_sigmoid_width: int = 15
     ops_threshold_plot: bool = True
-    ops_sigmoid_tailing: bool = True
-    ops_title: str = field(init=False)
     results_dir: str = field(init=False)
-    vfs_title: str = field(init=False)
     log_filename: str = field(init=False)
     csv_filename: str = field(init=False)
 
     def __post_init__(self):
         """ Define variables dependent on the instance name."""
-        self.log_filename = f"LOG-{self.instance_name}"
-        self.csv_filename = f"simex_output-{self.instance_name}"
+        self.log_filename = f'LOG-{self.instance_name}'
+        self.csv_filename = f'simex_output-{self.instance_name}'
         self.ops_title = f'Optimal Curve for {self.instance_name}'
         self.vfs_title = f'Fitted Curve with unfit Intervals for {self.instance_name}'
-        self.results_dir = f'Fitted Curve with unfit Intervals for {self.instance_name}'
-
-
-# vfs = {'threshold_y_fitting': 15,  # Threshold on the y axis
-#        'threshold_x_interval': 0.80,  # For unfit point expand by threshold_x_interval to each side to close unfit interval
-#        'degree': 2,  # Minimum degree for exploration. We start with polyfit in x^degree
-#        'max_deg': 9,  # Max degree for exploration to which degree we try to fit function x^max_degree
-#        'early_stop': True,  # if early_stop = True and improvement is not acceptable by increasing dimension, we stop
-#        'improvement_threshold': 0.1,  # Sufficient improvement threshold (previous_mse - current_mse) >= improvement_threshold
-#        'penality_weight': 1,  # Penalty for MSE to avoid overfitting with high dimension polynomial
-#        'x_labels': 'Traffic volume [veh/h]',  # Y axis label name validator graph
-#        'y_labels': 'TTS [veh$\cdot$h]',  # Y axis label name validator graph
-#        'title': f'Fitted Curve with unfit Intervals for {os.environ["INSTANCE_NAME"]}',  # Title for validator graph
-#        'figsize_x': 12,  # X size of the figure
-#        'figsize_y': 6,  # Y size of the figure
-#        'font_size': 12  # Fontsize in the figure
-#        }
+        self.results_dir = f'results_dir_{self.instance_name}-{timestamp}'
 
 ## Data and settings for log purposes ##
 # These settings are filled during the runtime and used as a global data structure for the logger statistics.
@@ -132,7 +116,6 @@ vgs = {"points_fitting_total": 0,  # Not used TODO: Should be refactored
 # 3 detailed)
 lgs = {"log_granularity": 3}
 
-
 def get_path():
     if os.path.isfile("sumo_config.ini"):
         import configparser
@@ -149,91 +132,3 @@ def get_path():
 class SumoVsl:
     model_path: str = get_path()["model_path"]
     sumo_path: str = get_path()["sumo_path"]
-
-# SimexSettings = {"do_plot": False,  # Plots generated datapoints for modifier.
-#                  "extensive_search": False,  # Complete exploration setting modifier_data_point to 1 and enabling extensive iteration
-#                  "extensive_iteration": False,  # Gets enabled when extensive search is True. TODO: should be refactored
-#                  "SimEx_mode": "exploration",  # Only exploration implemented
-#                  "max_workers": 14,  # Maximum workers for the parallelization ( numbers of processors on the machine )
-#                  #"results_dir": f"results_dir_{os.environ['INSTANCE_NAME']}-{timestamp}"
-#                  }
-
-# @dataclass
-# class Mds:
-#     domain_min_interval: int = 2500
-#     domain_max_interval: int = 4000
-#     modifier_incremental_unit: int = 25
-#     modifier_data_point: int = 100
-#     add_first_last_points: bool = True
-# # Modifier Domain Settings
-# mds = {"domain_min_interval": 2500,
-#         "domain_max_interval": 4000,
-#         "modifier_incremental_unit": 25,  # Minimal incremental unit is the smallest allowed step_size. Note: If extensive search True then minimal increment is set to 1
-#         "modifier_data_point": 100,  # Data point step size on the X axis in the first round. In next iterations
-#                                    # modifier_data_point = modifier_data_point - modifier_incremental_unit until modifier_data_point < minimal_increment_unit.
-#         "add_first_last_points": True  # Add first point and the last point the modified intervals
-#        }
-
-# @dataclass
-# class Vfs:
-#     threshold_y_fitting: int = 15
-#     threshold_x_interval: float = 0.80
-#     degree: int = 2
-#     max_deg: int = 9
-#     early_stop: bool = True
-#     improvement_threshold: float = 0.1
-#     penality_weight: int = 1
-#     x_labels: str = 'Traffic volume [veh/h]'
-#     y_labels: str = 'TTS [veh$\cdot$h]'
-#     title: str = f'Fitted Curve with unfit Intervals for {SimexSettings.instance_name}'
-#     figsize_x: int = 12
-#     figsize_y: int = 6
-#     font_size: int = 12
-
-# Validator Function Settings
-# For each fitted function we calculate Mean squared error(MSE):
-# https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html
-# MSE ( (y_values, current_y_pred) + penality_weight * np.sum(current_coeff[:-1] ** 2) ) and compare it to the previous
-# We consider improvement acceptable if: (previous_mse - current_mse) >= improvement_threshold
-# vfs = {'threshold_y_fitting': 15,  # Threshold on the y axis
-#        'threshold_x_interval': 0.80,  # For unfit point expand by threshold_x_interval to each side to close unfit interval
-#        'degree': 2,  # Minimum degree for exploration. We start with polyfit in x^degree
-#        'max_deg': 9,  # Max degree for exploration to which degree we try to fit function x^max_degree
-#        'early_stop': True,  # if early_stop = True and improvement is not acceptable by increasing dimension, we stop
-#        'improvement_threshold': 0.1,  # Sufficient improvement threshold (previous_mse - current_mse) >= improvement_threshold
-#        'penality_weight': 1,  # Penalty for MSE to avoid overfitting with high dimension polynomial
-#        'x_labels': 'Traffic volume [veh/h]',  # Y axis label name validator graph
-#        'y_labels': 'TTS [veh$\cdot$h]',  # Y axis label name validator graph
-#        'title': f'Fitted Curve with unfit Intervals for {os.environ["INSTANCE_NAME"]}',  # Title for validator graph
-#        'figsize_x': 12,  # X size of the figure
-#        'figsize_y': 6,  # Y size of the figure
-#        'font_size': 12  # Fontsize in the figure
-#        }
-
-# @dataclass
-# class Ops:
-#     x_labels: str = 'Traffic volume [veh/h]'
-#     y_labels: str = 'TTS [veh$\cdot$h]'
-#     title: str = f'Optimal Curve for {SimexSettings.instance_name}'
-#     figsize_x: int = 10
-#     figsize_y: int = 5
-#     linewidth: int = 3
-#     number_x_points: int = 400
-#     predicted_points: bool = True
-#     sigmoid_width: int = 15
-#     threshold_plot: bool = True
-#     sigmoid_tailing: bool = True
-# # Overall plot settings (the last plot with all the functions)
-# ops = {
-#     'x_labels': 'Traffic volume [veh/h]',
-#     'y_labels': 'TTS [veh$\cdot$h]',
-#     'title': f'Total fitted curves for {os.environ["INSTANCE_NAME"]} case',
-#     'figsize_x': 10,  # X size of the figure
-#     'figsize_y': 5,   # Y size of the figure
-#     'linewidth': 3,  # Linewidth for the functions plotted
-#     'number_x_points': 400,  # Number of points for last graph
-#     'predicted_points': True,  # Plot predicted points
-#     'sigmoid_width': 15,
-#     'threshold_plot': True,  # Plot the threshold in the final plot
-#     'sigmoid_tailing': True   # Enable sigmoid tailing
-#     }
