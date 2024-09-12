@@ -1,5 +1,4 @@
 from concurrent.futures import ProcessPoolExecutor
-from global_settings import SimexSettings
 
 class SimulatorController:
 
@@ -16,7 +15,7 @@ class SimulatorController:
         # print('  * Sim_y:   ', simulated_y)
         return flat_mod_x, simulated_y
 
-    def simulate_parallel(mod_x, selected_simulator):
+    def simulate_parallel(mod_x, selected_simulator, workers):
         print("Simulator...")
         print(mod_x)
         if mod_x is False:
@@ -25,7 +24,7 @@ class SimulatorController:
 
         flat_mod_x = [item for sublist in mod_x for item in sublist]
         print(f"Flatten mod_x {flat_mod_x}")
-        with ProcessPoolExecutor(max_workers=SimexSettings.max_workers) as executor:
+        with ProcessPoolExecutor(max_workers=workers) as executor:
             simulated_y = list(executor.map(selected_simulator, flat_mod_x))
 
             print("Simulation output:", simulated_y)

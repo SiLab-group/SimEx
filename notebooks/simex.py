@@ -59,7 +59,7 @@ def run_simex(simulator_function, modifier, validator, instance_name):
             break
 
         # Calls Simulator
-        mod_x, sim_y_list = SimulatorController.simulate_parallel(mod_x_list, selected_simulator=simulator_function)
+        mod_x, sim_y_list = SimulatorController.simulate_parallel(mod_x_list, selected_simulator=simulator_function, workers=sim.max_workers)
         print(f"MODX {mod_x} and sim_y_list {sim_y_list}")
         assert len(mod_x) == len(sim_y_list)
 
