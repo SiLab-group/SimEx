@@ -20,7 +20,7 @@ pip3 install -r requirementsAMY.txt
 ```
 2. Create venv environment and install the dependencies Windows. Tested only with VSCODE:
    - Run vscode
-   - Open the Notebook to run: Select kernel -> Create new environment .venv -> Select requriementsAmy.txt -> Run the jupyter notebook
+   - Open the Notebook to run: Select kernel -> Create new environment .venv -> Select requriements.txt -> Run the jupyter notebook
 3. Run jupyter-lab in the environment
 4. Set the sumo model path and the sumo binary path in the `notebooks/sumo_config.ini`.
 ```bash
