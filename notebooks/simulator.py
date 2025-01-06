@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import os
 # Sumo vsl imports
 import traci
 import sim_get_set as sim
@@ -48,7 +49,9 @@ class Simulator:
 
         # SUMO variables
         # Adjust path for the sumo
-        root = SumoVsl.model_path
+        # Get root path of the directory
+        root = os.path.dirname(os.getcwd())
+        model_path = f"{root}/{SumoVsl.model_path}/"
         sumoBinary = SumoVsl.sumo_path
         def SUMO_Cmd(seed_ID):
             # def SUMOCmd():
@@ -57,7 +60,7 @@ class Simulator:
             # rnd=random.randint(20000, 30000)
             rnd = seeds[seed_ID]
             # sumoCmd = [sumoBinary, "-c", root + "highway_model.sumocfg", "--seed", str(rnd), "--start", "1", "--quit-on-end", "1","--remote-port", "9999"]
-            sumoCmd = [sumoBinary, "-c", root + "highway_model.sumocfg", "--seed", str(rnd), "--start", "1","--quit-on-end","1"]
+            sumoCmd = [sumoBinary, "-c", model_path + "highway_model.sumocfg", "--seed", str(rnd), "--start", "1","--quit-on-end","1"]
             return sumoCmd
         
         #==================================================================
@@ -143,7 +146,8 @@ class Simulator:
 
         # SUMO variables
         # Adjust path for the sumo
-        root = SumoVsl.model_path
+        root = os.path.dirname(os.getcwd())
+        model_path = f"{root}/{SumoVsl.model_path}/"
         sumoBinary = SumoVsl.sumo_path
 
         def SUMO_Cmd(seed_ID):
@@ -152,7 +156,7 @@ class Simulator:
             seeds = [28815]
             # rnd=random.randint(20000, 30000)
             rnd = seeds[seed_ID]
-            sumoCmd = [sumoBinary, "-c", root + "highway_model.sumocfg", "--seed", str(rnd), "--start", "1",
+            sumoCmd = [sumoBinary, "-c", model_path + "highway_model.sumocfg", "--seed", str(rnd), "--start", "1",
                        "--quit-on-end", "1"]
             return sumoCmd
 

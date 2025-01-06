@@ -45,7 +45,7 @@ class ValidatorController:
                 if len(unfit_points) < 2:
                     print("This is UNFIT POINTS ", unfit_points)
                     # validator_unfit_intervals.append(each_interval)
-                    self.logger_validator_arguments = {"log_contex": "internal VAL stats",
+                    logger_validator_arguments = {"log_contex": "internal VAL stats",
                                                   "new_unfit_interval": each_interval, "unfit_points": unfit_points}
                     self.logger.log_validator(logger_validator_arguments)
 

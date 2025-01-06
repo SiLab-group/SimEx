@@ -59,7 +59,7 @@ class SimexSettings:
     domain_max_interval: int = 4000
     modifier_incremental_unit: int = 25
     modifier_data_point: int = 100
-    add_first_last_points: bool = True
+    add_first_last_points: bool = False
     vfs_threshold_y_fitting: int = 15
     vfs_threshold_x_interval: float = 0.80
     vfs_degree: int = 2
