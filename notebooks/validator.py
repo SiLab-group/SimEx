@@ -3,7 +3,6 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from global_settings import timestamp
-from logger_utils import Logger
 from sklearn.metrics import mean_squared_error
 
 
@@ -69,7 +68,6 @@ class Validator:
                     coeff = current_coeff
                     intersect = current_intersect
                     y_pred = current_y_pred
-            
             degree += 1
         equation = self.build_equation_string(coeff)
         # print("\n\nCALLED FIT_CURVE")
@@ -259,4 +257,3 @@ class Validator:
 
     def get_curve_values(self):
         return self.fitted_curve, self.predicted_values, self.unfit_interval
-

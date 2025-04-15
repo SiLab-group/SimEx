@@ -99,8 +99,8 @@ class Simex:
         logger.log_main(logger_main_arguments)
 
         # Save data for the last plot located in logger object
-        save_object(logger.all_fit_intervals_data
-                    ,os.path.join(results_dir ,f"logger-vsl_script-fitted_intervals-{timestamp}.pkl"))
+        save_object(logger.all_fit_intervals_data, os.path.join(results_dir,
+                                                                f"logger-vsl_script-fitted_intervals-{timestamp}.pkl"))
         # If not empty
         if logger.remaining_unfit_intervals:
             save_object(logger.remaining_unfit_intervals

@@ -27,6 +27,9 @@ class FunctionValues:
     x_values: np.ndarray
     y_values: np.ndarray
 
+def transition(x, x_conn, width):
+    return 1.0 / (1.0 + np.exp(-2 / width * (x - x_conn)))
+
 
 class Logger:
 
@@ -307,7 +310,6 @@ class Logger:
         plt.legend()
         plt.show()
 
-
     def _plot_results_tailing(self, all_fit_intervals_data, remaining_unfit_intervals):
         # Create graph
         _, ax = plt.subplots(figsize=(self.settings.ops_figsize_x, self.settings.ops_figsize_y))
@@ -343,10 +345,6 @@ class Logger:
                 print(f"FIT POINT: {fit_point}")
                 x_point.append(fit_point[0])
                 y_point.append(fit_point[1])
-
-        def transition(x, x_conn, width=self.settings.ops_sigmoid_width):
-            return 1.0 / (1.0 + np.exp(-2 / width * (x - x_conn)))
-
         # Fit the y values for the generated x
         y_values = [fun.func_form(x) for fun in funcs]
         # Initialize the first function as base for the combined
@@ -357,7 +355,7 @@ class Logger:
             # Compute the transition values
             print(f"Connection points: {connection_points} and length: {len(connection_points)}")
             print(f"Functions: {funcs} and length: {len(funcs)}")
-            t = transition(x, connection_points[i - 1])
+            t = transition(x, connection_points[i - 1], self.settings.ops_sigmoid_width)
             # Update the combined function
             y = (1 - t) * y + t * y_values[i]
 

@@ -1,6 +1,5 @@
 # Overall SimEx settings
 # possible modes exploration (this one) and exploitation (mod with prob trees)
-import os
 import datetime
 from dataclasses import dataclass, field
 

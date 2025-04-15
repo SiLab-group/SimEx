@@ -1,6 +1,7 @@
 import numpy as np
 import math
 
+
 class Simulator:
 
     def sim_func_A(x):
