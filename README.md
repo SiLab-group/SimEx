@@ -1,5 +1,8 @@
 # SimEx
-This repository contains Systematic exploration tool.
+This repository contains Systematic exploration tool. This tool was used in the Evaluation of the traffic controller use case. This usecase can be found in the branch [traffic_simulator_case](https://github.com/SiLab-group/SimEx/tree/traffic_simulator_case) [1].
+
+[1] K. Kušić et al., "Evaluation of Traffic Controller Performance via Systematic Exploration," 2024 International Symposium ELMAR, Zadar, Croatia, 2024, pp. 165-168, doi: [10.1109/ELMAR62909.2024.10694499](https://ieeexplore.ieee.org/document/10694499).
+
 
 ## TODO
 Make Simex Library with proper directory structure and not notebooks. Use the notebooks only as an example.
