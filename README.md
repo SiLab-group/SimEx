@@ -7,13 +7,9 @@ Make Simex Library with proper directory structure and not notebooks. Use the no
 ## Run Simex-sumo simulation
 To run the simulation the jupyter notebook or normal python script can be used. Follow the instructions in the 
 notebook to setup the settings for the sumo and model path.
-1. VSL: `notebooks/SimEx_sumo_vsl_notebook.ipynb` or `notebooks/sumo_vsl_run.py`
-2. NOVSL: `notebooks/SimEx_sumo_novsl_notebook.ipynb` or `notebooks/sumo_novsl_run.py`
-3. Loop for training controller can be run in `notebooks/SimEx_loop.ipynb` or `notebooks/vsl_loop.py`.
+1. Test notebook: `notebooks/SimEx_test_notebook.ipynb`
 
 ## Install and run jupyter notebook
-All the sumo related functions were tested and run with sumo 1.21.0 be aware that different versions of sumo can 
-give different results.
 1. Create venv environment and install the dependencies Linux:
 ```bash
 # Creates environment in the .venv directory
