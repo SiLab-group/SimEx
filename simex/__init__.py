@@ -5,8 +5,8 @@ A Python package for systematic exploration of simulation models.
 This tool was used in the Evaluation of the traffic controller use case.
 
 Reference:
-K. Kušić et al., "Evaluation of Traffic Controller Performance via Systematic 
-Exploration," 2024 International Symposium ELMAR, Zadar, Croatia, 2024, 
+K. Kušić et al., "Evaluation of Traffic Controller Performance via Systematic
+Exploration," 2024 International Symposium ELMAR, Zadar, Croatia, 2024,
 pp. 165-168, doi: 10.1109/ELMAR62909.2024.10694499.
 """
 
@@ -20,7 +20,7 @@ from .core.settings import SimexSettings
 
 # Component imports
 from .components.modifier import Modifier
-from .components.simulator import Simulator  
+from .components.simulator import Simulator
 from .components.validator import Validator
 
 # Controller imports
@@ -38,20 +38,16 @@ __all__ = [
     # Core classes
     "Simex",
     "SimexSettings",
-    
     # Components
-    "Modifier", 
+    "Modifier",
     "Simulator",
     "Validator",
-    
     # Controllers
     "ModifierController",
-    "SimulatorController", 
+    "SimulatorController",
     "ValidatorController",
-    
     # Utils
     "Logger",
-    
     # Config
     "components",
 ]

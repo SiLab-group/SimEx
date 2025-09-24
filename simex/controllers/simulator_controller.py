@@ -1,5 +1,6 @@
 from concurrent.futures import ProcessPoolExecutor
 
+
 class SimulatorController:
 
     def simulate(mod_x, selected_simulator):
@@ -8,7 +9,7 @@ class SimulatorController:
         if mod_x is False:
             return False  # Possible iterations have ended
         print(f" IN SIMULATE: {mod_x}")
-        
+
         flat_mod_x = [item for sublist in mod_x for item in sublist]
         print(f"Flatten mod_x {flat_mod_x}")
         simulated_y = [selected_simulator(x) for x in flat_mod_x]

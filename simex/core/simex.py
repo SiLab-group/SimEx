@@ -3,11 +3,14 @@ import numpy as np
 from .settings import SimexSettings, timestamp
 from ..utils import Logger
 
+
 class Simex:
     def __init__(self, instance_name, smoothen):
         self.instance_name = instance_name
         self.smoothen = smoothen
-        self.settings = SimexSettings(instance_name=instance_name, ops_sigmoid_tailing=smoothen)
+        self.settings = SimexSettings(
+            instance_name=instance_name, ops_sigmoid_tailing=smoothen
+        )
 
     def run_simex(self, simulator_function, modifier, validator, parallel=True):
 
@@ -16,7 +19,7 @@ class Simex:
         print(f"Instance name {sim.instance_name}")
         resultdir = f"results_dir_{sim.instance_name}-{timestamp}"
         # Create directory for the results
-        script_dir = os.path.abspath('')
+        script_dir = os.path.abspath("")
         results_dir = os.path.join(script_dir, resultdir)
         sim.results_dir = results_dir
 
@@ -24,22 +27,27 @@ class Simex:
             os.makedirs(results_dir)
             print(f"Results dir {results_dir}")
 
-        from ..controllers import ValidatorController, ModifierController, SimulatorController
+        from ..controllers import (
+            ValidatorController,
+            ModifierController,
+            SimulatorController,
+        )
 
         import pickle
 
         def save_object(obj, filename):
-            with open(filename, 'wb') as outp:  # Overwrites any existing file.
+            with open(filename, "wb") as outp:  # Overwrites any existing file.
                 pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
-
-        logger = Logger(filename=os.path.join(results_dir, f"{sim.log_filename}-{timestamp}.txt"), simex_settings=sim)
+        logger = Logger(
+            filename=os.path.join(results_dir, f"{sim.log_filename}-{timestamp}.txt"),
+            simex_settings=sim,
+        )
         validator_controller = ValidatorController(logger, settings=sim)
         modifier_controller = ModifierController(logger, settings=sim)
         logger_main_arguments = {}
         is_main_func = True
         # Initialize interval list for the first iteration
-
 
         intervals_list = [[sim.domain_min_interval, sim.domain_max_interval]]
         # Timestamp for the validator pickle file
@@ -48,25 +56,36 @@ class Simex:
         while is_main_func:
             # Calls Modifier Controller
             # NOTE: intervals_list type is set to np.int64 due to: https://github.com/numpy/numpy/issues/8433 on windows
-            mod_outcome = modifier_controller.control(intervals_list=intervals_list, selected_modifier=modifier,
-                                                     do_plot=sim.do_plot)
+            mod_outcome = modifier_controller.control(
+                intervals_list=intervals_list,
+                selected_modifier=modifier,
+                do_plot=sim.do_plot,
+            )
             mod_x_list = mod_outcome[0]
             checked_intervals = mod_outcome[1]
             print("MAIN mod outcome", mod_outcome)
 
             # breaks loop if iterations end by granularity reached
-            if not mod_x_list:  # FALSE IF ['modifier_data_point'] < mdv['modifier_incremental_unit']:
-                logger_main_arguments['log_contex'] = 'overall MAIN stats'
-                logger_main_arguments['main_status'] = 'no generated points'
-                logger_main_arguments['remaining_unfit_intervals'] = checked_intervals
+            if (
+                not mod_x_list
+            ):  # FALSE IF ['modifier_data_point'] < mdv['modifier_incremental_unit']:
+                logger_main_arguments["log_contex"] = "overall MAIN stats"
+                logger_main_arguments["main_status"] = "no generated points"
+                logger_main_arguments["remaining_unfit_intervals"] = checked_intervals
                 logger.log_main(logger_main_arguments)
                 break
 
             # Calls Simulator
             if parallel:
-                mod_x, sim_y_list = SimulatorController.simulate_parallel(mod_x_list, selected_simulator=simulator_function, workers=sim.max_workers)
+                mod_x, sim_y_list = SimulatorController.simulate_parallel(
+                    mod_x_list,
+                    selected_simulator=simulator_function,
+                    workers=sim.max_workers,
+                )
             else:
-                mod_x, sim_y_list = SimulatorController.simulate(mod_x_list, selected_simulator=simulator_function)
+                mod_x, sim_y_list = SimulatorController.simulate(
+                    mod_x_list, selected_simulator=simulator_function
+                )
 
             print(f"MODX {mod_x} and sim_y_list {sim_y_list}")
             assert len(mod_x) == len(sim_y_list)
@@ -74,10 +93,12 @@ class Simex:
             print("MAIN modx", mod_x)
 
             # Calls Validator controller
-            intervals_list = validator_controller.validate(mod_x_list=np.array(mod_x), sim_y_list=np.array(sim_y_list),
-                                                               selected_validator=validator,
-                                                               global_interval=[sim.domain_min_interval,
-                                                                                sim.domain_max_interval])
+            intervals_list = validator_controller.validate(
+                mod_x_list=np.array(mod_x),
+                sim_y_list=np.array(sim_y_list),
+                selected_validator=validator,
+                global_interval=[sim.domain_min_interval, sim.domain_max_interval],
+            )
             print("MAIN interval list from VAL:", intervals_list)
             # Loop number ( Loop-1,Loop-2..etc)
             count += 1
@@ -87,24 +108,32 @@ class Simex:
             # No more unfit intervals -> write MAIN log
             if not intervals_list:
                 is_main_func = False
-                logger_main_arguments['log_contex'] = 'overall MAIN stats'
-                logger_main_arguments['main_status'] = 'no unfit intervals'
+                logger_main_arguments["log_contex"] = "overall MAIN stats"
+                logger_main_arguments["main_status"] = "no unfit intervals"
                 logger.log_main(logger_main_arguments)
 
         # MAIN cycle completed/interrupted -> write OVERALL statistics
-        logger_main_arguments['log_contex'] = 'Overall Stats'
-        logger_main_arguments['main_status'] = 'end cycle'
+        logger_main_arguments["log_contex"] = "Overall Stats"
+        logger_main_arguments["main_status"] = "end cycle"
         logger.log_main(logger_main_arguments)
 
         # Save data for the last plot located in logger object
-        save_object(logger.all_fit_intervals_data, os.path.join(results_dir,
-                                                                f"logger-vsl_script-fitted_intervals-{timestamp}.pkl"))
+        save_object(
+            logger.all_fit_intervals_data,
+            os.path.join(
+                results_dir, f"logger-vsl_script-fitted_intervals-{timestamp}.pkl"
+            ),
+        )
         # If not empty
         if logger.remaining_unfit_intervals:
-            save_object(logger.remaining_unfit_intervals
-                        ,os.path.join(results_dir ,f"logger-vsl_script-unfitted_intervals-{timestamp}.pkl"))
+            save_object(
+                logger.remaining_unfit_intervals,
+                os.path.join(
+                    results_dir, f"logger-vsl_script-unfitted_intervals-{timestamp}.pkl"
+                ),
+            )
         # print(f"Logger object saved with timestamp {timestamp}")
         file = f"{sim.csv_filename}-{timestamp}.csv"
-        file_path = os.path.join(results_dir ,file)
+        file_path = os.path.join(results_dir, file)
         print(f"{file_path}")
         return file_path
