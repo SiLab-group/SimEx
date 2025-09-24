@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simex"
+version = "1.0.0"
+authors = [
+    {name = "Silab Team", email = "amy.liffey@hevs.ch"},
+]
+description = "Systematic exploration tool for simulation and modeling"
+readme = "README.md"
+license = {text = "Apache 2.0"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "matplotlib>=3.8.0",
+    "numpy>=1.26.0",
+    "scikit-learn>=1.3.0",
+    "pandas>=2.2.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=2.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "jupyter>=1.0",
+    "notebook>=6.0",
+]
+
+[project.scripts]
+simex-run = "examples.simex_run:main"
+
+[project.urls]
+Homepage = "https://github.com/SiLab-group/SimEx"
+Repository = "https://github.com/SiLab-group/SimEx.git"
+Issues = "https://github.com/SiLab-group/SimEx/issues"
+
+[tool.setuptools.packages.find]
+include = ["simex*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--cov=simex --cov-report=html --cov-report=term-missing"
