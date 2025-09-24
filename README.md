@@ -1,6 +1,7 @@
 # SimEx - Systematic Exploration Tool
-
 A Python package for systematic exploration of simulation models. This tool was used in the evaluation of traffic controller use cases and provides a framework for systematic parameter space exploration with adaptive sampling.
+
+<img width="3330" height="878" alt="logic_schema-1" src="https://github.com/user-attachments/assets/83fa8bf7-05c5-4074-9a49-df960e6351d6" />
 
 ## Reference
 
