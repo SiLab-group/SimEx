@@ -3,7 +3,7 @@
 Example script showing how to use the SimEx package.
 """
 
-import time
+import time, argparse
 from simex import Simex, Simulator, Modifier, Validator
 
 
@@ -87,15 +87,25 @@ def example_parallel_vs_sequential():
     print(f"Speedup:    {seq_time/par_time:.2f}x")
 
 
-if __name__ == "__main__":
-    import sys
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Run SimEx simulations with optional modes."
+    )
+    parser.add_argument(
+        "mode",
+        nargs="?",
+        choices=["custom", "compare"],
+        help="Optional mode: 'custom' for custom settings, 'compare' for parallel vs sequential comparison."
+    )
+    return parser.parse_args()
 
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "custom":
-            example_custom_settings()
-        elif sys.argv[1] == "compare":
-            example_parallel_vs_sequential()
-        else:
-            print("Usage: python simex_run.py [custom|compare]")
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    if args.mode == "custom":
+        example_custom_settings()
+    elif args.mode == "compare":
+        example_parallel_vs_sequential()
     else:
         main()
