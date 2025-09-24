@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "simex"
 version = "1.0.0"
 authors = [
-    {name = "Silab Team", email = "amy.liffey@hevs.ch"},
+    {name = "Si-lab Team", email = "amy.liffey@hevs.ch"},
 ]
 description = "Systematic exploration tool for simulation and modeling"
 readme = "README.md"
@@ -46,7 +46,7 @@ Repository = "https://github.com/SiLab-group/SimEx.git"
 Issues = "https://github.com/SiLab-group/SimEx/issues"
 
 [tool.setuptools.packages.find]
-include = ["simex*"]
+include = ["simex*","examples*"]
 
 [tool.black]
 line-length = 88
