@@ -27,8 +27,8 @@ except FileNotFoundError:
 setup(
     name='simex',
     version='1.0.0',
-    author='SimEx Team',
-    author_email='simex@silab.group',
+    author='Si-lab Team',
+    author_email='amy.liffey@hevs.ch',
     description='Systematic exploration tool for simulation and modeling',
     long_description=long_description,
     long_description_content_type='text/markdown',

@@ -67,6 +67,8 @@ class Modifier:
         return temp
 
     def modifierB(x, new_min, new_max):
+        # Convert to numpy array if it's a list
+        x = np.array(x) if isinstance(x, list) else x
         temp = x * 2 / 3
         temp = Modifier.rescale(temp, new_min, new_max)
         return temp
