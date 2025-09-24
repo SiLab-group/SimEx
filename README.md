@@ -1,54 +1,200 @@
-# SimEx
-This repository contains Systematic exploration tool. This tool was used in the Evaluation of the traffic controller use case. This usecase can be found in the branch [traffic_simulator_case](https://github.com/SiLab-group/SimEx/tree/traffic_simulator_case) [1].
+# SimEx - Systematic Exploration Tool
 
-[1] K. Kušić et al., "Evaluation of Traffic Controller Performance via Systematic Exploration," 2024 International Symposium ELMAR, Zadar, Croatia, 2024, pp. 165-168, doi: [10.1109/ELMAR62909.2024.10694499](https://ieeexplore.ieee.org/document/10694499).
+A Python package for systematic exploration of simulation models. This tool was used in the evaluation of traffic controller use cases and provides a framework for systematic parameter space exploration with adaptive sampling.
 
+## Reference
 
-## TODO
-Make Simex Library with proper directory structure and not notebooks. Use the notebooks only as an example.
+K. Kušić et al., "Evaluation of Traffic Controller Performance via Systematic Exploration," 2024 International Symposium ELMAR, Zadar, Croatia, 2024, pp. 165-168, doi: [10.1109/ELMAR62909.2024.10694499](https://ieeexplore.ieee.org/document/10694499).
 
-## Run Simex-sumo simulation
-To run the simulation the jupyter notebook or normal python script can be used. Follow the instructions in the 
-notebook to setup the settings for the sumo and model path.
-1. Test notebook: `notebooks/SimEx_test_notebook.ipynb`
+## Installation
 
-## Install and run jupyter notebook
-1. Create venv environment and install the dependencies Linux:
+[//]: # (### From PyPI &#40;when published&#41;)
+
+[//]: # (```bash)
+
+[//]: # (pip install simex)
+
+[//]: # (```)
+
+### From Source
 ```bash
-# Creates environment in the .venv directory
+git clone https://github.com/SiLab-group/SimEx.git
+cd SimEx
+
+# Create virtual environment
 python3 -m venv .venv
-# Activate the environment
-source .venv/bin/activate
-# Install dependencies
-pip3 install -r requirements.txt
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install in development mode
+pip install -e .
+
+# Or run the setup script
+chmod +x setup_venv.sh
+./setup_venv.sh
 ```
-1.Create venv environment and install the dependencies Windows. Tested only with VSCODE:
-   - Run vscode
-   - Open the Notebook to run: Select kernel -> Create new environment .venv -> Select requirements.txt -> Run the jupyter notebook
-3. Run jupyter-lab in the environment
-5. Setting of the default parameters in the `notebooks/global_settings.py` and per instance when calling `run_simex` function located in `notebooks/simex.py` module.
+
+### For Development
+```bash
+# Install with development dependencies
+pip install -e ".[dev]"
+
+# Or install from requirements
+pip install -r requirements-dev.txt
+```
+
+## Quick Start
+
+### Basic Usage
+
 ```python
-from simulator import Simulator
-from validator import Validator
-from modifier import Modifier
-from simex import Simex
-# All default parameters can be overriden here when calling the run_simex function
-sim= Simex(instance_name='Test', smoothen=False)
-base_file = sim.run_simex(simulator_function=Simulator.sim_func_A,
-                                                modifier=Modifier.modifierA,
-                                                validator=Validator.local_exploration_validator_A, parallel=True)
-print(f"Run finished. CSV file is {base_file}")
+import time
+from simex import Simex, Simulator, Modifier, Validator
+
+# Create and run simulation
+before = time.time()
+sim = Simex(instance_name='Func_A', smoothen=False)
+file = sim.run_simex(
+    simulator_function=Simulator.sim_func_A,
+    modifier=Modifier.modifierA,
+    validator=Validator.local_exploration_validator_A
+)
+
+print(f"Run finished. CSV file is {file}")
+print(f"Run time: {(time.time()-before)/60} minutes")
 ```
-The file `simex.py` contains instance of simex which can be copied out to run modifier, simulator, validator decoupled without whole simex instance.
-6. Run `notebooks/SimEx_test_notebook.ipynb` or `simex_run.py`
-7. The results of each simulation run are saved into the results directory, which name is defined in `notebooks/global_settings.py`.
 
+### Custom Configuration
 
+```python
+from simex import SimexSettings, Simex
 
-## Time comparison for parallelization of simulation runs
+# Custom settings
+settings = SimexSettings(
+    instance_name='custom_run',
+    domain_min_interval=1000,
+    domain_max_interval=5000,
+    modifier_incremental_unit=10,
+    vfs_threshold_y_fitting=20,
+    ops_sigmoid_tailing=True
+)
 
-| Solution                        | VSL runtime (min)   | NOVSL runtime (min)|
-|:--------------------------------|:-------------------:|:------------------:|
-| ProcessPoolExecutor             |  9.776681780815125  | 11.462244868278503 |
-| ThreadPoolExecutor with Process |  9.74341140985489   | 11.33800235191981  |
-| No parallelization              | 33.91311665376028   |  36.22358120282491 |
+sim = Simex(instance_name='custom_run', smoothen=True)
+sim.settings = settings
+
+# Run with custom settings
+file = sim.run_simex(
+    simulator_function=Simulator.sim_func_B,
+    modifier=Modifier.modifierB,
+    validator=Validator.local_exploration_validator_A
+)
+```
+
+### Available Components
+
+#### Simulators
+- `Simulator.sim_func_A`: Cubic function with noise
+- `Simulator.sim_func_B`: Sinusoidal function with noise  
+- `Simulator.sim_func_C`: Complex function with sine and linear components
+
+#### Modifiers
+- `Modifier.modifierA`: Quadratic transformation with rescaling
+- `Modifier.modifierB`: Linear transformation with rescaling
+- `Modifier.modifierC`: Cubic transformation with rescaling
+
+#### Validators
+- `Validator.local_exploration_validator_A`: Polynomial fitting with unfit interval detection
+
+## Command Line Usage
+
+After installation, you can use the command line interface:
+
+```bash
+# Run basic example
+simex-run
+
+# Run with custom settings
+python examples/simex_run.py custom
+
+# Compare parallel vs sequential
+python examples/simex_run.py compare
+```
+
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=simex
+
+# Run specific test file
+pytest tests/test_simex.py -v
+```
+
+### Code Formatting
+
+```bash
+# Format code with black
+black simex/ tests/ examples/
+
+# Check code style
+flake8 simex/ tests/ examples/
+```
+
+### Package Structure
+
+```
+simex/
+├── simex/                  # Main package
+│   ├── core/              # Core functionality
+│   ├── components/        # Modifiers, simulators, validators
+│   ├── controllers/       # Control logic
+│   ├── utils/            # Utilities and logging
+│   └── config/           # Configuration
+├── tests/                # Test suite
+├── examples/            # Usage examples
+└── docs/               # Documentation
+```
+
+## Configuration
+
+### Key Settings
+
+- `domain_min_interval` / `domain_max_interval`: Exploration domain bounds
+- `modifier_incremental_unit`: Minimum step size for exploration
+- `modifier_data_point`: Initial step size for point generation
+- `vfs_threshold_y_fitting`: Y-axis threshold for curve fitting
+- `vfs_degree` / `vfs_max_deg`: Polynomial fitting degree range
+- `max_workers`: Number of parallel processes for simulation
+
+### Logging and Output
+
+The tool generates into the results_dir_NAME_timestamp directore following files:
+- **CSV files**: Final results with fitted polynomial coefficients
+- **PDF plots**: Visualization of fitted curves and unfit intervals
+- **Log files**: Detailed execution logs
+- **Pickle files**: Intermediate results for analysis
+
+## Performance Comparison
+
+The tool supports both sequential and parallel execution:
+
+| Solution                 | Runtime Improvement |
+|:-------------------------|:-------------------:|
+| ProcessPoolExecutor      | ~3.5x faster        |
+| Sequential (baseline)    | 1x                  |
+
+## Examples
+
+See the `examples/` directory for:
+- Basic usage example: simex_run.py
+- `notebooks`: SimEx_test_notebook.ipynb
+
+## Support
+
+For issues and questions:
+- GitHub Issues: [https://github.com/SiLab-group/SimEx/issues](https://github.com/SiLab-group/SimEx/issues)
+- Email: amy.liffey@hevs.ch

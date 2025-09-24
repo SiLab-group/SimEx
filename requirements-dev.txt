@@ -1,0 +1,9 @@
+-r requirements.txt
+pytest>=6.0
+pytest-cov>=2.0
+black>=22.0
+flake8>=4.0
+jupyter>=1.0
+notebook>=6.0
+sphinx>=4.0
+sphinx-rtd-theme>=1.0
