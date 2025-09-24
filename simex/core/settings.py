@@ -4,6 +4,8 @@ import datetime
 from dataclasses import dataclass, field
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+
 @dataclass
 class SimexSettings:
     """Define variables for the settings of the Simex
@@ -48,6 +50,7 @@ class SimexSettings:
     log_filename (str): Filename for the log file. Default name is set to 'LOG-{self.instance_name}'.
     csv_filename (str): Final csv filename with the results. Default name is set to 'simex_output-{instance_name}'.
     """
+
     instance_name: str
     do_plot: bool = False
     extensive_search: bool = False
@@ -66,14 +69,14 @@ class SimexSettings:
     vfs_early_stop: bool = True
     vfs_improvement_threshold: float = 0.1
     vfs_penality_weight: int = 1
-    vfs_x_labels: str = 'Traffic volume [veh/h]'
-    vfs_y_labels: str = 'TTS [veh$\cdot$h]'
+    vfs_x_labels: str = "Traffic volume [veh/h]"
+    vfs_y_labels: str = "TTS [veh$\cdot$h]"
     vfs_figsize_x: int = 12
     vfs_figsize_y: int = 6
     vfs_font_size: int = 12
     vfs_title: str = field(init=False)
-    ops_x_labels: str = 'Traffic volume [veh/h]'
-    ops_y_labels: str = 'TTS [veh$\cdot$h]'
+    ops_x_labels: str = "Traffic volume [veh/h]"
+    ops_y_labels: str = "TTS [veh$\cdot$h]"
     ops_title: str = field(init=False)
     ops_figsize_x: int = 10
     ops_figsize_y: int = 5
@@ -88,24 +91,29 @@ class SimexSettings:
     csv_filename: str = field(init=False)
 
     def __post_init__(self):
-        """ Define variables dependent on the instance name."""
-        self.log_filename = f'LOG-{self.instance_name}'
-        self.csv_filename = f'simex_output-{self.instance_name}'
-        self.ops_title = f'Optimal Curve for {self.instance_name}'
-        self.vfs_title = f'Fitted Curve with unfit Intervals for {self.instance_name}'
-        self.results_dir = f'results_dir_{self.instance_name}-{timestamp}'
+        """Define variables dependent on the instance name."""
+        self.log_filename = f"LOG-{self.instance_name}"
+        self.csv_filename = f"simex_output-{self.instance_name}"
+        self.ops_title = f"Optimal Curve for {self.instance_name}"
+        self.vfs_title = f"Fitted Curve with unfit Intervals for {self.instance_name}"
+        self.results_dir = f"results_dir_{self.instance_name}-{timestamp}"
+
 
 ## Data and settings for log purposes ##
 # These settings are filled during the runtime and used as a global data structure for the logger statistics.
-# Modifier Global Statistics 
-mgs = {"points_generated_total": 0, # Number of generated points TODO: Should be refactored
-       "points_generation_intervals": 0, # Number of intervals generated TODO: Should be refactored
-       "mod_iterations": 0}  # Number of modifier iterations TODO: Should be refactored
+# Modifier Global Statistics
+mgs = {
+    "points_generated_total": 0,  # Number of generated points TODO: Should be refactored
+    "points_generation_intervals": 0,  # Number of intervals generated TODO: Should be refactored
+    "mod_iterations": 0,
+}  # Number of modifier iterations TODO: Should be refactored
 
 # Validator Global statistics
-vgs = {"points_fitting_total": 0,  # Not used TODO: Should be refactored
-       "points_unfitting_total": 0,  # Not used TODO: Should be refactored
-       "intervals_unfit_total": 0}  # Not used TODO: Should be refactored
+vgs = {
+    "points_fitting_total": 0,  # Not used TODO: Should be refactored
+    "points_unfitting_total": 0,  # Not used TODO: Should be refactored
+    "intervals_unfit_total": 0,
+}  # Not used TODO: Should be refactored
 
 # Logger Granularity Settings
 # log_granularity:

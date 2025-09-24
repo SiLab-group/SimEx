@@ -26,7 +26,7 @@ class Modifier:
         # handle empty list case
         if not np.any(old_list):
             return []
-        
+
         old_min = min(old_list)
         old_max = max(old_list)
 
@@ -38,7 +38,9 @@ class Modifier:
         for old_value in old_list:
             denominator = old_max - old_min
             if denominator != 0:
-                scaled_value = (((old_value - old_min) * (new_max - new_min))/ denominator) + new_min
+                scaled_value = (
+                    ((old_value - old_min) * (new_max - new_min)) / denominator
+                ) + new_min
                 new_values.append(scaled_value)
             else:
                 # Handle the case when the interval is zero

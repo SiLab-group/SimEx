@@ -9,9 +9,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ..core.settings import lgs, mgs, timestamp
 
+
 @dataclass
 class FittedFunction:
     """Class for keeping track fitted functions."""
+
     name: str
     interval: Tuple[float, float]
     func_form: float
@@ -26,6 +28,7 @@ class FunctionValues:
     name: str
     x_values: np.ndarray
     y_values: np.ndarray
+
 
 def transition(x, x_conn, width):
     return 1.0 / (1.0 + np.exp(-2 / width * (x - x_conn)))
@@ -42,7 +45,7 @@ class Logger:
         self._open_file()
 
     def _open_file(self):
-        self.file = open(self.filename, 'a')
+        self.file = open(self.filename, "a")
 
     def _close_file(self):
         if self.file and not self.file.closed:
@@ -50,20 +53,22 @@ class Logger:
 
     def _write_log(self, level, message):
         if level:
-            timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+            timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
             message = f"{timestamp} - {level} - {message}\n"
         self.file.write(message)
         self.file.flush()  # Ensure the message is written immediately
 
     def _plot_results(self, all_fit_intervals_data, remaining_unfit_intervals):
         # Create graph
-        _, ax = plt.subplots(figsize=(self.settings.ops_figsize_x, self.settings.ops_figsize_y))
+        _, ax = plt.subplots(
+            figsize=(self.settings.ops_figsize_x, self.settings.ops_figsize_y)
+        )
         # Remember color for the same fitted functions
         colors = {}
         # Plot FI intervals with their fitting functions
         for element in all_fit_intervals_data:
-            interval = element['interval']
-            fitting_function_str = element['fitting_function']
+            interval = element["interval"]
+            fitting_function_str = element["fitting_function"]
 
             coefficients = self.get_coefficients(element)
             # Reverse the list to match the order expected by np.poly1d
@@ -75,28 +80,39 @@ class Logger:
 
             # Check if the function was already plotted and use the same color
             if fitting_function_str in colors.keys():
-                ax.plot(x, y, linewidth=self.settings.ops_linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]',
-                        color=colors[fitting_function_str])
+                ax.plot(
+                    x,
+                    y,
+                    linewidth=self.settings.ops_linewidth,
+                    label=f"Interval: [{round(interval[0]), round(interval[1])}]",
+                    color=colors[fitting_function_str],
+                )
             else:
-                ax.plot(x, y, linewidth=self.settings.ops_linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]')
+                ax.plot(
+                    x,
+                    y,
+                    linewidth=self.settings.ops_linewidth,
+                    label=f"Interval: [{round(interval[0]), round(interval[1])}]",
+                )
                 # Get the color for the last graph and save it in the color dictionary for given function
                 # When function repeats use the same color for that function
                 color = ax.get_lines()[-1].get_color()
                 colors[fitting_function_str] = color
 
         for element in remaining_unfit_intervals:
-            ax.axvspan(*element['interval'], color='gray',
-                       alpha=0.3, label='unfit Interval')
+            ax.axvspan(
+                *element["interval"], color="gray", alpha=0.3, label="unfit Interval"
+            )
 
         plt.xlabel(self.settings.ops_x_labels)
         plt.ylabel(self.settings.ops_y_labels)
         plt.title(self.settings.ops_title)
-        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
         plt.show()
 
     def _write_results(self):
         if not self.remaining_unfit_intervals:
-            self.all_fit_intervals_data.sort(key=lambda x: x['interval'][0])
+            self.all_fit_intervals_data.sort(key=lambda x: x["interval"][0])
             result_entry = "No unfit interval(s) left.\n"
             self.file.write(result_entry)
             self.file.flush()  # Ensure the message is written immediately
@@ -108,7 +124,7 @@ class Logger:
         else:
             # OVERALL SORTED
             all_intervals = self.all_fit_intervals_data + self.remaining_unfit_intervals
-            all_intervals.sort(key=lambda x: x['interval'][0])
+            all_intervals.sort(key=lambda x: x["interval"][0])
 
             for element in all_intervals:
                 if len(element.keys()) > 1:
@@ -123,102 +139,138 @@ class Logger:
         self.write_csv_file()
         # Plot results
         if self.settings.ops_sigmoid_tailing:
-            self._plot_results_tailing(self.all_fit_intervals_data, self.remaining_unfit_intervals)
+            self._plot_results_tailing(
+                self.all_fit_intervals_data, self.remaining_unfit_intervals
+            )
         else:
-            self._plot_results(self.all_fit_intervals_data, self.remaining_unfit_intervals)
+            self._plot_results(
+                self.all_fit_intervals_data, self.remaining_unfit_intervals
+            )
 
     def log_main(self, logger_arguments):
         # TODO: log simEx settings
-        if logger_arguments["log_contex"] == "overall MAIN stats" and logger_arguments["main_status"] == "begin cycle":
+        if (
+            logger_arguments["log_contex"] == "overall MAIN stats"
+            and logger_arguments["main_status"] == "begin cycle"
+        ):
             message = "   ***   main cycle STARTED   ***   \n"
             self._write_log(False, message)
 
-        if logger_arguments["log_contex"] == "Overall Stats" and logger_arguments["main_status"] == "end cycle":
+        if (
+            logger_arguments["log_contex"] == "Overall Stats"
+            and logger_arguments["main_status"] == "end cycle"
+        ):
             message = "\n\n   ***   OVERALL STATS   ***   \n"
             self._write_log(False, message)
-            message = "MOD - Total generated points: " + \
-                      str(mgs["points_generated_total"])
-            self._write_log('[MAIN]: ', message)
-            message = "MOD - Total intervals used for points generation: " + \
-                      str(mgs["points_generation_intervals"])
-            self._write_log('[MAIN]: ', message)
+            message = "MOD - Total generated points: " + str(
+                mgs["points_generated_total"]
+            )
+            self._write_log("[MAIN]: ", message)
+            message = "MOD - Total intervals used for points generation: " + str(
+                mgs["points_generation_intervals"]
+            )
+            self._write_log("[MAIN]: ", message)
             message = "   ***   main cycle ENDED   ***   "
-            self._write_log('[MAIN]: ', message)
+            self._write_log("[MAIN]: ", message)
             message = "\n\n   ***   RESULTS   ***   \n"
             self._write_log(False, message)
             self._write_results()
 
-        if logger_arguments["log_contex"] == "overall MAIN stats" and logger_arguments[
-            "main_status"] == "no generated points":
+        if (
+            logger_arguments["log_contex"] == "overall MAIN stats"
+            and logger_arguments["main_status"] == "no generated points"
+        ):
             for element in logger_arguments.get("remaining_unfit_intervals"):
                 new_unfit_entry = {"interval": element}
                 self.remaining_unfit_intervals.append(new_unfit_entry)
             message = (
-                "   ***   main cycle INTERRUPTED: No more points from Modifier   ***   ")
-            self._write_log('[MAIN]: ', message)
-            message = ("   Remaining unfit intervals: " +
-                       str(logger_arguments['remaining_unfit_intervals']))
-            self._write_log('[MAIN]: ', message)
+                "   ***   main cycle INTERRUPTED: No more points from Modifier   ***   "
+            )
+            self._write_log("[MAIN]: ", message)
+            message = "   Remaining unfit intervals: " + str(
+                logger_arguments["remaining_unfit_intervals"]
+            )
+            self._write_log("[MAIN]: ", message)
 
-        if logger_arguments["log_contex"] == "overall MAIN stats" and logger_arguments[
-            "main_status"] == "no unfit intervals":
-            message = (
-                "   ***   main cycle COMPLETED: No more unfit points/intervals from Validator   ***   ")
-            self._write_log('[MAIN]: ', message)
+        if (
+            logger_arguments["log_contex"] == "overall MAIN stats"
+            and logger_arguments["main_status"] == "no unfit intervals"
+        ):
+            message = "   ***   main cycle COMPLETED: No more unfit points/intervals from Validator   ***   "
+            self._write_log("[MAIN]: ", message)
 
     def log_modifier(self, logger_arguments):
 
         if logger_arguments["log_contex"] == "internal MOD stats":
             current_iteration_points_number = logger_arguments.get(
-                "current_iteration_points_number")
+                "current_iteration_points_number"
+            )
             all_intervals_mod = logger_arguments.get("all_intervals_mod")
             intervals_list = logger_arguments.get("intervals_list")
 
             if lgs["log_granularity"] > 0:
-                message = "Iteration " + str(mgs["mod_iterations"]) + " has generated " + str(
-                    current_iteration_points_number) + " points in " + str(len(all_intervals_mod)) + " interval(s)"
-                self._write_log('[MOD]: ', message)
+                message = (
+                    "Iteration "
+                    + str(mgs["mod_iterations"])
+                    + " has generated "
+                    + str(current_iteration_points_number)
+                    + " points in "
+                    + str(len(all_intervals_mod))
+                    + " interval(s)"
+                )
+                self._write_log("[MOD]: ", message)
 
             if lgs["log_granularity"] > 1:
                 message = "   * The interval(s) are: " + str(intervals_list)
-                self._write_log('[MOD]: ', message)
+                self._write_log("[MOD]: ", message)
 
             # add intervals min-max
             if lgs["log_granularity"] > 2:
                 for i, sublist in enumerate(all_intervals_mod):
-                    message = "      * The x value(s) of the interval " + \
-                              str(i) + " is/are: " + str(sublist)
-                    self._write_log('[MOD]: ', message)
+                    message = (
+                        "      * The x value(s) of the interval "
+                        + str(i)
+                        + " is/are: "
+                        + str(sublist)
+                    )
+                    self._write_log("[MOD]: ", message)
 
     def log_simulator(self, message):
-        self._write_log('ERROR', message)
+        self._write_log("ERROR", message)
 
     def log_validator(self, logger_arguments):
 
-        if logger_arguments["log_contex"] == "internal VAL stats" and "validator_intervals" in logger_arguments:
+        if (
+            logger_arguments["log_contex"] == "internal VAL stats"
+            and "validator_intervals" in logger_arguments
+        ):
             validator_intervals = logger_arguments.get("validator_intervals")
             if lgs["log_granularity"] > 0:
-                message = "   * Found " + \
-                          str(len(validator_intervals)) + " unfit interval(s)"
-                self._write_log('[VAL]: ', message)
+                message = (
+                    "   * Found " + str(len(validator_intervals)) + " unfit interval(s)"
+                )
+                self._write_log("[VAL]: ", message)
 
             if lgs["log_granularity"] > 1:
                 message = "     * The fit function is:  FUNCTION HERE"
-                self._write_log('[VAL]: ', message)
+                self._write_log("[VAL]: ", message)
 
             # add interval min-max
             if lgs["log_granularity"] > 2:
-                message = "     * The unfit interval(s) are: " + \
-                          str(validator_intervals)
-                self._write_log('[VAL]: ', message)
+                message = "     * The unfit interval(s) are: " + str(
+                    validator_intervals
+                )
+                self._write_log("[VAL]: ", message)
 
-        if logger_arguments["log_contex"] == "internal VAL stats" and "new_unfit_interval" in logger_arguments:
+        if (
+            logger_arguments["log_contex"] == "internal VAL stats"
+            and "new_unfit_interval" in logger_arguments
+        ):
             new_unfit_interval = logger_arguments.get("new_unfit_interval")
             unfit_points = logger_arguments.get("unfit_points")
             if lgs["log_granularity"] > 0:
-                message = "   * The new unfit interval is: " + \
-                          str(new_unfit_interval)
-                self._write_log('[VAL]: ', message)
+                message = "   * The new unfit interval is: " + str(new_unfit_interval)
+                self._write_log("[VAL]: ", message)
 
             if lgs["log_granularity"] > 1:
                 pass
@@ -226,41 +278,54 @@ class Logger:
             # add intervals min-max
             if lgs["log_granularity"] > 2:
                 message = "      * Points are: " + str(unfit_points)
-                self._write_log('[VAL]: ', message)
+                self._write_log("[VAL]: ", message)
         # logs the fit intervals, fitting functions, and related points
-        if logger_arguments["log_contex"] == "fit_VAL_stats" and "fit_interval" in logger_arguments:
+        if (
+            logger_arguments["log_contex"] == "fit_VAL_stats"
+            and "fit_interval" in logger_arguments
+        ):
             new_fit_entry = {
                 "interval": logger_arguments.get("fit_interval"),
                 "fitting_function": logger_arguments.get("fitting_function"),
-                "fit_points": logger_arguments.get("fit_points")}
+                "fit_points": logger_arguments.get("fit_points"),
+            }
             self.all_fit_intervals_data.append(new_fit_entry)
 
     def close(self):
         self._close_file()
 
     def write_csv_file(self):
-        with open(os.path.join(self.settings.results_dir,f'{self.settings.csv_filename}-{self.timestamp}.csv'), 'w') as f:
+        with open(
+            os.path.join(
+                self.settings.results_dir,
+                f"{self.settings.csv_filename}-{self.timestamp}.csv",
+            ),
+            "w",
+        ) as f:
             # Create the csv writer
             writer = csv.writer(f)
             rows = []
             # Create header for the CSV file based on the global_settings configuration
-            header = ['interval_start', 'interval_end']
+            header = ["interval_start", "interval_end"]
             # Append header reversed max_degree9,max_degree8...max_degree0 range defined in global settings
-            [header.append(f'exponent_max_degree{i}') for i in reversed(range(0, self.settings.vfs_max_deg+ 1))]
+            [
+                header.append(f"exponent_max_degree{i}")
+                for i in reversed(range(0, self.settings.vfs_max_deg + 1))
+            ]
             writer.writerow(header)
             for interval in self.all_fit_intervals_data:
                 # For each element if x present, we extract exponent
                 coefficients = self.get_coefficients(interval)
                 # For given interval
-                row = [interval['interval'][0], interval['interval'][1]]
+                row = [interval["interval"][0], interval["interval"][1]]
                 # Append all the exponents in reversed order
                 [row.append(c) for c in reversed(coefficients)]
                 rows.append(row)
 
             # For unfit intervals append 0
             for u_interval in self.remaining_unfit_intervals:
-                row = [u_interval['interval'][0], u_interval['interval'][1]]
-                [row.append(0) for i in range(0, self.settings.vfs_max_deg+1)]
+                row = [u_interval["interval"][0], u_interval["interval"][1]]
+                [row.append(0) for i in range(0, self.settings.vfs_max_deg + 1)]
                 rows.append(row)
 
             # Sort rows on the interval start
@@ -271,15 +336,19 @@ class Logger:
                 writer.writerow(row)
             # print(f'Data written to the csv file {fs["csv_filename"]}-{self.timestamp}.csv')
 
-    def _plot_results_tailing_old(self, all_fit_intervals_data, remaining_unfit_intervals):
+    def _plot_results_tailing_old(
+        self, all_fit_intervals_data, remaining_unfit_intervals
+    ):
         # Create graph
-        _, ax = plt.subplots(figsize=(self.settings.ops_figsize_x, self.settings.ops_figsize_y))
+        _, ax = plt.subplots(
+            figsize=(self.settings.ops_figsize_x, self.settings.ops_figsize_y)
+        )
         # Remember color for the same fitted functions
         colors = {}
         # Plot FI intervals with their fitting functions
         for element in all_fit_intervals_data:
-            interval = element['interval']
-            fitting_function_str = element['fitting_function']
+            interval = element["interval"]
+            fitting_function_str = element["fitting_function"]
 
             coefficients = self.get_coefficients(element)
             # Reverse the list to match the order expected by np.poly1d
@@ -291,18 +360,29 @@ class Logger:
 
             # Check if the function was already plotted and use the same color
             if fitting_function_str in colors.keys():
-                ax.plot(x, y, linewidth=self.settings.ops_linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]',
-                        color=colors[fitting_function_str])
+                ax.plot(
+                    x,
+                    y,
+                    linewidth=self.settings.ops_linewidth,
+                    label=f"Interval: [{round(interval[0]), round(interval[1])}]",
+                    color=colors[fitting_function_str],
+                )
             else:
-                ax.plot(x, y, linewidth=self.settings.ops_linewidth, label=f'Interval: [{round(interval[0]), round(interval[1])}]')
+                ax.plot(
+                    x,
+                    y,
+                    linewidth=self.settings.ops_linewidth,
+                    label=f"Interval: [{round(interval[0]), round(interval[1])}]",
+                )
                 # Get the color for the last graph and save it in the color dictionary for given function
                 # When function repeats use the same color for that function
                 color = ax.get_lines()[-1].get_color()
                 colors[fitting_function_str] = color
 
         for element in remaining_unfit_intervals:
-            ax.axvspan(*element['interval'], color='gray',
-                       alpha=0.3, label='unfit Interval')
+            ax.axvspan(
+                *element["interval"], color="gray", alpha=0.3, label="unfit Interval"
+            )
 
         plt.xlabel(self.settings.ops_x_labels)
         plt.ylabel(self.settings.ops_y_labels)
@@ -312,27 +392,39 @@ class Logger:
 
     def _plot_results_tailing(self, all_fit_intervals_data, remaining_unfit_intervals):
         # Create graph
-        _, ax = plt.subplots(figsize=(self.settings.ops_figsize_x, self.settings.ops_figsize_y))
+        _, ax = plt.subplots(
+            figsize=(self.settings.ops_figsize_x, self.settings.ops_figsize_y)
+        )
         # Remember color for the same fitted functions
         points = []
         funcs = []
         connection_points = []
         funcs_values = []
         # Create x values
-        x = np.linspace(self.settings.domain_min_interval, self.settings.domain_max_interval, self.settings.ops_number_x_points, dtype=np.float128)
+        x = np.linspace(
+            self.settings.domain_min_interval,
+            self.settings.domain_max_interval,
+            self.settings.ops_number_x_points,
+            dtype=np.float128,
+        )
         # Save labels and points for the fitting functions
         for element in all_fit_intervals_data:
             # Get coefficients
             coefficients = self.get_coefficients(element)
             fitting_function = np.poly1d(coefficients[::-1])
-            f = FittedFunction(name=element['fitting_function'], interval=element['interval'],
-                               func_form=fitting_function,
-                               fitted_points=[points.append(i) for i in element['fit_points']])
+            f = FittedFunction(
+                name=element["fitting_function"],
+                interval=element["interval"],
+                func_form=fitting_function,
+                fitted_points=[points.append(i) for i in element["fit_points"]],
+            )
             funcs.append(f)
             x_temp = x[np.logical_and(x >= f.interval[0], x <= f.interval[1])]
-            f_values = FunctionValues(name=element['fitting_function'],
-                                      x_values=x[np.logical_and(x >= f.interval[0], x <= f.interval[1])],
-                                      y_values=np.array([f.func_form(el) for el in x_temp]))
+            f_values = FunctionValues(
+                name=element["fitting_function"],
+                x_values=x[np.logical_and(x >= f.interval[0], x <= f.interval[1])],
+                y_values=np.array([f.func_form(el) for el in x_temp]),
+            )
             funcs_values.append(f_values)
 
             if f.interval[1] != self.settings.domain_max_interval:
@@ -353,7 +445,9 @@ class Logger:
         # Iterate over the remaining functions
         for i in range(1, len(funcs)):
             # Compute the transition values
-            print(f"Connection points: {connection_points} and length: {len(connection_points)}")
+            print(
+                f"Connection points: {connection_points} and length: {len(connection_points)}"
+            )
             print(f"Functions: {funcs} and length: {len(funcs)}")
             t = transition(x, connection_points[i - 1], self.settings.ops_sigmoid_width)
             # Update the combined function
@@ -363,44 +457,83 @@ class Logger:
         for i in range(0, len(funcs)):
             custom_label = f"Interval: [{funcs[i].interval[0]},{funcs[i].interval[1]}]"
             if funcs[i].name in colors.keys():
-                ax.plot(funcs_values[i].x_values, funcs_values[i].y_values, label=custom_label,
-                        color=colors[funcs[i].name], linewidth=3)
+                ax.plot(
+                    funcs_values[i].x_values,
+                    funcs_values[i].y_values,
+                    label=custom_label,
+                    color=colors[funcs[i].name],
+                    linewidth=3,
+                )
                 if self.settings.ops_threshold_plot:
-                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values + self.settings.vfs_threshold_y_fitting, 'm--', linewidth=2)
-                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values - self.settings.vfs_threshold_y_fitting, 'm--', linewidth=2)
+                    ax.plot(
+                        funcs_values[i].x_values,
+                        funcs_values[i].y_values
+                        + self.settings.vfs_threshold_y_fitting,
+                        "m--",
+                        linewidth=2,
+                    )
+                    ax.plot(
+                        funcs_values[i].x_values,
+                        funcs_values[i].y_values
+                        - self.settings.vfs_threshold_y_fitting,
+                        "m--",
+                        linewidth=2,
+                    )
             else:
-                ax.plot(funcs_values[i].x_values, funcs_values[i].y_values, label=custom_label, linewidth=3)
+                ax.plot(
+                    funcs_values[i].x_values,
+                    funcs_values[i].y_values,
+                    label=custom_label,
+                    linewidth=3,
+                )
                 color = ax.get_lines()[-1].get_color()
                 colors[funcs[i].name] = color
                 if self.settings.ops_threshold_plot:
-                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values + self.settings.vfs_threshold_y_fitting, 'm--',linewidth=2)
-                    ax.plot(funcs_values[i].x_values, funcs_values[i].y_values - self.settings.vfs_threshold_y_fitting, 'm--',linewidth=2)
+                    ax.plot(
+                        funcs_values[i].x_values,
+                        funcs_values[i].y_values
+                        + self.settings.vfs_threshold_y_fitting,
+                        "m--",
+                        linewidth=2,
+                    )
+                    ax.plot(
+                        funcs_values[i].x_values,
+                        funcs_values[i].y_values
+                        - self.settings.vfs_threshold_y_fitting,
+                        "m--",
+                        linewidth=2,
+                    )
 
         for element in remaining_unfit_intervals:
-            ax.axvspan(*element['interval'], color='gray',
-                       alpha=0.3, label='unfit Interval')
-        ax.plot(x, y, 'c--', label='smoothened', linewidth=1)
+            ax.axvspan(
+                *element["interval"], color="gray", alpha=0.3, label="unfit Interval"
+            )
+        ax.plot(x, y, "c--", label="smoothened", linewidth=1)
 
         for x_conn in connection_points:
-            ax.axvline(x=x_conn, color='purple', linestyle=':')
+            ax.axvline(x=x_conn, color="purple", linestyle=":")
 
         if self.settings.ops_predicted_points:
             ax.plot(x_point, y_point, "ro", label="original points")
         plt.xlabel(self.settings.ops_x_labels)
         plt.ylabel(self.settings.ops_y_labels)
         plt.title(self.settings.ops_title)
-        plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
         figname = f"total_function-{self.settings.instance_name}-{self.timestamp}.pdf"
-        plt.savefig(os.path.join(self.settings.results_dir, f"{figname}"), format='pdf')
+        plt.savefig(os.path.join(self.settings.results_dir, f"{figname}"), format="pdf")
         plt.show()
         # print(f"Figure was saved to {figname}")
 
     def get_coefficients(self, interval):
         # Convert the string into a function array of terms
-        terms = re.findall(r'([+-]?\s*\d+\.?\d*(?:e[+-]?\d+)?)(x\^\d+)?',
-                           interval['fitting_function'].replace(' ', ''))
+        terms = re.findall(
+            r"([+-]?\s*\d+\.?\d*(?:e[+-]?\d+)?)(x\^\d+)?",
+            interval["fitting_function"].replace(" ", ""),
+        )
         # For each element if x present, we extract exponent
-        coefficients = [0] * (self.settings.vfs_max_deg + 1)  # Initialize a list for coefficients
+        coefficients = [0] * (
+            self.settings.vfs_max_deg + 1
+        )  # Initialize a list for coefficients
         for term in terms:
             coef = float(term[0])
             if term[1]:  # If there is an 'x' term
