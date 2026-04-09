@@ -1,5 +1,3 @@
-"""SimEx configuration modules."""
+from simex.config.settings import SimexSettings, SumoVsl, timestamp, lgs, get_path
 
-from .components_configuration import components
-
-__all__ = ["components"]
+__all__ = ["SimexSettings", "SumoVsl", "timestamp", "lgs", "get_path"]

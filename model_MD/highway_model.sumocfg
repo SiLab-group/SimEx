@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2024-01-03 12:40:48 by Eclipse SUMO sumo Version v1_16_0+1996-f1d78d0b3d8
+-->
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="my_net_9_1_2024.net.xml"/>
+        <!-- <route-files value="routes_distribution.rou.xml"/> -->
+        <additional-files value="routes_distribution.rou.xml, calibrators_new.add.xml, detectors.add.xml"/>
+    </input>
+	
+	<time>
+<!--         <begin value="0"/>
+        <end value="3600"/> -->
+        <step-length value="0.25"/>
+    </time>
+	
+	
+    <gui_only>
+		<gui-settings-file value="my_speed_view.xml"/>
+		<!-- <delay value="100"/> -->
+    </gui_only>
+	
+	<!-- <type id="2L36"> -->
+		<!-- <restriction vClass="bus" speed="17.78"/> -->
+	<!-- </type> -->
+	
+
+</configuration>

@@ -1,6 +1,3 @@
-"""Core SimEx functionality."""
+from simex.core.simex import Simex
 
-from .simex import Simex
-from .settings import SimexSettings
-
-__all__ = ["Simex", "SimexSettings"]
+__all__ = ["Simex"]

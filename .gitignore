@@ -122,3 +122,4 @@ results_dir_*/
 *.pdf
 *.pkl
 notebooks/*
+sumo_config.ini
