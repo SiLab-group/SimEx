@@ -1,0 +1,8 @@
+[run]
+source = simex
+relative_files = True
+
+[report]
+omit =
+    .venv/*
+    tests/*

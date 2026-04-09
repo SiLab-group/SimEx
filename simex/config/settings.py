@@ -41,14 +41,14 @@ class SimexSettings:
     vfs_penality_weight (int): Penalty for MSE to avoid overfitting with high dimension polynomial.
     Default value is set to '1'.
     vfs_x_labels (str): X axis label name validator graph. Default value is set to 'Traffic volume [veh/h]'.
-    vfs_y_labels (str): Y axis label name validator graph. Default value is set to 'TTS [veh$\cdot$h]'.
+    vfs_y_labels (str): Y axis label name validator graph. Default value is set to r'TTS [veh$\cdot$h]'.
     vfs_title (str): Title for validator graph. Default value is set to
     'Fitted Curve with unfit Intervals for {self.instance_name}'.
     vfs_figsize_x (int): X size of the figure. Default value is set to '12'.
     vfs_figsize_y (int): Y size of the figure. Default value is set to '6'.
     vfs_font_size (int): Font size validator graph. Default value is set to '12'.
     ops_x_labels (str): X labels on the final graph. Default value is set to 'Traffic volume [veh/h]'.
-    ops_y_labels (str): Y labels on the final graph. Default value is set to 'TTS [veh$\cdot$h]'.
+    ops_y_labels (str): Y labels on the final graph. Default value is set to r'TTS [veh$\cdot$h]'.
     ops_title (str): Title on the final graph. Default value is set to 'Optimal Curve for {self.instance_name}'.
     ops_figsize_x (int): Figure size on the final graph. Default value is set to '10'.
     ops_figsize_y (int): Figure size on the final graph. Default value is set to '5'.
@@ -81,13 +81,13 @@ class SimexSettings:
     vfs_improvement_threshold: float = 0.1
     vfs_penality_weight: int = 1
     vfs_x_labels: str = 'Traffic volume [veh/h]'
-    vfs_y_labels: str = 'TTS [veh$\cdot$h]'
+    vfs_y_labels: str = r'TTS [veh$\cdot$h]'
     vfs_figsize_x: int = 12
     vfs_figsize_y: int = 6
     vfs_font_size: int = 12
     vfs_title: str = field(init=False)
     ops_x_labels: str = 'Traffic volume [veh/h]'
-    ops_y_labels: str = 'TTS [veh$\cdot$h]'
+    ops_y_labels: str = r'TTS [veh$\cdot$h]'
     ops_title: str = field(init=False)
     ops_figsize_x: int = 10
     ops_figsize_y: int = 5

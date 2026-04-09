@@ -16,6 +16,7 @@ mod_x_list = [
 ]
 
 
+@pytest.mark.skipif(not os.path.isfile('examples/marl_vsl/sumo_config.ini'), reason="requires SUMO")
 def test_simulator_marl_novsl():
     os.environ['MARL_MODEL_PATH'] = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'marl_model_MD', ''
@@ -29,6 +30,7 @@ def test_simulator_marl_novsl():
     ]
 
 
+@pytest.mark.skipif(not os.path.isfile('examples/marl_vsl/sumo_config.ini'), reason="requires SUMO")
 def test_simulator_marl_novsl_parallel():
     os.environ['MARL_MODEL_PATH'] = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'marl_model_MD', ''
@@ -44,6 +46,7 @@ def test_simulator_marl_novsl_parallel():
     ]
 
 
+@pytest.mark.skipif(not os.path.isfile('examples/marl_vsl/sumo_config.ini'), reason="requires SUMO")
 def test_simulator_marl_vsl():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.environ['MARL_PATH_TRAIN'] = os.path.join(root, 'marl_training_file', '')
