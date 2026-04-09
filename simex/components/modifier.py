@@ -67,7 +67,7 @@ class Modifier:
         return temp
 
     def modifierB(x, new_min, new_max):
-        temp = x * 2 / 3
+        temp = np.array(x) * 2 / 3
         temp = Modifier.rescale(temp, new_min, new_max)
         return temp
 

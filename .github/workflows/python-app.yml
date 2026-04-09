@@ -28,15 +28,37 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov
+        pip install flake8 pytest pytest-cov eclipse-sumo==1.20.0
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Set up SUMO config
+      run: |
+        SUMO_BIN=$(python -c "import sumo, os; print(os.path.join(os.path.dirname(sumo.__file__), 'bin', 'sumo'))")
+        SUMO_HOME=$(python -c "import sumo, os; print(os.path.dirname(sumo.__file__))")
+        echo "SUMO_HOME=$SUMO_HOME" >> $GITHUB_ENV
+        CONFIG="[SUMO]
+MODEL_PATH = ${{ github.workspace }}/model_MD/
+SUMO_PATH = $SUMO_BIN
+
+[MARL]
+ROOT_PATH = ${{ github.workspace }}/
+RESULTS_PATH = ${{ github.workspace }}/marl_training_file/
+MODEL_PATH = ${{ github.workspace }}/marl_model_MD/
+RUN = 0
+END = 6000
+VSL = 1"
+        echo "$CONFIG" > sumo_config.ini
+        echo "$CONFIG" > examples/marl_vsl/sumo_config.ini
+
     - name: Lint with flake8
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
     - name: Test with pytest
       run: |
         pytest tests/ --cov=simex --cov-report=xml --cov-report=term
+
     - name: Coverage Comment
       if: github.event_name == 'pull_request'
       uses: py-cov-action/python-coverage-comment-action@v3
