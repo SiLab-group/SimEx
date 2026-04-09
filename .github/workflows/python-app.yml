@@ -20,6 +20,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
@@ -33,22 +34,9 @@ jobs:
 
     - name: Set up SUMO config
       run: |
-        SUMO_BIN=$(python -c "import sumo, os; print(os.path.join(os.path.dirname(sumo.__file__), 'bin', 'sumo'))")
+        python scripts/generate_ci_sumo_config.py
         SUMO_HOME=$(python -c "import sumo, os; print(os.path.dirname(sumo.__file__))")
         echo "SUMO_HOME=$SUMO_HOME" >> $GITHUB_ENV
-        CONFIG="[SUMO]
-MODEL_PATH = ${{ github.workspace }}/model_MD/
-SUMO_PATH = $SUMO_BIN
-
-[MARL]
-ROOT_PATH = ${{ github.workspace }}/
-RESULTS_PATH = ${{ github.workspace }}/marl_training_file/
-MODEL_PATH = ${{ github.workspace }}/marl_model_MD/
-RUN = 0
-END = 6000
-VSL = 1"
-        echo "$CONFIG" > sumo_config.ini
-        echo "$CONFIG" > examples/marl_vsl/sumo_config.ini
 
     - name: Lint with flake8
       run: |
