@@ -149,13 +149,16 @@ def get_path():
 lgs = {"log_granularity": 3}
 
 
+_sumo_paths = get_path()
+
+
 @dataclass
 class SumoVsl:
-    model_path: str = get_path()["model_path"]
-    sumo_path: str = get_path()["sumo_path"]
-    marl_root_path: str = get_path()["marl_root_path"]
-    marl_run: int = int(get_path()["marl_run"])
-    marl_end: int = int(get_path()["marl_end"])
-    marl_vsl: int = int(get_path()["marl_vsl"])
-    marl_model_path: str = get_path()["marl_model_path"]
-    marl_results_path: str = get_path()["marl_results_path"]
+    model_path: str = _sumo_paths["model_path"]
+    sumo_path: str = _sumo_paths["sumo_path"]
+    marl_root_path: str = _sumo_paths["marl_root_path"]
+    marl_run: int = int(_sumo_paths["marl_run"])
+    marl_end: int = int(_sumo_paths["marl_end"])
+    marl_vsl: int = int(_sumo_paths["marl_vsl"])
+    marl_model_path: str = _sumo_paths["marl_model_path"]
+    marl_results_path: str = _sumo_paths["marl_results_path"]

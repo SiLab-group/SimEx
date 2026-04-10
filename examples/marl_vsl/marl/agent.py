@@ -37,7 +37,7 @@ class Agent(CommonAttributes):
     #             "VSL_beforeA1", "VSL_beforeA2",\
     #             "TTS_old_sectionL0", "TTS_old_sectionL1", "TTS_old_sectionL2", "TTS_old_sectionL3"]
 
-    __slots__=("name")
+    __slots__ = ("name",)
     def __init__(self, name):
         super().__init__()
         # self._allAgents.append(self)

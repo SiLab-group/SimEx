@@ -1,14 +1,21 @@
 """Generate sumo_config.ini for CI using environment variables."""
 import os
 import subprocess
+import sys
 
-workspace = os.environ["GITHUB_WORKSPACE"]
+workspace = os.environ.get("GITHUB_WORKSPACE")
+if not workspace:
+    print("ERROR: GITHUB_WORKSPACE environment variable is not set.", file=sys.stderr)
+    sys.exit(1)
 
 result = subprocess.run(
     ["python", "-c", "import sumo, os; print(os.path.join(os.path.dirname(sumo.__file__), 'bin', 'sumo'))"],
     capture_output=True, text=True
 )
 sumo_bin = result.stdout.strip()
+if not sumo_bin or result.returncode != 0:
+    print("ERROR: Could not locate sumo binary. Is eclipse-sumo installed?", file=sys.stderr)
+    sys.exit(1)
 
 config = f"""[SUMO]
 MODEL_PATH = {workspace}/model_MD/

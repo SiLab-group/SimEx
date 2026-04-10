@@ -122,8 +122,6 @@ class Logger:
                     result_entry = f"UI: {str(element['interval']):<40} | \n"
                 self.file.write(result_entry)
                 self.file.flush()  # Ensure the message is written immediately
-        self.all_fit_intervals_data = self.all_fit_intervals_data
-        self.remaining_unfit_intervals = self.remaining_unfit_intervals
         # Write results to csv file
         self.write_csv_file()
         # Plot results
@@ -264,7 +262,7 @@ class Logger:
                 rows.append(row)
 
             # Sort rows on the interval start
-            sorted(rows, key=lambda x: x[0])
+            rows = sorted(rows, key=lambda x: x[0])
 
             # Write sorted rows in the csv file
             for row in rows:
@@ -287,9 +285,11 @@ class Logger:
             # Get coefficients
             coefficients = self.get_coefficients(element)
             fitting_function = np.poly1d(coefficients[::-1])
+            fit_pts = list(element['fit_points'])
+            points.extend(fit_pts)
             f = FittedFunction(name=element['fitting_function'], interval=element['interval'],
                                func_form=fitting_function,
-                               fitted_points=[points.append(i) for i in element['fit_points']])
+                               fitted_points=fit_pts)
             funcs.append(f)
             x_temp = x[np.logical_and(x >= f.interval[0], x <= f.interval[1])]
             f_values = FunctionValues(name=element['fitting_function'],
@@ -304,7 +304,6 @@ class Logger:
             x_point = []
             y_point = []
             for fit_point in points:
-                print(f"FIT POINT: {fit_point}")
                 x_point.append(fit_point[0])
                 y_point.append(fit_point[1])
 
@@ -319,8 +318,6 @@ class Logger:
         # Iterate over the remaining functions
         for i in range(1, len(funcs)):
             # Compute the transition values
-            print(f"Connection points: {connection_points} and length: {len(connection_points)}")
-            print(f"Functions: {funcs} and length: {len(funcs)}")
             t = transition(x, connection_points[i - 1])
             # Update the combined function
             y = (1 - t) * y + t * y_values[i]
