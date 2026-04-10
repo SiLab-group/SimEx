@@ -1,5 +1,3 @@
-"""SimEx utility modules."""
+from simex.utils.logger import Logger, FittedFunction, FunctionValues, save_object
 
-from .logger_utils import Logger
-
-__all__ = ["Logger"]
+__all__ = ["Logger", "FittedFunction", "FunctionValues", "save_object"]

@@ -45,31 +45,27 @@ pip install -r requirements-dev.txt
 
 ## Quick Start
 
-### Basic Usage
-
 ```python
-import time
-from simex import Simex, Simulator, Modifier, Validator
+from simex import Simex
+from simex.components.simulator import Simulator
+from simex.components.modifier import Modifier
+from simex.components.validator import Validator
 
-# Create and run simulation
-before = time.time()
 sim = Simex(instance_name='Func_A', smoothen=False)
 file = sim.run_simex(
     simulator_function=Simulator.sim_func_A,
     modifier=Modifier.modifierA,
     validator=Validator.local_exploration_validator_A
 )
-
 print(f"Run finished. CSV file is {file}")
-print(f"Run time: {(time.time()-before)/60} minutes")
 ```
 
-### Custom Configuration
+### Custom Settings
 
 ```python
-from simex import SimexSettings, Simex
+from simex import Simex
+from simex.config.settings import SimexSettings
 
-# Custom settings
 settings = SimexSettings(
     instance_name='custom_run',
     domain_min_interval=1000,
@@ -78,46 +74,28 @@ settings = SimexSettings(
     vfs_threshold_y_fitting=20,
     ops_sigmoid_tailing=True
 )
-
 sim = Simex(instance_name='custom_run', smoothen=True)
 sim.settings = settings
-
-# Run with custom settings
-file = sim.run_simex(
-    simulator_function=Simulator.sim_func_B,
-    modifier=Modifier.modifierB,
-    validator=Validator.local_exploration_validator_A
-)
 ```
 
-### Available Components
+### Built-in Components
 
-#### Simulators
-- `Simulator.sim_func_A`: Cubic function with noise
-- `Simulator.sim_func_B`: Sinusoidal function with noise  
-- `Simulator.sim_func_C`: Complex function with sine and linear components
-
-#### Modifiers
-- `Modifier.modifierA`: Quadratic transformation with rescaling
-- `Modifier.modifierB`: Linear transformation with rescaling
-- `Modifier.modifierC`: Cubic transformation with rescaling
-
-#### Validators
-- `Validator.local_exploration_validator_A`: Polynomial fitting with unfit interval detection
+| Type | Name | Description |
+|------|------|-------------|
+| Simulator | `sim_func_A` | Cubic function with noise |
+| Simulator | `sim_func_B` | Sinusoidal function with noise |
+| Simulator | `sim_func_C` | Sine + linear function with noise |
+| Modifier | `modifierA` | Quadratic transformation with rescaling |
+| Modifier | `modifierB` | Linear transformation with rescaling |
+| Modifier | `modifierC` | Cubic transformation with rescaling |
+| Validator | `local_exploration_validator_A` | Polynomial fitting with unfit interval detection |
 
 ## Command Line Usage
 
-After installation, you can use the command line interface:
-
 ```bash
-# Run basic example
-simex-run
-
-# Run with custom settings
-python examples/simex_run.py custom
-
-# Compare parallel vs sequential
-python examples/simex_run.py compare
+simex-run                              # basic run
+python examples/simex_run.py custom    # custom settings
+python examples/simex_run.py compare   # parallel vs sequential
 ```
 
 ## Development
@@ -150,14 +128,15 @@ flake8 simex/ tests/ examples/
 ```
 simex/
 ├── simex/                  # Main package
-│   ├── core/              # Core functionality
-│   ├── components/        # Modifiers, simulators, validators
-│   ├── controllers/       # Control logic
-│   ├── utils/            # Utilities and logging
-│   └── config/           # Configuration
-├── tests/                # Test suite
-├── examples/            # Usage examples
-└── docs/               # Documentation
+│   ├── core/              # Core SimEx loop
+│   ├── components/        # Simulators, modifiers, validators
+│   ├── controllers/       # Modifier, simulator, validator controllers
+│   ├── utils/             # Logging
+│   └── config/            # Settings
+├── examples/              # Usage examples
+│   ├── simex_run.py       # Basic example
+│   └── marl_vsl/          # SUMO/MARL VSL examples
+└── tests/
 ```
 
 ## Configuration
@@ -173,7 +152,7 @@ simex/
 
 ### Logging and Output
 
-The tool generates into the results_dir_NAME_timestamp directore following files:
+Results are written to `results_dir_NAME_timestamp/` and include:
 - **CSV files**: Final results with fitted polynomial coefficients
 - **PDF plots**: Visualization of fitted curves and unfit intervals
 - **Log files**: Detailed execution logs
@@ -190,9 +169,39 @@ The tool supports both sequential and parallel execution:
 
 ## Examples
 
-See the `examples/` directory for:
-- Basic usage example: simex_run.py
-- `notebooks`: SimEx_test_notebook.ipynb
+### Basic usage (`examples/simex_run.py`)
+Runs SimEx with built-in mock simulators (`sim_func_A/B`) — no external dependencies required. Good starting point to understand the SimEx loop.
+
+```bash
+python examples/simex_run.py           # basic run
+python examples/simex_run.py custom    # custom settings
+python examples/simex_run.py compare   # parallel vs sequential
+```
+
+### Notebook (`examples/notebooks/SimEx_test_notebook.ipynb`)
+Interactive walkthrough of the SimEx API.
+
+### MARL VSL examples (`examples/marl_vsl/`)
+Traffic controller examples using SUMO via TraCI. Requires a `sumo_config.ini` copied and filled in from `sumo_config_example.ini`.
+
+**Simple VSL** (`run_vsl_simple.py`): single SimEx run with a rule-based proportional VSL controller. No training required.
+```bash
+cd examples/marl_vsl
+python run_vsl_simple.py
+```
+
+**MARL VSL loop** (`run_vsl_loop.py`): iterative SimEx loop that trains MARL agents on demand regions where the VSL controller underperforms a no-VSL baseline. Pre-trained weights are provided in `marl_training_file/`.
+```bash
+cd examples/marl_vsl
+python run_vsl_loop.py
+```
+
+**Notebook** (`SimEx_loop.ipynb`): interactive version of the MARL VSL loop with a standalone cell for analysing bad regions from an existing VSL output CSV.
+
+#### MARL VSL setup
+1. Copy the example config: `cp sumo_config_example.ini sumo_config.ini`
+2. Edit `sumo_config.ini` with your local SUMO binary and model paths
+3. Set `SUMO_HOME` to your SUMO installation (e.g. `export SUMO_HOME=/path/to/sumo`)
 
 ## Support
 

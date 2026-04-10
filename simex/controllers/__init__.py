@@ -1,7 +1,5 @@
-"""SimEx controller modules."""
+from simex.controllers.modifier_controller import ModifierController
+from simex.controllers.validator_controller import ValidatorController
+from simex.controllers.simulator_controller import SimulatorController
 
-from .modifier_controller import ModifierController
-from .simulator_controller import SimulatorController
-from .validator_controller import ValidatorController
-
-__all__ = ["ModifierController", "SimulatorController", "ValidatorController"]
+__all__ = ["ModifierController", "ValidatorController", "SimulatorController"]

@@ -1,7 +1,5 @@
-"""SimEx component modules."""
+from simex.components.modifier import Modifier
+from simex.components.validator import Validator
+from simex.components.simulator import Simulator
 
-from .modifier import Modifier
-from .simulator import Simulator
-from .validator import Validator
-
-__all__ = ["Modifier", "Simulator", "Validator"]
+__all__ = ["Modifier", "Validator", "Simulator"]

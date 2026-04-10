@@ -38,9 +38,7 @@ class Modifier:
         for old_value in old_list:
             denominator = old_max - old_min
             if denominator != 0:
-                scaled_value = (
-                    ((old_value - old_min) * (new_max - new_min)) / denominator
-                ) + new_min
+                scaled_value = (((old_value - old_min) * (new_max - new_min)) / denominator) + new_min
                 new_values.append(scaled_value)
             else:
                 # Handle the case when the interval is zero
@@ -69,9 +67,7 @@ class Modifier:
         return temp
 
     def modifierB(x, new_min, new_max):
-        # Convert to numpy array if it's a list
-        x = np.array(x) if isinstance(x, list) else x
-        temp = x * 2 / 3
+        temp = np.array(x) * 2 / 3
         temp = Modifier.rescale(temp, new_min, new_max)
         return temp
 

@@ -10,13 +10,13 @@ Exploration," 2024 International Symposium ELMAR, Zadar, Croatia, 2024,
 pp. 165-168, doi: 10.1109/ELMAR62909.2024.10694499.
 """
 
-__version__ = "1.0.0"
+__version__ = "0.2.0"
 __author__ = "SimEx Team"
 __email__ = "amy.liffey@hevs.ch"
 
 # Core imports
 from .core.simex import Simex
-from .core.settings import SimexSettings
+from .config.settings import SimexSettings
 
 # Component imports
 from .components.modifier import Modifier
@@ -29,10 +29,7 @@ from .controllers.simulator_controller import SimulatorController
 from .controllers.validator_controller import ValidatorController
 
 # Utility imports
-from .utils.logger_utils import Logger
-
-# Configuration imports
-from .config.components_configuration import components
+from .utils.logger import Logger
 
 __all__ = [
     # Core classes
@@ -48,6 +45,4 @@ __all__ = [
     "ValidatorController",
     # Utils
     "Logger",
-    # Config
-    "components",
 ]
