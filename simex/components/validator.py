@@ -44,16 +44,17 @@ class Validator:
         is_early_stop = self.settings.vfs_early_stop
 
         while degree <= max_deg:
-            current_coeff = np.polyfit(x_values, y_values, deg=degree)
-            p = np.poly1d(current_coeff)
+            # Minimize least-square error 
+            current_coeff = np.Polynomial.fit(x_values, y_values, deg=degree)
+            # New api Polynomial reverse order
+            p = np.Polynomial(reverse(current_coeff))
             current_intersect = current_coeff[-1]
             current_y_pred = p(x_values.reshape(-1, 1))
             # Add penality to MSE to avoid overfitting with high dimension polynomial
             current_mse = mean_squared_error(
                 y_values, current_y_pred) + penality_weight * np.sum(current_coeff[:-1] ** 2)
             has_mse_improved: bool = current_mse <= mse
-            is_acceptable_improvement: bool = (
-                                                      mse - current_mse) >= improvement_threshold
+            is_acceptable_improvement: bool = (mse - current_mse) >= improvement_threshold
 
             
             if is_early_stop:
