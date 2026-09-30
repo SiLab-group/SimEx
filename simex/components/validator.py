@@ -2,6 +2,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.polynomial import Polynomial
 from simex.config.settings import timestamp
 from simex.utils.logger import Logger
 from sklearn.metrics import mean_squared_error
@@ -33,53 +34,46 @@ class Validator:
         max_deg = self.settings.vfs_max_deg
         improvement_threshold = self.settings.vfs_improvement_threshold
         penality_weight = self.settings.vfs_penality_weight
-        x_values = np.array(x_values)  # Convert to numpy array
-        y_values = np.array(y_values)  # Convert to numpy array
-        mse = np.Infinity
-        coeff = None
-        intersect = None
-        y_pred = None   
-
-        degree = self.settings.vfs_degree
+        x_values = np.asarray(x_values, dtype=float).flatten()
+        y_values = np.asarray(y_values, dtype=float).flatten()
+        if len(x_values) == 0:
+            raise ValueError("fit_curve needs at least one point")
+        # A polynomial of degree >= number of points is underdetermined (it interpolates, MSE = 0)
+        max_deg = min(max_deg, len(np.unique(x_values)) - 1)
+        degree = min(self.settings.vfs_degree, max_deg)
         is_early_stop = self.settings.vfs_early_stop
 
+        best_mse = np.inf
+        coeff = None
+        intersect = None
+        y_pred = None
+
         while degree <= max_deg:
-            # Minimize least-square error 
-            current_coeff = np.Polynomial.fit(x_values, y_values, deg=degree)
-            # New api Polynomial reverse order
-            p = np.Polynomial(reverse(current_coeff))
+            # Minimize least-square error on scaled domain
+            p_fitted = Polynomial.fit(x_values, y_values, deg=degree)
+            # Original coeff highest degree first for by build_equation_string and Logger.get_coefficients
+            current_coeff = p_fitted.convert().coef[::-1]
             current_intersect = current_coeff[-1]
-            current_y_pred = p(x_values.reshape(-1, 1))
-            # Add penality to MSE to avoid overfitting with high dimension polynomial
+            current_y_pred = p_fitted(x_values)
+            # Add penality to MSE to avoid overfitting with high dimension polynomial (intercept excluded)
             current_mse = mean_squared_error(
                 y_values, current_y_pred) + penality_weight * np.sum(current_coeff[:-1] ** 2)
-            has_mse_improved: bool = current_mse <= mse
-            is_acceptable_improvement: bool = (mse - current_mse) >= improvement_threshold
+            has_mse_improved = current_mse < best_mse
+            is_acceptable_improvement = np.isinf(best_mse) or (best_mse - current_mse) >= improvement_threshold
 
-            
-            if is_early_stop:
-                # If early stop flag is set to True and we do not have a sufficient improvement by increasing dimension, we stop
-                if not has_mse_improved or not is_acceptable_improvement:
-                    break
-                mse = current_mse
+            if has_mse_improved and is_acceptable_improvement:
+                best_mse = current_mse
                 coeff = current_coeff
                 intersect = current_intersect
                 y_pred = current_y_pred
-            elif has_mse_improved and is_acceptable_improvement:
-                # If no early stop, we go trough all dimensions and we keep the best approximation
-                mse = current_mse
-                coeff = current_coeff
-                intersect = current_intersect
-                y_pred = current_y_pred
-            
+            elif is_early_stop:
+                # Not a sufficient improvement by increasing dimension, we stop
+                break
+
             degree += 1
         equation = self.build_equation_string(coeff)
-        # print("\n\nCALLED FIT_CURVE")
-        # print("Y_PRED"+str(y_pred.flatten()))
-        # print("X_VALUES"+str(x_values))
-        # print("EQUATION"+str(equation))
 
-        return intersect, y_pred.flatten(), x_values, equation
+        return intersect, y_pred, x_values, equation
 
     def find_unfit_points(self, x_values, y_values, fitted_curve):
         # Fit a curve using HuberRegressor
