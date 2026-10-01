@@ -169,7 +169,7 @@ class Validator:
         if not isinstance(unfit_x_interval[0], list):
             unfit_x_interval = [unfit_x_interval]
 
-        # Initialize fit_x_intervals with the gap between skipped to avoid a zero-width interval
+        # Gap before the first unfit interval, if any
         fit_x_intervals = []
         if unfit_x_interval[0][0] > domain_min_interval:
             fit_x_intervals.append([domain_min_interval, unfit_x_interval[0][0]])

@@ -205,11 +205,15 @@ def get_path(config_file=None):
 lgs = {"log_granularity": 3}
 
 
-try:
-    _sumo_paths = get_path()
-except FileNotFoundError as e:
-    print(f"WARNING: {e}")
-    _sumo_paths = dict(_DEFAULT_SUMO_PATHS)
+def _initial_sumo_paths():
+    try:
+        return get_path()
+    except FileNotFoundError as e:
+        print(f"WARNING: {e}")
+        return dict(_DEFAULT_SUMO_PATHS)
+
+
+_sumo_paths = _initial_sumo_paths()
 
 
 @dataclass

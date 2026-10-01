@@ -14,6 +14,7 @@ from simex import Simex
 from simex.components.simulator import Simulator
 from simex.components.modifier import Modifier
 from simex.components.validator import Validator
+import simex.config.settings as settings_module
 from simex.config.settings import SimexSettings, SumoVsl, get_path, load_sumo_config
 from simex.controllers.simulator_controller import SimulatorController
 from simex.controllers.modifier_controller import ModifierController
@@ -278,6 +279,23 @@ class TestValidatorRegression:
         v = Validator(logger, settings)
         assert v.get_fit_intervals([[2500, 4000]], 2500, 4000) == []
 
+    def test_get_fit_intervals_single_interval(self, logger, settings):
+        v = Validator(logger, settings)
+        assert v.get_fit_intervals([3000, 3500], 2500, 4000) == [[2500, 3000], [3500, 4000]]
+
+    def test_fit_curve_empty_raises(self, logger, settings):
+        v = Validator(logger, settings)
+        with pytest.raises(ValueError):
+            v.fit_curve([], [])
+
+    def test_validator_default_interval(self, logger, settings):
+        v = Validator(logger, settings)
+        x = np.linspace(2500, 4000, 20)
+        y = 0.001 * x ** 2
+        _, _, unfit_interval, _, fit_interval = v.local_exploration_validator_A(x, y)
+        assert unfit_interval == []
+        assert fit_interval == [[2500, 4000]]
+
 
 # Simulator regression
 
@@ -324,6 +342,53 @@ class TestSumoConfig:
         config.write_text("[SUMO]\nSUMO_PATH = /opt/sumo\n")
         monkeypatch.setenv('SIMEX_SUMO_CONFIG', str(config))
         assert get_path()['sumo_path'] == '/opt/sumo'
+
+    def test_find_config_in_parent_dir(self, tmp_path, monkeypatch):
+        monkeypatch.delenv('SIMEX_SUMO_CONFIG', raising=False)
+        config = tmp_path / 'sumo_config.ini'
+        config.write_text("[SUMO]\nSUMO_PATH = /opt/sumo\n")
+        sub = tmp_path / 'a' / 'b'
+        sub.mkdir(parents=True)
+        monkeypatch.chdir(sub)
+        assert settings_module.find_sumo_config() == str(config)
+
+    def test_find_config_repo_fallback(self, tmp_path, monkeypatch):
+        monkeypatch.delenv('SIMEX_SUMO_CONFIG', raising=False)
+        repo = tmp_path / 'repo'
+        config = repo / 'examples' / 'marl_vsl' / 'sumo_config.ini'
+        config.parent.mkdir(parents=True)
+        config.write_text("[SUMO]\n")
+        empty = tmp_path / 'empty'
+        empty.mkdir()
+        monkeypatch.chdir(empty)
+        monkeypatch.setattr(settings_module, '_REPO_ROOT', str(repo))
+        assert settings_module.find_sumo_config() == str(config)
+
+    def test_find_config_not_found(self, tmp_path, monkeypatch):
+        monkeypatch.delenv('SIMEX_SUMO_CONFIG', raising=False)
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(settings_module, '_REPO_ROOT', str(tmp_path))
+        assert settings_module.find_sumo_config() is None
+        assert get_path()['sumo_path'] == ''
+
+    def test_initial_paths_bad_env_var(self, tmp_path, monkeypatch, capsys):
+        monkeypatch.setenv('SIMEX_SUMO_CONFIG', str(tmp_path / 'missing.ini'))
+        paths = settings_module._initial_sumo_paths()
+        assert paths['sumo_path'] == ''
+        assert 'WARNING' in capsys.readouterr().out
+
+    def test_load_sumo_config_verbose(self, tmp_path, monkeypatch, capsys):
+        for name in ['model_path', 'sumo_path', 'marl_root_path', 'marl_run', 'marl_end',
+                     'marl_vsl', 'marl_model_path', 'marl_results_path']:
+            monkeypatch.setattr(SumoVsl, name, getattr(SumoVsl, name))
+        (tmp_path / 'model').mkdir()
+        config = tmp_path / 'sumo_config.ini'
+        config.write_text(f"[SUMO]\nMODEL_PATH = {tmp_path}/model\nSUMO_PATH = /does/not/exist\n")
+        load_sumo_config(str(config))
+        out = capsys.readouterr().out
+        assert str(config) in out
+        assert 'ok' in out
+        assert 'MISSING' in out
 
     def test_load_sumo_config_updates_sumovsl(self, tmp_path, monkeypatch):
         for name in ['model_path', 'sumo_path', 'marl_root_path', 'marl_run', 'marl_end',
