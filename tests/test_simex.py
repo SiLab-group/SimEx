@@ -1,5 +1,6 @@
 import os
 import sys
+import warnings
 
 import matplotlib
 matplotlib.use('Agg')  # non-interactive backend — no display needed, no figures shown
@@ -13,7 +14,7 @@ from simex import Simex
 from simex.components.simulator import Simulator
 from simex.components.modifier import Modifier
 from simex.components.validator import Validator
-from simex.config.settings import SimexSettings
+from simex.config.settings import SimexSettings, SumoVsl, get_path, load_sumo_config
 from simex.controllers.simulator_controller import SimulatorController
 from simex.controllers.modifier_controller import ModifierController
 from simex.utils.logger import Logger
@@ -196,6 +197,143 @@ class TestValidator:
         result = v.get_fit_intervals([[3000, 3500]], 2500, 4000)
         assert [2500, 3000] in result
         assert [3500, 4000] in result
+
+
+# Validator regression (exact values)
+
+class TestValidatorRegression:
+
+    def test_fit_curve_recovers_quadratic(self, logger, settings):
+        v = Validator(logger, settings)
+        x = np.linspace(0, 10, 30)
+        y = 2 * x ** 2 - 3 * x + 5
+        intercept, y_pred, _, equation = v.fit_curve(x, y)
+        coeffs = logger.get_coefficients({'fitting_function': equation})
+        assert intercept == pytest.approx(5)
+        assert coeffs[:3] == pytest.approx([5, -3, 2])
+        assert y_pred == pytest.approx(y)
+
+    def test_fit_curve_matches_polyfit(self, logger, settings):
+        settings.vfs_max_deg = 2
+        v = Validator(logger, settings)
+        rng = np.random.default_rng(0)
+        x = np.linspace(2500, 4000, 20)
+        y = 0.001 * x ** 2 + rng.normal(0, 1, 20)
+        _, y_pred, _, equation = v.fit_curve(x, y)
+        coeffs = logger.get_coefficients({'fitting_function': equation})
+        expected = np.polyfit(x, y, 2)[::-1]
+        assert coeffs[:3] == pytest.approx(expected, rel=1e-5)
+        assert y_pred == pytest.approx(np.polyval(np.polyfit(x, y, 2), x))
+
+    def test_equation_roundtrip_matches_prediction(self, logger, settings):
+        settings.vfs_max_deg = 3
+        v = Validator(logger, settings)
+        rng = np.random.default_rng(1)
+        x = np.linspace(2500, 4000, 30)
+        y = 1e-6 * x ** 3 - 0.005 * x ** 2 + rng.normal(0, 5, 30)
+        _, y_pred, _, equation = v.fit_curve(x, y)
+        coeffs = logger.get_coefficients({'fitting_function': equation})
+        assert np.poly1d(coeffs[::-1])(x) == pytest.approx(y_pred, rel=1e-6)
+
+    def test_fit_curve_caps_degree_with_few_points(self, logger, settings):
+        settings.vfs_early_stop = False
+        v = Validator(logger, settings)
+        x = np.array([1.0, 2.0, 3.0])
+        y = np.array([1.0, 4.0, 9.0])
+        with warnings.catch_warnings():
+            warnings.simplefilter('error')
+            _, y_pred, _, equation = v.fit_curve(x, y)
+        assert 'x^3' not in equation
+        assert len(y_pred) == 3
+
+    def test_find_unfit_points_column_input(self, logger, settings):
+        v = Validator(logger, settings)
+        x = np.array([[1.0], [2.0], [3.0], [4.0]])
+        y = np.array([[10.0], [20.0], [100.0], [40.0]])
+        fitted = (0.0, np.array([10.0, 20.0, 30.0, 40.0]), x.flatten(), 'y = 0')
+        unfit, _ = v.find_unfit_points(x, y, fitted)
+        assert unfit == [[3.0, 100.0]]
+
+    def test_generate_intervals_middle_point(self, logger, settings):
+        v = Validator(logger, settings)
+        x = [0.0, 10.0, 20.0, 30.0, 40.0]
+        result = v.generate_intervals_from_unfit_points([[20.0, 0.0]], x)
+        assert result == [pytest.approx([12.0, 28.0])]
+
+    def test_generate_intervals_first_and_last_point(self, logger, settings):
+        v = Validator(logger, settings)
+        x = [0.0, 10.0, 20.0, 30.0, 40.0]
+        result = v.generate_intervals_from_unfit_points([[0.0, 0.0], [40.0, 0.0]], x)
+        assert result == [pytest.approx([0.0, 8.0]), pytest.approx([32.0, 40.0])]
+
+    def test_generate_intervals_single_point(self, logger, settings):
+        v = Validator(logger, settings)
+        assert v.generate_intervals_from_unfit_points([[5.0, 0.0]], [5.0]) == [[5.0, 5.0]]
+
+    def test_get_fit_intervals_unfit_at_start(self, logger, settings):
+        v = Validator(logger, settings)
+        assert v.get_fit_intervals([[2500, 3000]], 2500, 4000) == [[3000, 4000]]
+
+    def test_get_fit_intervals_all_unfit(self, logger, settings):
+        v = Validator(logger, settings)
+        assert v.get_fit_intervals([[2500, 4000]], 2500, 4000) == []
+
+
+# Simulator regression
+
+class TestSimulatorRegression:
+
+    def test_sim_func_a_formula(self):
+        np.random.seed(0)
+        noise = np.random.normal(-10, 10)
+        np.random.seed(0)
+        assert Simulator.sim_func_A(3.0) == pytest.approx(3.0 ** 3 - 3.0 ** 2 + noise)
+
+    def test_sim_func_c_formula(self):
+        np.random.seed(0)
+        noise = np.random.normal(-1, 1)
+        np.random.seed(0)
+        assert Simulator.sim_func_C(2.0) == pytest.approx(np.sin(4.0) + 2.0 * 2 / 3 + noise)
+
+
+# SUMO config loader
+
+class TestSumoConfig:
+
+    def test_get_path_expands_and_adds_slash(self, tmp_path, monkeypatch):
+        monkeypatch.setenv('HOME', str(tmp_path))
+        config = tmp_path / 'sumo_config.ini'
+        config.write_text(
+            "[SUMO]\nMODEL_PATH = ~/model\nSUMO_PATH = ~/bin/sumo\n"
+            "[MARL]\nMODEL_PATH = ~/marl_model\nRESULTS_PATH = ~/results\n"
+        )
+        paths = get_path(str(config))
+        assert paths['model_path'] == f"{tmp_path}/model/"
+        assert paths['sumo_path'] == f"{tmp_path}/bin/sumo"
+        assert paths['marl_model_path'] == f"{tmp_path}/marl_model/"
+        assert paths['marl_results_path'] == f"{tmp_path}/results/"
+        assert paths['marl_end'] == '6000'
+        assert paths['config_file'] == str(config)
+
+    def test_get_path_missing_file_raises(self, tmp_path):
+        with pytest.raises(FileNotFoundError):
+            get_path(str(tmp_path / 'missing.ini'))
+
+    def test_get_path_env_var(self, tmp_path, monkeypatch):
+        config = tmp_path / 'other.ini'
+        config.write_text("[SUMO]\nSUMO_PATH = /opt/sumo\n")
+        monkeypatch.setenv('SIMEX_SUMO_CONFIG', str(config))
+        assert get_path()['sumo_path'] == '/opt/sumo'
+
+    def test_load_sumo_config_updates_sumovsl(self, tmp_path, monkeypatch):
+        for name in ['model_path', 'sumo_path', 'marl_root_path', 'marl_run', 'marl_end',
+                     'marl_vsl', 'marl_model_path', 'marl_results_path']:
+            monkeypatch.setattr(SumoVsl, name, getattr(SumoVsl, name))
+        config = tmp_path / 'sumo_config.ini'
+        config.write_text("[SUMO]\nSUMO_PATH = /opt/sumo\n[MARL]\nEND = 7000\n")
+        load_sumo_config(str(config), verbose=False)
+        assert SumoVsl.sumo_path == '/opt/sumo'
+        assert SumoVsl.marl_end == 7000
 
 
 # SimexSettings
