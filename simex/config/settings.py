@@ -118,28 +118,79 @@ class SimexSettings:
         self.results_dir = f'results_dir_{self.instance_name}-{timestamp}'
 
 
-def get_path():
-    if os.path.isfile("sumo_config.ini"):
-        import configparser
-        sumo_config = configparser.ConfigParser()
-        sumo_config.read("sumo_config.ini")
-        sumovsls = {"model_path": sumo_config['SUMO']['MODEL_PATH'],
-                    "sumo_path": sumo_config['SUMO']['SUMO_PATH'],
-                    "marl_root_path": sumo_config['MARL']['ROOT_PATH'],
-                    "marl_run": sumo_config['MARL']['RUN'],
-                    "marl_end": sumo_config['MARL']['END'],
-                    "marl_vsl": sumo_config['MARL']['VSL'],
-                    "marl_model_path": sumo_config['MARL']['MODEL_PATH'],
-                    "marl_results_path": sumo_config['MARL']['RESULTS_PATH']}
-    else:
-        sumovsls = {"model_path": "",
-                    "sumo_path": "",
-                    "marl_root_path": "",
-                    "marl_run": "0",
-                    "marl_end": "6000",
-                    "marl_vsl": "1",
-                    "marl_model_path": "",
-                    "marl_results_path": ""}
+SUMO_CONFIG_FILENAME = "sumo_config.ini"
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+_DEFAULT_SUMO_PATHS = {"model_path": "",
+                       "sumo_path": "",
+                       "marl_root_path": "",
+                       "marl_run": "0",
+                       "marl_end": "6000",
+                       "marl_vsl": "1",
+                       "marl_model_path": "",
+                       "marl_results_path": ""}
+
+
+def find_sumo_config(config_file=None):
+    """Find the SUMO config: argument, $SIMEX_SUMO_CONFIG, cwd and parents, examples/marl_vsl/."""
+    explicit = config_file or os.getenv("SIMEX_SUMO_CONFIG")
+    if explicit:
+        explicit = os.path.abspath(os.path.expanduser(explicit))
+        if not os.path.isfile(explicit):
+            raise FileNotFoundError(f"SUMO config file not found: {explicit}")
+        return explicit
+
+    directory = os.getcwd()
+    while True:
+        candidate = os.path.join(directory, SUMO_CONFIG_FILENAME)
+        if os.path.isfile(candidate):
+            return candidate
+        parent = os.path.dirname(directory)
+        if parent == directory:
+            break
+        directory = parent
+
+    candidate = os.path.join(_REPO_ROOT, "examples", "marl_vsl", SUMO_CONFIG_FILENAME)
+    if os.path.isfile(candidate):
+        return candidate
+    return None
+
+
+def _expand_path(value, is_dir=False):
+    """Expand ~ and $VARS, add trailing '/' to directories."""
+    if not value:
+        return value
+    value = os.path.expandvars(os.path.expanduser(value.strip()))
+    if is_dir and not value.endswith("/"):
+        value += "/"
+    return value
+
+
+def get_path(config_file=None):
+    """Read SUMO/MARL paths from the config file."""
+    import configparser
+
+    sumovsls = dict(_DEFAULT_SUMO_PATHS)
+    config_path = find_sumo_config(config_file)
+    if config_path is None:
+        return sumovsls
+
+    sumo_config = configparser.ConfigParser()
+    sumo_config.read(config_path)
+    sumo = sumo_config["SUMO"] if sumo_config.has_section("SUMO") else {}
+    marl = sumo_config["MARL"] if sumo_config.has_section("MARL") else {}
+
+    sumovsls.update({
+        "model_path": _expand_path(sumo.get("MODEL_PATH", ""), is_dir=True),
+        "sumo_path": _expand_path(sumo.get("SUMO_PATH", "")),
+        "marl_root_path": _expand_path(marl.get("ROOT_PATH", ""), is_dir=True),
+        "marl_run": marl.get("RUN", sumovsls["marl_run"]),
+        "marl_end": marl.get("END", sumovsls["marl_end"]),
+        "marl_vsl": marl.get("VSL", sumovsls["marl_vsl"]),
+        "marl_model_path": _expand_path(marl.get("MODEL_PATH", ""), is_dir=True),
+        "marl_results_path": _expand_path(marl.get("RESULTS_PATH", ""), is_dir=True),
+    })
+    sumovsls["config_file"] = config_path
     return sumovsls
 
 # Data and settings for log purposes #
@@ -154,7 +205,11 @@ def get_path():
 lgs = {"log_granularity": 3}
 
 
-_sumo_paths = get_path()
+try:
+    _sumo_paths = get_path()
+except FileNotFoundError as e:
+    print(f"WARNING: {e}")
+    _sumo_paths = dict(_DEFAULT_SUMO_PATHS)
 
 
 @dataclass
@@ -167,3 +222,26 @@ class SumoVsl:
     marl_vsl: int = int(_sumo_paths["marl_vsl"])
     marl_model_path: str = _sumo_paths["marl_model_path"]
     marl_results_path: str = _sumo_paths["marl_results_path"]
+
+
+def load_sumo_config(config_file=None, verbose=True):
+    """Reload the SUMO config into SumoVsl."""
+    paths = get_path(config_file)
+    SumoVsl.model_path = paths["model_path"]
+    SumoVsl.sumo_path = paths["sumo_path"]
+    SumoVsl.marl_root_path = paths["marl_root_path"]
+    SumoVsl.marl_run = int(paths["marl_run"])
+    SumoVsl.marl_end = int(paths["marl_end"])
+    SumoVsl.marl_vsl = int(paths["marl_vsl"])
+    SumoVsl.marl_model_path = paths["marl_model_path"]
+    SumoVsl.marl_results_path = paths["marl_results_path"]
+
+    if verbose:
+        print(f"SUMO config: {paths.get('config_file', 'NOT FOUND (using empty defaults)')}")
+        for name, path in [("sumo_path", SumoVsl.sumo_path),
+                           ("model_path", SumoVsl.model_path),
+                           ("marl_model_path", SumoVsl.marl_model_path),
+                           ("marl_results_path", SumoVsl.marl_results_path)]:
+            status = "ok" if path and os.path.exists(path) else "MISSING"
+            print(f"  {name:<18} {status:<8} {path}")
+    return paths
