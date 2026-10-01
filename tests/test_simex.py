@@ -168,6 +168,24 @@ class TestValidator:
         unfit, y_pred = v.find_unfit_points(x, y, fitted)
         assert isinstance(unfit, list)
 
+    def test_find_unfit_points_relative_threshold(self, logger, settings):
+        v = Validator(logger, settings)
+        x = np.array([1.0, 2.0, 3.0])
+        y = np.array([100.0, 1000.0, 10.0])
+        # Fake fit: every point is off by 20 from its prediction
+        fitted = (0.0, y - 20, x, 'y = 0')
+
+        # Absolute only: |20| > 15, all points unfit
+        settings.vfs_threshold_y_fitting = 15
+        settings.vfs_threshold_y_relative = 0.0
+        unfit, _ = v.find_unfit_points(x, y, fitted)
+        assert len(unfit) == 3
+
+        # Relative 5%: tolerance = max(15, 0.05 * |y_pred|) = [15, 49, 15], the point at x=2 becomes fit
+        settings.vfs_threshold_y_relative = 0.05
+        unfit, _ = v.find_unfit_points(x, y, fitted)
+        assert [p[0] for p in unfit] == [1.0, 3.0]
+
     def test_get_fit_intervals_no_unfit(self, logger, settings):
         v = Validator(logger, settings)
         result = v.get_fit_intervals([], 2500, 4000)

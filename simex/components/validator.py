@@ -75,25 +75,26 @@ class Validator:
 
         return intersect, y_pred, x_values, equation
 
+    def y_tolerance(self, y_pred):
+        # Allowed |residual| per point: max(absolute threshold, relative threshold * |y_pred|)
+        # getattr keeps settings objects created before vfs_threshold_y_relative existed working
+        relative = getattr(self.settings, 'vfs_threshold_y_relative', 0.0)
+        return np.maximum(self.settings.vfs_threshold_y_fitting, relative * np.abs(y_pred))
+
     def find_unfit_points(self, x_values, y_values, fitted_curve):
-        # Fit a curve using HuberRegressor
+        # Use the polynomial predictions computed by fit_curve
         intercept, y_pred, _, _ = fitted_curve
-        # Calculate the predicted y-values using the curve
-        # predicted_y_values = slope * x_values + intercept
         self.unfit_intercept = intercept
-        # Calculate the residuals (the differences between predicted and actual y-values)
-        residuals = np.round(y_values, 4) - np.round(y_pred, 4)
-        # Get all indeces where residual is higher than threshold*y_predict value
-        # print(vlv["threshold_y_fitting"])
-        unfit_indices = np.where(
-            np.abs(residuals) > self.settings.vfs_threshold_y_fitting)[0]
-        # print('unfit_indices' ,unfit_indices)
+        # Flatten so an (n, 1) column does not broadcast against y_pred (n,) into an (n, n) matrix
+        x_values = np.asarray(x_values, dtype=float).flatten()
+        y_values = np.asarray(y_values, dtype=float).flatten()
+        # Calculate the residuals (the differences between actual and predicted y-values)
+        residuals = y_values - y_pred
+        # Get all indices where the absolute residual is higher than the (absolute or relative) threshold
+        unfit_indices = np.where(np.abs(residuals) > self.y_tolerance(y_pred))[0]
 
         # Create a list of points with the residuals higher than threshold
         unfit_points = [[x_values[i], y_values[i]] for i in unfit_indices]
-        # print('unfit_points', unfit_points, '\n\n\n')
-
-        # print('LEAST FIT POINTS: ',unfit_points)
 
         return unfit_points, y_pred
 
@@ -129,6 +130,11 @@ class Validator:
                 elif len(current_interval) == 0 and i == 0:
                     # print('\nthis is len(current_interval)==0 and i==0')
                     current_interval.append(point)
+                    if len(x_values) == 1:
+                        # Single unfit point: close the interval, otherwise it is lost
+                        current_interval.append(point)
+                        list_of_intervals.append(current_interval)
+                        current_interval = []
                 elif len(current_interval) == 0 and i == len(x_values) - 1:
                     # print('\nthis is len(current_interval)==0 and i==len(x_values)')
                     interpoint_interval = point - x_values[i - 1]
@@ -163,9 +169,10 @@ class Validator:
         if not isinstance(unfit_x_interval[0], list):
             unfit_x_interval = [unfit_x_interval]
 
-        # Initialize fit_x_intervals with the gap between the minimum domain value and the start of the first interval
-        fit_x_intervals = [[domain_min_interval, unfit_x_interval[0][0]]]
-        print('       *** USING get_fit_intervals:  ', fit_x_intervals)
+        # Initialize fit_x_intervals with the gap between skipped to avoid a zero-width interval
+        fit_x_intervals = []
+        if unfit_x_interval[0][0] > domain_min_interval:
+            fit_x_intervals.append([domain_min_interval, unfit_x_interval[0][0]])
 
         # Iterate through the given intervals and fill the gaps
         for current_interval, next_interval in zip(unfit_x_interval, unfit_x_interval[1:]):
@@ -186,9 +193,12 @@ class Validator:
 
         return fit_x_intervals
 
-    def local_exploration_validator_A(self, x_values, y_values, selected_interval=0):
+    def local_exploration_validator_A(self, x_values, y_values, selected_interval=None):
 
         print('       *** USING local_exploration_validator_A')
+        if selected_interval is None:
+            # Default to the range covered by the data
+            selected_interval = [min(x_values), max(x_values)]
         fitted_curve = self.fit_curve(x_values, y_values)
         equation = fitted_curve[3]
         unfit_points, predicted_values = self.find_unfit_points(
@@ -225,7 +235,6 @@ class Validator:
         return equation, unfit_points, unfit_interval, fit_points, fit_interval
 
     def plot_curve(self, x_values, y_values, fitted_curve, unfit_interval, predicted_values):  # Add self
-        import datetime
         self.unfit_interval = unfit_interval
         plt.rcParams.update({'font.size': self.settings.vfs_font_size})
 
@@ -236,10 +245,11 @@ class Validator:
 
         plt.plot(fitted_curve[2], fitted_curve[1],
                  color='red', label='Polynomial Regression')
-        plt.plot(fitted_curve[2], fitted_curve[1] +
-                 self.settings.vfs_threshold_y_fitting, color='black', label='threshold ')
-        plt.plot(fitted_curve[2], fitted_curve[1] -
-                 self.settings.vfs_threshold_y_fitting, color='black', label='threshold ')
+        tolerance = self.y_tolerance(fitted_curve[1])
+        plt.plot(fitted_curve[2], fitted_curve[1] + tolerance,
+                 color='black', label='threshold ')
+        plt.plot(fitted_curve[2], fitted_curve[1] - tolerance,
+                 color='black', label='threshold ')
         count = 0
         for start, end in unfit_interval:
             count += 1
@@ -253,6 +263,8 @@ class Validator:
         plt.savefig(os.path.join(self.settings.results_dir, f"TTS_vs_Volume_{self.settings.instance_name}-{timestamp}-{self.figure_count}.pdf"), format='pdf')
         self.figure_count = self.figure_count + 1
         plt.show()
+        # Release the figure
+        plt.close()
 
     def get_curve_values(self):
         return self.fitted_curve, self.predicted_values, self.unfit_interval

@@ -329,7 +329,7 @@ class Logger:
                 rows.append(row)
 
             # Sort rows on the interval start
-            sorted(rows, key=lambda x: x[0])
+            rows = sorted(rows, key=lambda x: x[0])
 
             # Write sorted rows in the csv file
             for row in rows:
