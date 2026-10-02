@@ -1,13 +1,27 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "simex"
 version = "0.2.0"
 description = "Simulation Exploration framework with MARL-based Variable Speed Limit control"
-license = {text = "Apache-2.0"}
+readme = "README.md"
+license = "Apache-2.0"
+authors = [{ name = "Si-lab Team", email = "amy.liffey@hevs.ch" }]
 requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
     "matplotlib~=3.8.0",
     "numpy~=1.26.0",
@@ -16,11 +30,18 @@ dependencies = [
     "traci~=1.21.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/SiLab-group/SimEx"
+Issues = "https://github.com/SiLab-group/SimEx/issues"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
+    "pytest-cov>=4.0",
     "black>=24.0",
     "flake8>=7.0",
+    "ipykernel>=6.0",
+    "jupyter>=1.0",
 ]
 
 [tool.setuptools.packages.find]
